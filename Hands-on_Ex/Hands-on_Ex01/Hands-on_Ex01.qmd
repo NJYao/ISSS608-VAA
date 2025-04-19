@@ -55,14 +55,14 @@ ggplot(data=exam_data, aes(x = MATHS)) +
 ggplot(data=exam_data)
 ```
 
-###Aesthetic mappings
+### Aesthetic mappings
 
 ```{r}
 ggplot(data=exam_data, 
        aes(x= MATHS))
 ```
 
-###Geom
+### Geom
 
 ```{r}
 ggplot(data=exam_data, 
@@ -70,7 +70,7 @@ ggplot(data=exam_data,
   geom_bar()
 ```
 
-####geom bar
+#### geom bar
 
 ```{r}
 ggplot(data=exam_data, 
@@ -78,7 +78,7 @@ ggplot(data=exam_data,
   geom_dotplot(dotsize = 0.5)
 ```
 
-####geom dot plot
+#### geom dot plot
 
 ```{r}
 ggplot(data=exam_data, 
@@ -89,7 +89,7 @@ ggplot(data=exam_data,
                      breaks = NULL)  
 ```
 
-####geom histogram
+#### geom histogram
 
 ```{r}
 ggplot(data=exam_data, 
@@ -97,7 +97,7 @@ ggplot(data=exam_data,
   geom_histogram()       
 ```
 
-####modify by changing geom()
+#### modify by changing geom()
 
 ```{r}
 ggplot(data=exam_data, 
@@ -126,7 +126,7 @@ ggplot(data=exam_data,
   geom_density()           
 ```
 
-####geom density with colour
+#### geom density with colour
 
 ```{r}
 ggplot(data=exam_data, 
@@ -135,7 +135,7 @@ ggplot(data=exam_data,
   geom_density()
 ```
 
-####geom_boxplot
+#### geom_boxplot
 
 ```{r}
 ggplot(data=exam_data, 
@@ -144,7 +144,7 @@ ggplot(data=exam_data,
   geom_boxplot()            
 ```
 
-####boxplot with notches (notch=true)
+#### boxplot with notches (notch=true)
 
 ```{r}
 ggplot(data=exam_data, 
@@ -153,7 +153,7 @@ ggplot(data=exam_data,
   geom_boxplot(notch=TRUE)
 ```
 
-####violin plot
+#### violin plot
 
 ```{r}
 ggplot(data=exam_data, 
@@ -162,7 +162,7 @@ ggplot(data=exam_data,
   geom_violin()
 ```
 
-####scatterplot
+#### scatterplot
 
 ```{r}
 ggplot(data=exam_data, 
@@ -171,7 +171,7 @@ ggplot(data=exam_data,
   geom_point()            
 ```
 
-####combining plots (scatterplot and boxplot)
+#### combining plots (scatterplot and boxplot)
 
 ```{r}
 ggplot(data=exam_data, 
@@ -182,7 +182,7 @@ ggplot(data=exam_data,
              size = 0.5)        
 ```
 
-###working with stats - stat() using statsummary() method means were not shown, additional code to boxplot to show mean values
+### working with stats - stat() using statsummary() method means were not shown, additional code to boxplot to show mean values
 
 ```{r}
 ggplot(data=exam_data, 
@@ -194,7 +194,7 @@ ggplot(data=exam_data,
                size=4)               
 ```
 
-####working with stats - using geom() method
+#### working with stats - using geom() method
 
 ```{r}
 ggplot(data=exam_data, 
@@ -206,7 +206,7 @@ ggplot(data=exam_data,
              size=4)          
 ```
 
-###adding best fit line on a scatter plot
+### adding best fit line on a scatter plot
 
 ```{r}
 ggplot(data=exam_data, 
@@ -215,7 +215,7 @@ ggplot(data=exam_data,
   geom_smooth(size=0.5)
 ```
 
-####overwriting default smooth method
+#### overwriting default smooth method
 
 ```{r}
 ggplot(data=exam_data, 
@@ -226,7 +226,7 @@ ggplot(data=exam_data,
               linewidth=0.5)
 ```
 
-###working with facet_wrap()
+### working with facet_wrap()
 
 ```{r}
 ggplot(data=exam_data, 
@@ -235,7 +235,7 @@ ggplot(data=exam_data,
     facet_wrap(~ CLASS)
 ```
 
-###working with facet_grid()
+### working with facet_grid()
 
 ```{r}
 ggplot(data=exam_data, 
@@ -244,7 +244,7 @@ ggplot(data=exam_data,
     facet_grid(~ CLASS)
 ```
 
-###ggplot2 coordinates default form of bar chart
+### ggplot2 coordinates default form of bar chart
 
 ```{r}
 ggplot(data=exam_data, 
@@ -252,7 +252,7 @@ ggplot(data=exam_data,
   geom_bar()
 ```
 
-####flip axis with coord_flip()
+#### flip axis with coord_flip()
 
 ```{r}
 ggplot(data=exam_data, 
@@ -261,7 +261,7 @@ ggplot(data=exam_data,
   coord_flip()
 ```
 
-####y and x axis range change
+#### y and x axis range change
 
 ```{r}
 ggplot(data=exam_data, 
@@ -282,7 +282,7 @@ ggplot(data=exam_data,
                   ylim=c(0,100))
 ```
 
-###themes
+### themes
 
 ```{r}
 ggplot(data=exam_data, 
@@ -292,7 +292,7 @@ ggplot(data=exam_data,
   theme_gray()
 ```
 
-####plot horizontal bar chart with the classic theme
+#### plot horizontal bar chart with the classic theme
 
 ```{r}
 ggplot(data=exam_data, 
@@ -302,7 +302,7 @@ ggplot(data=exam_data,
   theme_classic()
 ```
 
-####horizontal bar chat with theme minimal theme
+#### horizontal bar chat with theme minimal theme
 
 ```{r}
 ggplot(data=exam_data, 
