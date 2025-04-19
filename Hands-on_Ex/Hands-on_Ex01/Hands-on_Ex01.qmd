@@ -143,6 +143,7 @@ ggplot(data=exam_data,
            x= GENDER)) +    
   geom_boxplot()            
 ```
+
 ####boxplot with notches (notch=true)
 
 ```{r}
@@ -181,9 +182,7 @@ ggplot(data=exam_data,
              size = 0.5)        
 ```
 
-
-###working with stats - stat() using statsummary() method
-means were not shown, additional code to boxplot to show mean values
+###working with stats - stat() using statsummary() method means were not shown, additional code to boxplot to show mean values
 
 ```{r}
 ggplot(data=exam_data, 
@@ -245,8 +244,8 @@ ggplot(data=exam_data,
     facet_grid(~ CLASS)
 ```
 
-###ggplot2 coordinates
-default form of bar chart
+###ggplot2 coordinates default form of bar chart
+
 ```{r}
 ggplot(data=exam_data, 
        aes(x=RACE)) +
@@ -271,7 +270,7 @@ ggplot(data=exam_data,
   geom_smooth(method=lm, size=0.5)
 ```
 
-#### and x axis fixed range
+#### Y and x axis fixed range
 
 ```{r}
 ggplot(data=exam_data, 
