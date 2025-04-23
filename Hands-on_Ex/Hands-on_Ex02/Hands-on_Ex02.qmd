@@ -1,5 +1,7 @@
 ---
 title: "Hands-on Exercise 2"
+date: "April 24, 2025"
+date-modified: "last-modified"
 author: "Jin Yao"
 ---
 
@@ -80,7 +82,7 @@ ggplot(data=exam_data,
   theme_economist()
 ```
 
-working with hrbthems package
+### working with hrbthems package
 
 ```{r}
 ggplot(data=exam_data, 
@@ -92,7 +94,7 @@ ggplot(data=exam_data,
   ggtitle("Distribution of Maths scores") +
   theme_ipsum()
 ```
-adjusting the size of bottom left Maths - axis_title size to set the size, base_size for the default axis labels and grid = "y" to remove x-axis grid lines 
+### adjusting the size of bottom left Maths - axis_title size to set the size, base_size for the default axis labels and grid = "y" to remove x-axis grid lines 
 
 ```{r} 
 ggplot(data=exam_data, 
@@ -107,7 +109,7 @@ ggplot(data=exam_data,
               grid ="Y")
 ```
 
-Additional online - another way to remove all the grid use - + theme(panel.background = element_blank())
+### Additional online - another way to remove all the grid use - + theme(panel.background = element_blank())
 ```{r} 
 ggplot(data=exam_data, 
              aes(x = MATHS)) +
@@ -120,7 +122,7 @@ ggplot(data=exam_data,
 ```
 
 
-To display more than 1 graph:scatterplot for English score versus Maths score
+### To display more than 1 graph:scatterplot for English score versus Maths score
 
 1st graph: math(addition of p1 before the code to facilitate patchwork extension later on)
 ```{r}
@@ -166,7 +168,7 @@ in patchwork , + is a 2 column layout
 ```{r}
 p1+p2
 ```
- Additional function of patchwork / and | and ()
+#### Additional function of patchwork / and | and ()
 
 ```{r}
 (p1 | p2)
@@ -176,7 +178,7 @@ p1+p2
 (p1 / p2)
 ```
 
-combining three ggplot graphs 
+#### combining three ggplot graphs 
 ```{r}
 (p1 / p2) | p3
 ```
@@ -197,18 +199,18 @@ p3 + inset_element(p2,
                    top = 1)
 ``` 
 
-composite figure with tagging for the different charts
+#### composite figure with tagging for the different charts
 ```{r}
 ((p1 / p2) | p3) + 
   plot_annotation(tag_levels = 'I')
 ```
 
-tryout with different numbers 
+#### tryout sample with different numbers 
 ```{r}
 ((p1 / p2) | p3) + 
   plot_annotation(tag_levels = 'A')
 ```
- More plot annotation capability: title, subtitle, captions, tag levels plot tag control element size
+#### More plot annotation capability: title, subtitle, captions, tag levels plot tag control element size
 ```{r}
 patchwork <- (p1 + p2) / p3
 patchwork + plot_annotation(
@@ -223,7 +225,7 @@ patchwork + plot_annotation(tag_levels = c('A', '1'))
 ```
 
 
-assigning operator pre-fix e.g adding fig at the front
+#### assigning operator pre-fix e.g adding fig at the front
 ```{r}
 patchwork + plot_annotation(tag_levels = c('A', '1'), tag_prefix = 'Fig. ',
                             tag_sep = '.', tag_suffix = ':')
@@ -233,14 +235,14 @@ patchwork + plot_annotation(tag_levels = c('A', '1'), tag_prefix = 'Fig. ',
 
 
 
- using patchwork together with the theme
+#### using patchwork together with the theme
  
 ```{r} 
 patchwork <- (p1 / p2) | p3
 patchwork & theme_economist()
 ``` 
 
-try out - theme part can insert other ggtheme learned before e.g theme_gray() etc
+#### try out - theme part can insert other ggtheme learned before e.g theme_gray() etc
 
 ```{r} 
 patchwork <- (p1 / p2) | p3

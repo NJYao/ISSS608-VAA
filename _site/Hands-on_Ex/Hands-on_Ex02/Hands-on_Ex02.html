@@ -7,6 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Jin Yao">
+<meta name="dcterms.date" content="2025-04-24">
 
 <title>Hands-on Exercise 2 – ISSS608-VAA</title>
 <style>
@@ -170,6 +171,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#ggplot2-built-in-themes---example-using-theme_gray" id="toc-ggplot2-built-in-themes---example-using-theme_gray" class="nav-link" data-scroll-target="#ggplot2-built-in-themes---example-using-theme_gray">ggplot2 built in themes - example using theme_gray()</a>
   <ul class="collapse">
   <li><a href="#ggtheme-package---example-withe-theme_economist" id="toc-ggtheme-package---example-withe-theme_economist" class="nav-link" data-scroll-target="#ggtheme-package---example-withe-theme_economist">ggtheme package - example withe theme_economist()</a></li>
+  <li><a href="#working-with-hrbthems-package" id="toc-working-with-hrbthems-package" class="nav-link" data-scroll-target="#working-with-hrbthems-package">working with hrbthems package</a></li>
+  <li><a href="#adjusting-the-size-of-bottom-left-maths---axis_title-size-to-set-the-size-base_size-for-the-default-axis-labels-and-grid-y-to-remove-x-axis-grid-lines" id="toc-adjusting-the-size-of-bottom-left-maths---axis_title-size-to-set-the-size-base_size-for-the-default-axis-labels-and-grid-y-to-remove-x-axis-grid-lines" class="nav-link" data-scroll-target="#adjusting-the-size-of-bottom-left-maths---axis_title-size-to-set-the-size-base_size-for-the-default-axis-labels-and-grid-y-to-remove-x-axis-grid-lines">adjusting the size of bottom left Maths - axis_title size to set the size, base_size for the default axis labels and grid = “y” to remove x-axis grid lines</a></li>
+  <li><a href="#additional-online---another-way-to-remove-all-the-grid-use---themepanel.background-element_blank" id="toc-additional-online---another-way-to-remove-all-the-grid-use---themepanel.background-element_blank" class="nav-link" data-scroll-target="#additional-online---another-way-to-remove-all-the-grid-use---themepanel.background-element_blank">Additional online - another way to remove all the grid use - + theme(panel.background = element_blank())</a></li>
+  <li><a href="#to-display-more-than-1-graphscatterplot-for-english-score-versus-maths-score" id="toc-to-display-more-than-1-graphscatterplot-for-english-score-versus-maths-score" class="nav-link" data-scroll-target="#to-display-more-than-1-graphscatterplot-for-english-score-versus-maths-score">To display more than 1 graph:scatterplot for English score versus Maths score</a></li>
   <li><a href="#composite-graphs-using-patchwork-extension" id="toc-composite-graphs-using-patchwork-extension" class="nav-link" data-scroll-target="#composite-graphs-using-patchwork-extension">Composite graphs using patchwork extension</a></li>
   </ul></li>
   </ul></li>
@@ -195,7 +200,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           </div>
   </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 24, 2025</p>
+    </div>
+  </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">April 24, 2025</p>
+    </div>
+  </div>
     
   </div>
   
@@ -328,7 +345,9 @@ increasing max.overlaps</code></pre>
 </div>
 </div>
 </div>
-<p>working with hrbthems package</p>
+</section>
+<section id="working-with-hrbthems-package" class="level3">
+<h3 class="anchored" data-anchor-id="working-with-hrbthems-package">working with hrbthems package</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>exam_data, </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> MATHS)) <span class="sc">+</span></span>
@@ -372,7 +391,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>adjusting the size of bottom left Maths - axis_title size to set the size, base_size for the default axis labels and grid = “y” to remove x-axis grid lines</p>
+</section>
+<section id="adjusting-the-size-of-bottom-left-maths---axis_title-size-to-set-the-size-base_size-for-the-default-axis-labels-and-grid-y-to-remove-x-axis-grid-lines" class="level3">
+<h3 class="anchored" data-anchor-id="adjusting-the-size-of-bottom-left-maths---axis_title-size-to-set-the-size-base_size-for-the-default-axis-labels-and-grid-y-to-remove-x-axis-grid-lines">adjusting the size of bottom left Maths - axis_title size to set the size, base_size for the default axis labels and grid = “y” to remove x-axis grid lines</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>exam_data, </span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> MATHS)) <span class="sc">+</span></span>
@@ -414,7 +435,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>Additional online - another way to remove all the grid use - + theme(panel.background = element_blank())</p>
+</section>
+<section id="additional-online---another-way-to-remove-all-the-grid-use---themepanel.background-element_blank" class="level3">
+<h3 class="anchored" data-anchor-id="additional-online---another-way-to-remove-all-the-grid-use---themepanel.background-element_blank">Additional online - another way to remove all the grid use - + theme(panel.background = element_blank())</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>exam_data, </span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> MATHS)) <span class="sc">+</span></span>
@@ -432,7 +455,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>To display more than 1 graph:scatterplot for English score versus Maths score</p>
+</section>
+<section id="to-display-more-than-1-graphscatterplot-for-english-score-versus-maths-score" class="level3">
+<h3 class="anchored" data-anchor-id="to-display-more-than-1-graphscatterplot-for-english-score-versus-maths-score">To display more than 1 graph:scatterplot for English score versus Maths score</h3>
 <p>1st graph: math(addition of p1 before the code to facilitate patchwork extension later on)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>exam_data, </span>
@@ -481,7 +506,8 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>Additional function of patchwork / and | and ()</p>
+<section id="additional-function-of-patchwork-and-and" class="level4">
+<h4 class="anchored" data-anchor-id="additional-function-of-patchwork-and-and">Additional function of patchwork / and | and ()</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">|</span> p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -502,7 +528,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>combining three ggplot graphs</p>
+</section>
+<section id="combining-three-ggplot-graphs" class="level4">
+<h4 class="anchored" data-anchor-id="combining-three-ggplot-graphs">combining three ggplot graphs</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">/</span> p2) <span class="sc">|</span> p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -548,7 +576,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>composite figure with tagging for the different charts</p>
+</section>
+<section id="composite-figure-with-tagging-for-the-different-charts" class="level4">
+<h4 class="anchored" data-anchor-id="composite-figure-with-tagging-for-the-different-charts">composite figure with tagging for the different charts</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>((p1 <span class="sc">/</span> p2) <span class="sc">|</span> p3) <span class="sc">+</span> </span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">'I'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -563,7 +593,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>tryout with different numbers</p>
+</section>
+<section id="tryout-sample-with-different-numbers" class="level4">
+<h4 class="anchored" data-anchor-id="tryout-sample-with-different-numbers">tryout sample with different numbers</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>((p1 <span class="sc">/</span> p2) <span class="sc">|</span> p3) <span class="sc">+</span> </span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">'A'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -578,7 +610,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>More plot annotation capability: title, subtitle, captions, tag levels plot tag control element size</p>
+</section>
+<section id="more-plot-annotation-capability-title-subtitle-captions-tag-levels-plot-tag-control-element-size" class="level4">
+<h4 class="anchored" data-anchor-id="more-plot-annotation-capability-title-subtitle-captions-tag-levels-plot-tag-control-element-size">More plot annotation capability: title, subtitle, captions, tag levels plot tag control element size</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>patchwork <span class="ot">&lt;-</span> (p1 <span class="sc">+</span> p2) <span class="sc">/</span> p3</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>patchwork <span class="sc">+</span> <span class="fu">plot_annotation</span>(</span>
@@ -611,7 +645,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>assigning operator pre-fix e.g adding fig at the front</p>
+</section>
+<section id="assigning-operator-pre-fix-e.g-adding-fig-at-the-front" class="level4">
+<h4 class="anchored" data-anchor-id="assigning-operator-pre-fix-e.g-adding-fig-at-the-front">assigning operator pre-fix e.g adding fig at the front</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>patchwork <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="fu">c</span>(<span class="st">'A'</span>, <span class="st">'1'</span>), <span class="at">tag_prefix =</span> <span class="st">'Fig. '</span>,</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">tag_sep =</span> <span class="st">'.'</span>, <span class="at">tag_suffix =</span> <span class="st">':'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -626,7 +662,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>using patchwork together with the theme</p>
+</section>
+<section id="using-patchwork-together-with-the-theme" class="level4">
+<h4 class="anchored" data-anchor-id="using-patchwork-together-with-the-theme">using patchwork together with the theme</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>patchwork <span class="ot">&lt;-</span> (p1 <span class="sc">/</span> p2) <span class="sc">|</span> p3</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>patchwork <span class="sc">&amp;</span> <span class="fu">theme_economist</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -641,7 +679,9 @@ font family not found in Windows font database</code></pre>
 </div>
 </div>
 </div>
-<p>try out - theme part can insert other ggtheme learned before e.g theme_gray() etc</p>
+</section>
+<section id="try-out---theme-part-can-insert-other-ggtheme-learned-before-e.g-theme_gray-etc" class="level4">
+<h4 class="anchored" data-anchor-id="try-out---theme-part-can-insert-other-ggtheme-learned-before-e.g-theme_gray-etc">try out - theme part can insert other ggtheme learned before e.g theme_gray() etc</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>patchwork <span class="ot">&lt;-</span> (p1 <span class="sc">/</span> p2) <span class="sc">|</span> p3</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>patchwork <span class="sc">&amp;</span> <span class="fu">theme_economist</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -658,6 +698,7 @@ font family not found in Windows font database</code></pre>
 </div>
 
 
+</section>
 </section>
 </section>
 </section>
