@@ -2,7 +2,9 @@
 title: "Hands-on Exercise 2"
 date: "April 24, 2025"
 date-modified: "last-modified"
-author: "Jin Yao"
+author: "Ng Jin Yao"
+format: html
+editor: visual
 ---
 
 # Install and load required libraries

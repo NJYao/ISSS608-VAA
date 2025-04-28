@@ -2,7 +2,9 @@
 title: "Hands-on Exercise 1"
 date: "April 19, 2025"
 date-modified: "last-modified"
-author: "Jin Yao"
+author: "Ng Jin Yao"
+format: html
+editor: visual
 ---
 
 # Getting Started

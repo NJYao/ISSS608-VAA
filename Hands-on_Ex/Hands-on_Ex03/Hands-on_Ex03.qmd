@@ -1,0 +1,26 @@
+---
+title: "Hands-on Exercise 3"
+date: "May 1, 2025"
+date-modified: "last-modified"
+author: "Ng Jin Yao"
+format: html
+editor: visual
+---
+
+#Programming Interactive Data Visualisation in R Write a code chunk to check, install and launch the following R packages:
+
+1.  **ggiraph** for making ‘ggplot’ graphics interactive. plotly, R library for plotting interactive statistical graphs.
+
+2.  **DT** provides an R interface to the JavaScript library DataTables that create interactive table on html page.
+
+3.  **tidyverse**, a family of modern R packages specially designed to support data science, analysis and communication task including creating static statistical graphs.
+
+4.  **patchwork** for combining multiple ggplot2 graphs into one figure.
+
+The code chunk below will be used to accomplish the task:
+
+##Code Chunk
+```{r}
+pacman::p_load(ggiraph, plotly, 
+               patchwork, DT, tidyverse) 
+```
