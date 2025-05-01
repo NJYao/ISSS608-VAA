@@ -1,0 +1,166 @@
+---
+title: "Take-home Exercise 1"
+date: "May 1, 2025"
+date-modified: "last-modified"
+author: "Ng Jin Yao"
+format: html
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Overview
+
+## Setting the scene
+
+A local online media company that publishes daily content on digital platforms is planning to release an article on **demographic structures and distribution of Singapore in 2024**.
+
+## The task
+
+Assuming the role of the graphical editor of the media company, you are tasked to prepare **at most three data visualisation for the article**.
+
+The data should be processed by using appropriate **tidyverse** family of packages and the data visualisation must be prepared using **ggplot2** and its extensions.
+
+# Getting started
+
+## Loading packages
+
+The following R packages are loaded using pacman::p_load() on top of the tidyverse packages:
+
+-   ggrepel: an R package provides geoms for ggplot2 to repel overlapping text labels.
+-   ggthemes: an R package provides some extra themes, geoms, and scales for ‘ggplot2’.
+-   patchwork: an R package for preparing composite figure created using ggplot2.
+-   dplyr: an R package for data manipulation with the tidyverse package
+
+```{r}
+pacman::p_load(tidyverse, ggrepel, patchwork, 
+               ggthemes,dplyr) 
+```
+
+## Import data
+
+The dataset "[Singapore Residents by Planning Area / Subzone, Single Year of Age and Sex, June 2024](https://www.singstat.gov.sg/-/media/files/find_data/population/statistical_tables/respopagesexfa2024.ashx)" retrieved from the [Department of Statistics, Singapore (DOS)](https://www.singstat.gov.sg/) will be used.
+
+We will be importing this dataset as "sgResData24"
+
+```{r}
+sgResData24 <- read_csv("data/respopagesexfa2024.csv")
+```
+
+## Data pre-processing
+
+We first take a look at the data and check for:
+
+1.  Any missing/NULL values or entries
+
+2.  Correct column data type
+
+3.  Any duplicate entries
+
+::: panel-tabset
+## Preview of the dataset
+
+The dim() and head() functions to view the dimensions and preview the first few rows of the dataset using the code below:
+
+```{r}
+dim(sgResData24)
+head(sgResData24)
+```
+
+## Descriptive Statistics
+
+The summary() function is used to view the basic descriptive statistics for each column, including the minimum, maximum, mean and quartiles.
+
+```{r}
+summary(sgResData24)
+```
+
+## Checking for duplicate values
+
+The distinct() function is used to check if there are any duplicate values. The distinct() function returns unique rows.
+
+```{r}
+distinct(sgResData24)
+```
+
+From the output of distinct() there are 75,696 x 7 rows returned, showing that there are no duplicated rows in the dataset.
+:::
+
+Using the count() function, we can get the unique values/names from each column
+
+::: panel-tabset
+## PA Column Count
+
+```{r}
+count(sgResData24,PA)
+```
+
+There are 55 unique planning areas
+
+## SZ Column Count
+
+```{r}
+count(sgResData24,SZ)
+```
+
+There are 332 unique subzones
+
+## AG Column Count
+
+```{r}
+count(sgResData24,AG)
+```
+
+There are 19 Unique Age groups
+
+## Sex Column Count
+
+```{r}
+count(sgResData24,Sex)
+```
+
+There are only 2 Sex groups - Male and Female
+
+## FA Column Count
+
+```{r}
+count(sgResData24,FA)
+```
+
+There are 6 unique floor area groups for this dataset, with 1 of the groups having floor area being "Not Available"
+
+## Time Column Count
+
+```{r}
+count(sgResData24,Time)
+```
+
+There is only 1 unique group for time, the year 2024, for all the rows in the dataset
+:::
+
+::: callout-note
+## 🧐Observations and notes for this dataset
+
+-   There are 75696 rows and 7 columns of data.
+
+-   There are no duplicate rows/ values
+
+-   Column Definition and Unique Values Count 7 Columns (6 Group and 1 Count):
+
+    -   PA - Planning Area (55 unique)
+
+    -   SZ - Subzone (332 unique)
+
+    -   AG - Age Group (19 unique)
+
+    -   Sex - Sex (2 unique)
+
+    -   FA - Floor Area of Residence (6 unique)
+
+    -   Time - Time/ Period (1 unique)
+
+    -   Pop - Resident Count
+:::

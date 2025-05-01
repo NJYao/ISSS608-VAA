@@ -5,6 +5,11 @@ date-modified: "last-modified"
 author: "Ng Jin Yao"
 format: html
 editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
 # Programming Interactive Data Visualisation in R
