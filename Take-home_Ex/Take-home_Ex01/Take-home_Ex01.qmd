@@ -36,8 +36,8 @@ The following R packages are loaded using pacman::p_load() on top of the tidyver
 -   dplyr: an R package for data manipulation with the tidyverse package
 
 ```{r}
-pacman::p_load(tidyverse, ggrepel, patchwork, 
-               ggthemes,dplyr) 
+pacman::p_load(tidyverse, ggplot2, ggrepel, patchwork, 
+               ggthemes,dplyr, xml12,sf) 
 ```
 
 ## Import data
@@ -164,3 +164,207 @@ There is only 1 unique group for time, the year 2024, for all the rows in the da
 
     -   Pop - Resident Count
 :::
+
+
+##Graphs
+
+```{r}
+
+# Step 1: Compute percent for each sex within FA group
+stacked_data <- sgResData24 %>%
+  group_by(FA, Sex) %>%
+  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
+  group_by(FA) %>%
+  mutate(Percent = Pop / sum(Pop) * 100)
+
+# Step 2: Compute total pop for each FA group (for top label)
+labels_data <- stacked_data %>%
+  group_by(FA) %>%
+  summarise(Pop = sum(Pop))
+
+# Apply FA ordering
+desired_order <- c("Not Available", "<= 60", ">60 to 80", ">80 to 100", ">100 to 120", ">120")
+stacked_data$FA <- factor(stacked_data$FA, levels = desired_order)
+labels_data$FA <- factor(labels_data$FA, levels = desired_order)
+
+# Step 3: Plot stacked bars with percent labels inside and total on top
+ggplot(stacked_data, aes(x = FA, y = Pop, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(Percent), "%")), 
+            position = position_stack(vjust = 0.5), size = 3, color = "white") +
+  geom_text(data = labels_data, aes(x = FA, y = Pop, label = Pop), 
+            vjust = -0.5, size = 3, inherit.aes = FALSE) +
+  labs(x = "Group (FA)", y = "Population", title = "Population by Group and Sex (Stacked)") +
+  theme_minimal()
+
+```
+
+
+
+
+
+```{r}
+
+# Step 1: Compute percent for each sex within FA group
+stacked_data <- sgResData24 %>%
+  group_by(FA, Sex) %>%
+  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
+  group_by(FA) %>%
+  mutate(Percent = Pop / sum(Pop) * 100)
+
+# Step 2: Compute total pop for each FA group (for top label)
+labels_data <- stacked_data %>%
+  group_by(FA) %>%
+  summarise(Pop = sum(Pop))
+
+# Apply FA ordering
+desired_order <- c("Not Available", "<= 60", ">60 to 80", ">80 to 100", ">100 to 120", ">120")
+stacked_data$FA <- factor(stacked_data$FA, levels = desired_order)
+labels_data$FA <- factor(labels_data$FA, levels = desired_order)
+
+# Grouped bar chart with side-by-side bars
+ggplot(stacked_data, aes(x = FA, y = Pop, fill = Sex)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = Pop),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5, size = 3) +
+  labs(x = "Group (FA)", y = "Population", title = "Population by Group and Sex (Grouped)") +
+  theme_minimal()
+
+```
+
+
+
+## try to calc using AG groups instead
+```{r}
+# Step 1: Compute total population by AG and Sex
+stacked_data_ag <- sgResData24 %>%
+  group_by(AG, Sex) %>%
+  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
+  group_by(AG) %>%
+  mutate(Percent = Pop / sum(Pop) * 100)
+
+# Step 2: Compute total population for each AG group (for total pop label)
+labels_data_ag <- stacked_data_ag %>%
+  group_by(AG) %>%
+  summarise(Pop = sum(Pop))
+
+# Step 3: Order AG groups alphabetically by name
+stacked_data_ag$AG <- factor(stacked_data_ag$AG, levels = sort(unique(stacked_data_ag$AG)))
+labels_data_ag$AG <- factor(labels_data_ag$AG, levels = sort(unique(labels_data_ag$AG)))
+
+# Step 4: Plot stacked bars with percent labels inside and total on top
+ggplot(stacked_data_ag, aes(x = AG, y = Pop, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(Percent), "%")), 
+            position = position_stack(vjust = 0.5), size = 3, color = "white") +
+  geom_text(data = labels_data_ag, aes(x = AG, y = Pop, label = Pop), 
+            vjust = -0.5, size = 3, inherit.aes = FALSE) +
+  labs(x = "Group (AG)", y = "Population", title = "Population by AG Group and Sex (Stacked)") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels and adjust alignment
+  )
+
+
+```
+
+## Bar Chart by Region 
+Aggregate town into NSEW Regions of Singapore referencing the URA 2019 masterplan map data
+
+### Extracting the Town(PA) and Region data from the GeoJSON file
+```{r}
+#Install required packages if not already installed
+library(sf)
+library(xml2)
+library(dplyr)
+
+# Load the GeoJSON file
+geo_data <- st_read("data/MasterPlan2019PlanningAreaBoundaryNoSea.geojson")
+
+# Function to parse HTML and extract PLN_AREA_N and REGION_N
+extract_info <- function(html_str) {
+  doc <- read_html(html_str)
+  rows <- xml_find_all(doc, ".//tr")
+
+  # Loop through rows and extract key-value pairs
+  data <- lapply(rows, function(row) {
+    th <- xml_text(xml_find_first(row, ".//th"))
+    td <- xml_text(xml_find_first(row, ".//td"))
+    if (!is.na(th) && !is.na(td)) {
+      return(setNames(list(td), th))
+    } else {
+      return(NULL)
+    }
+  })
+
+  # Combine and extract specific fields
+  info <- do.call(c, data)
+  list(
+    Town = info[["PLN_AREA_N"]],
+    Region = info[["REGION_N"]]
+  )
+}
+
+
+# Apply the extraction function to each row
+info_list <- lapply(geo_data$Description, extract_info)
+
+# Combine results into a data frame
+info_df <- bind_rows(info_list) %>% distinct() %>% arrange(Region, Town)
+
+# Rename Town to PA to match the sgResData24 dataset
+#info_df %>% 
+  #rename(
+   # PA = Town
+   # )
+
+# View result
+print(info_df)
+
+```
+Uppercase sgResData24 PA column data to uppercase to match the info_df dataset for joining later
+```{r}
+sgResData24 %>% mutate(PA = toupper(PA))
+```
+
+Joining info_df
+```{r}
+library(dplyr)
+
+# Rename Town to PA in the region info dataframe
+region_info <- info_df %>% rename(PA = Town)
+
+# Now you can safely join
+sgResData24 <- sgResData24 %>% mutate(PA = toupper(PA)) %>%
+  left_join(region_info, by = "PA")
+print(sgResData24)
+```
+
+```{r}
+
+# Step 1: Compute total population by AG and Sex
+stacked_data_region <- sgResData24 %>%
+  group_by(Region, Sex) %>%
+  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Region) %>%
+  mutate(Percent = Pop / sum(Pop) * 100)
+
+# Step 2: Compute total population for each AG group (for total pop label)
+labels_data_region <- stacked_data_region %>%
+  group_by(Region) %>%
+  summarise(Pop = sum(Pop))
+
+# Step 4: Plot stacked bars with percent labels inside and total on top
+  ggplot(stacked_data_region, aes(x = Region, y = Pop, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(Percent), "%")), 
+            position = position_stack(vjust = 0.5), size = 3, color = "white") +
+  geom_text(data = labels_data_region, aes(x = Region, y = Pop, label = Pop), 
+            vjust = -0.5, size = 3, inherit.aes = FALSE) +
+  labs(x = "Group (Region)", y = "Population", title = "Population by Region Group and Sex (Stacked)") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels and adjust alignment
+  )
+```
