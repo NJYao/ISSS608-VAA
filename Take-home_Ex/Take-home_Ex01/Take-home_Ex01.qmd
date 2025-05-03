@@ -37,7 +37,7 @@ The following R packages are loaded using pacman::p_load() on top of the tidyver
 
 ```{r}
 pacman::p_load(tidyverse, ggplot2, ggrepel, patchwork, 
-               ggthemes,dplyr, xml12,sf) 
+               ggthemes,dplyr, xml12,sf,scales) 
 ```
 
 ## Import data
@@ -47,7 +47,7 @@ The dataset "[Singapore Residents by Planning Area / Subzone, Single Year of Age
 We will be importing this dataset as "sgResData24"
 
 ```{r}
-sgResData24 <- read_csv("data/respopagesexfa2024.csv")
+sgResData24 <- read_csv("data/respopagesex2024.csv")
 ```
 
 ## Data pre-processing
@@ -56,9 +56,11 @@ We first take a look at the data and check for:
 
 1.  Any missing/NULL values or entries
 
-2.  Correct column data type
+2.  If any column data types need adjustments
 
-3.  Any duplicate entries
+3.  If any new columns need to be introduced to be used for visualisations
+
+4.  Any duplicate entries
 
 ::: panel-tabset
 ## Preview of the dataset
@@ -86,10 +88,10 @@ The distinct() function is used to check if there are any duplicate values. The 
 distinct(sgResData24)
 ```
 
-From the output of distinct() there are 75,696 x 7 rows returned, showing that there are no duplicated rows in the dataset.
+From the output of distinct() there are 60,424 x 6 rows returned, showing that there are no duplicated rows in the dataset.
 :::
 
-Using the count() function, we can get the unique values/names from each column
+Using the count() function, we can view the unique values/names from each column
 
 ::: panel-tabset
 ## PA Column Count
@@ -111,10 +113,8 @@ There are 332 unique subzones
 ## AG Column Count
 
 ```{r}
-count(sgResData24,AG)
+count(sgResData24,Age)
 ```
-
-There are 19 Unique Age groups
 
 ## Sex Column Count
 
@@ -123,14 +123,6 @@ count(sgResData24,Sex)
 ```
 
 There are only 2 Sex groups - Male and Female
-
-## FA Column Count
-
-```{r}
-count(sgResData24,FA)
-```
-
-There are 6 unique floor area groups for this dataset, with 1 of the groups having floor area being "Not Available"
 
 ## Time Column Count
 
@@ -144,135 +136,77 @@ There is only 1 unique group for time, the year 2024, for all the rows in the da
 ::: callout-note
 ## 🧐Observations and notes for this dataset
 
--   There are 75696 rows and 7 columns of data.
+-   There are 60,424 rows and 6 columns of data.
 
 -   There are no duplicate rows/ values
 
--   Column Definition and Unique Values Count 7 Columns (6 Group and 1 Count):
+-   Column Definition and Unique Values Count 6 Columns (5 Group and 1 Count):
 
-    -   PA - Planning Area (55 unique)
+    -   **PA** (chr type) - Planning Area (55 unique)
 
-    -   SZ - Subzone (332 unique)
+    -   **SZ** (chr type) - Subzone (332 unique)
 
-    -   AG - Age Group (19 unique)
+    -   **Age** (chr type) - Age of Residents (Values: 1 to 89, 90_and_Over)
 
-    -   Sex - Sex (2 unique)
+    -   **Sex** (chr type) - Sex (2 unique)
 
-    -   FA - Floor Area of Residence (6 unique)
+    -   **Time** (dbl type) - Time/ Period (1 unique)
 
-    -   Time - Time/ Period (1 unique)
-
-    -   Pop - Resident Count
+    -   **Pop** (dbl type) - Resident Count
 :::
 
+## Transforming and Aggregating Age Column
 
-##Graphs
+Age column is a chr type column (with "90_and_Over" as one of the values in this column). From the Age column create 2 new columns so that we can use them for our data visualisations later on:
 
-```{r}
+-   Age_num - introduced column that transforms the data type of the Age column from chr type to dbl type. Additionally, "90_and_Over" is converted to the value 90.
 
-# Step 1: Compute percent for each sex within FA group
-stacked_data <- sgResData24 %>%
-  group_by(FA, Sex) %>%
-  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
-  group_by(FA) %>%
-  mutate(Percent = Pop / sum(Pop) * 100)
+-   Age_group - aggregating the age groups of the population together using 10 year intervals
 
-# Step 2: Compute total pop for each FA group (for top label)
-labels_data <- stacked_data %>%
-  group_by(FA) %>%
-  summarise(Pop = sum(Pop))
-
-# Apply FA ordering
-desired_order <- c("Not Available", "<= 60", ">60 to 80", ">80 to 100", ">100 to 120", ">120")
-stacked_data$FA <- factor(stacked_data$FA, levels = desired_order)
-labels_data$FA <- factor(labels_data$FA, levels = desired_order)
-
-# Step 3: Plot stacked bars with percent labels inside and total on top
-ggplot(stacked_data, aes(x = FA, y = Pop, fill = Sex)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = paste0(round(Percent), "%")), 
-            position = position_stack(vjust = 0.5), size = 3, color = "white") +
-  geom_text(data = labels_data, aes(x = FA, y = Pop, label = Pop), 
-            vjust = -0.5, size = 3, inherit.aes = FALSE) +
-  labs(x = "Group (FA)", y = "Population", title = "Population by Group and Sex (Stacked)") +
-  theme_minimal()
-
-```
-
-
-
-
+This is performed using the mutate() and case_when() functions.
 
 ```{r}
-
-# Step 1: Compute percent for each sex within FA group
-stacked_data <- sgResData24 %>%
-  group_by(FA, Sex) %>%
-  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
-  group_by(FA) %>%
-  mutate(Percent = Pop / sum(Pop) * 100)
-
-# Step 2: Compute total pop for each FA group (for top label)
-labels_data <- stacked_data %>%
-  group_by(FA) %>%
-  summarise(Pop = sum(Pop))
-
-# Apply FA ordering
-desired_order <- c("Not Available", "<= 60", ">60 to 80", ">80 to 100", ">100 to 120", ">120")
-stacked_data$FA <- factor(stacked_data$FA, levels = desired_order)
-labels_data$FA <- factor(labels_data$FA, levels = desired_order)
-
-# Grouped bar chart with side-by-side bars
-ggplot(stacked_data, aes(x = FA, y = Pop, fill = Sex)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
-  geom_text(aes(label = Pop),
-            position = position_dodge(width = 0.9),
-            vjust = -0.5, size = 3) +
-  labs(x = "Group (FA)", y = "Population", title = "Population by Group and Sex (Grouped)") +
-  theme_minimal()
-
-```
-
-
-
-## try to calc using AG groups instead
-```{r}
-# Step 1: Compute total population by AG and Sex
-stacked_data_ag <- sgResData24 %>%
-  group_by(AG, Sex) %>%
-  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
-  group_by(AG) %>%
-  mutate(Percent = Pop / sum(Pop) * 100)
-
-# Step 2: Compute total population for each AG group (for total pop label)
-labels_data_ag <- stacked_data_ag %>%
-  group_by(AG) %>%
-  summarise(Pop = sum(Pop))
-
-# Step 3: Order AG groups alphabetically by name
-stacked_data_ag$AG <- factor(stacked_data_ag$AG, levels = sort(unique(stacked_data_ag$AG)))
-labels_data_ag$AG <- factor(labels_data_ag$AG, levels = sort(unique(labels_data_ag$AG)))
-
-# Step 4: Plot stacked bars with percent labels inside and total on top
-ggplot(stacked_data_ag, aes(x = AG, y = Pop, fill = Sex)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = paste0(round(Percent), "%")), 
-            position = position_stack(vjust = 0.5), size = 3, color = "white") +
-  geom_text(data = labels_data_ag, aes(x = AG, y = Pop, label = Pop), 
-            vjust = -0.5, size = 3, inherit.aes = FALSE) +
-  labs(x = "Group (AG)", y = "Population", title = "Population by AG Group and Sex (Stacked)") +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels and adjust alignment
+sgResData24 <- sgResData24 %>%
+  mutate(
+    # Convert age to numeric, handle "90_and_Over"
+    Age_num = case_when(
+      Age == "90_and_Over" ~ 90,
+      TRUE ~ suppressWarnings(as.numeric(Age))  # Avoid warnings from "90_and_Over"
+    ),
+    
+    # Group into age bands
+    Age_group = case_when(
+      Age_num >= 0 & Age_num <= 9   ~ "0-9",
+      Age_num >= 10 & Age_num <= 19 ~ "10-19",
+      Age_num >= 20 & Age_num <= 29 ~ "20-29",
+      Age_num >= 30 & Age_num <= 39 ~ "30-39",
+      Age_num >= 40 & Age_num <= 49 ~ "40-49",
+      Age_num >= 50 & Age_num <= 59 ~ "50-59",
+      Age_num >= 60 & Age_num <= 69 ~ "60-69",
+      Age_num >= 70 & Age_num <= 79 ~ "70-79",
+      Age_num >= 80 & Age_num <= 89 ~ "80-89",
+      Age_num >= 90                ~ "90+",
+      TRUE                         ~ NA_character_
+    )
   )
-
-
 ```
 
-## Bar Chart by Region 
-Aggregate town into NSEW Regions of Singapore referencing the URA 2019 masterplan map data
+We can then check our adjusted dataset using the print() function below:
+
+```{r}
+print(sgResData24)
+```
+
+## Aggregate Planning Area (PA Column) into NSEW & Central Regions of Singapore
+
+Referencing the URA 2019 masterplan map, we can group the Planning Areas into the different North, South, East, West and Central regions of Singapore.
+
+We reference this from the GEOJSON data obtained from this data.gov.sg website [link](https://data.gov.sg/collections/2104/view).
 
 ### Extracting the Town(PA) and Region data from the GeoJSON file
+
+The **sf** package is used here to help extract the spatial vector data from the GEOJSON data to extract the Town and Regions of Singapore.
+
 ```{r}
 #Install required packages if not already installed
 library(sf)
@@ -313,58 +247,370 @@ info_list <- lapply(geo_data$Description, extract_info)
 # Combine results into a data frame
 info_df <- bind_rows(info_list) %>% distinct() %>% arrange(Region, Town)
 
-# Rename Town to PA to match the sgResData24 dataset
-#info_df %>% 
-  #rename(
-   # PA = Town
-   # )
-
 # View result
 print(info_df)
 
 ```
-Uppercase sgResData24 PA column data to uppercase to match the info_df dataset for joining later
+
+From the output of the above print(info_df), we have a 55x2 table of "Town" and "Region" which we can then use for joining with our sgResData24 dataset.
+
+To prepare our data for joining we first transform our sgResData24 dataset's "PA" column data to uppercase to match the info_df dataset "Town" data for joining later
+
 ```{r}
 sgResData24 %>% mutate(PA = toupper(PA))
 ```
 
-Joining info_df
+Additionally, we rename the info_df dataset's "Town" column into "PA" using the **mutate()** function.
+
+We can then perform a **left_join** of the sgResData24 "PA" column with the info_df dataset's "PA" column to introduce the Region Column into sgResData24 dataset.
+
 ```{r}
 library(dplyr)
 
 # Rename Town to PA in the region info dataframe
 region_info <- info_df %>% rename(PA = Town)
 
-# Now you can safely join
+# left join sgResData24 with region_info to get Region column
 sgResData24 <- sgResData24 %>% mutate(PA = toupper(PA)) %>%
   left_join(region_info, by = "PA")
+
 print(sgResData24)
 ```
 
-```{r}
+The output of print(sgResData24) shows the addition of the "Region" column.
 
-# Step 1: Compute total population by AG and Sex
+We can perform the checks performed above to verify that the new columns introduced do not have any issues before proceeding with the visualisations.
+
+::: panel-tabset
+## Preview of the dataset
+
+The dim() and head() functions to view the dimensions and preview the first few rows of the dataset using the code below:
+
+```{r}
+dim(sgResData24)
+head(sgResData24)
+```
+
+## Descriptive Statistics
+
+The summary() function is used to view the basic descriptive statistics for each column, including the minimum, maximum, mean and quartiles.
+
+```{r}
+summary(sgResData24)
+```
+
+## Checking for duplicate values
+
+The distinct() function is used to check if there are any duplicate values. The distinct() function returns unique rows.
+
+```{r}
+distinct(sgResData24)
+```
+:::
+
+## Data Visualisation
+
+### Population Pyramid Visualisation
+
+Plotting Age Group against the Population Count using a population pyramid
+
+The **ggplot** and **dplyr** library will be used for this visualisation.
+
+We first calculate the total population by summing the Pop and calculate other the values that will be used for labelling values for each group in the population pyramid using mutate(), summarise() and group_by() functions. Then we set the levels for the Age_groups so that the axis labels will be ordered in ascending order. The Pop values for the Males then have to be flipped into -ve values by using the **mutate()** and **ifelse()** functions.
+
+The population pyramid is then plot using ggplot, with the respective packages to adjust the aesthetic aspects of the plot.
+
+::: panel-tabset
+## The Plot
+
+```{r}
+#| echo: false
+library(ggplot2)
+library(dplyr)
+
+# Summarise and compute plot values
+pop_pyramid <- sgResData24 %>%
+  group_by(Age_group, Sex) %>%
+  summarise(Pop = sum(Pop), .groups = "drop") %>%
+  group_by(Sex) %>%
+  mutate(Percent = Pop / sum(Pop) * 100) %>%
+  ungroup()
+
+# Order Age_group for proper vertical alignment
+age_levels <- c("0-9", "10-19", "20-29", "30-39", "40-49",
+                "50-59", "60-69", "70-79", "80-89", "90+")
+pop_pyramid$Age_group <- factor(pop_pyramid$Age_group, levels = age_levels)
+
+# Flip male values to negative
+pop_pyramid <- pop_pyramid %>%
+  mutate(Pop_plot = ifelse(Sex == "Males", -Pop, Pop),
+         Label = paste0(comma(abs(Pop)), "\n(", round(abs(Percent), 1), "%)"))
+
+# Plot
+ggplot(pop_pyramid, aes(x = Age_group, y = Pop_plot, fill = Sex)) +
+  geom_bar(stat = "identity", width = 0.8, position = "identity") +
+  coord_flip() +
+  geom_text(aes(label = Label),
+            position = position_nudge(y = ifelse(pop_pyramid$Sex == "Males", -70000, 10000)),
+            hjust = ifelse(pop_pyramid$Sex == "Male", 1, 0),
+            size = 2.5, color = 'black') +
+  scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
+  scale_fill_manual(values = c("Males" = "#619CFF", "Females" = "#F8766D")) +
+  labs(title = "Population vs Age Group & Sex",
+       subtitle = "                                    Males                                                          Females",
+       x = "Age Group", y = "Population Count") +
+  theme_minimal()+
+  theme(
+    plot.margin = margin(10, 20, 20, 20),  # top, right, bottom, left
+    legend.position = "none")
+```
+
+## The Code
+
+```{r}
+#| eval: false
+library(ggplot2)
+library(dplyr)
+library(scales)
+
+# Summarise and compute values
+pop_pyramid <- sgResData24 %>%
+  group_by(Age_group, Sex) %>%
+  summarise(Pop = sum(Pop), .groups = "drop") %>%
+  group_by(Sex) %>%
+  mutate(Percent = Pop / sum(Pop) * 100) %>%
+  ungroup()
+
+# Order Age_group for proper vertical alignment
+age_levels <- c("0-9", "10-19", "20-29", "30-39", "40-49",
+                "50-59", "60-69", "70-79", "80-89", "90+")
+pop_pyramid$Age_group <- factor(pop_pyramid$Age_group, levels = age_levels)
+
+# Flip male values to negative
+pop_pyramid <- pop_pyramid %>%
+  mutate(Pop_plot = ifelse(Sex == "Males", -Pop, Pop),
+         Label = paste0(comma(abs(Pop)), "\n(", round(abs(Percent), 1), "%)"))
+
+# Plot
+ggplot(pop_pyramid, aes(x = Age_group, y = Pop_plot, fill = Sex)) +
+  geom_bar(stat = "identity", width = 0.8, position = "identity") +
+  coord_flip() +
+  geom_text(aes(label = Label),
+            position = position_nudge(y = ifelse(pop_pyramid$Sex == "Males", -70000, 10000)),
+            hjust = ifelse(pop_pyramid$Sex == "Male", 1, 0),
+            size = 2.5, color = 'black') +
+  scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
+  scale_fill_manual(values = c("Males" = "#619CFF", "Females" = "#F8766D")) +
+  labs(title = "Singapore 2024 Population Pyramid",
+       subtitle = "                                    Males                                                          Females",
+       x = "Age Group", y = "Population Count") +
+  theme_minimal()+
+  theme(
+    plot.margin = margin(10, 20, 20, 20),  # top, right, bottom, left
+    legend.position = "none")
+```
+:::
+
+#### Observation from the Plot
+
+From the population pyramid chart, we can observe that the Age group of 30-39 has the largest population (14.9% + 15.4% of the overall population), and the largest population for both males and females respectively as well.
+
+We can also observe an aging population based on the shape of the population pyramid chart, with the 0-9, 10-19 and 20-29 Age group populations being lesser than the 30-39 Age group.
+
+### Bar Chart Visualisation of Region vs Population and Sex
+
+Plotting Region vs Population and Sex.
+
+The **ggplot** and **dplyr** library will be used for this visualisation.
+
+We first calculate the total population by summing the Pop and calculate other the values that will be used for labelling values (the % and total group count) for each group in the bar chart using mutate(), summarise() and group_by() functions.
+
+The bar chart is then plotted using ggplot, with the respective packages to adjust the aesthetic aspects of the plot.
+
+::: panel-tabset
+## The Plot
+
+```{r}
+#| echo: false
+#Compute total population by Region and Sex
 stacked_data_region <- sgResData24 %>%
   group_by(Region, Sex) %>%
   summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
   group_by(Region) %>%
   mutate(Percent = Pop / sum(Pop) * 100)
 
-# Step 2: Compute total population for each AG group (for total pop label)
+#Compute total population for each Region group (for total label)
 labels_data_region <- stacked_data_region %>%
   group_by(Region) %>%
   summarise(Pop = sum(Pop))
 
-# Step 4: Plot stacked bars with percent labels inside and total on top
+#Plot stacked bars with percent labels inside and total on top
   ggplot(stacked_data_region, aes(x = Region, y = Pop, fill = Sex)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(round(Percent), "%")), 
             position = position_stack(vjust = 0.5), size = 3, color = "white") +
-  geom_text(data = labels_data_region, aes(x = Region, y = Pop, label = Pop), 
+  geom_text(data = labels_data_region, aes(x = Region, y = Pop, label = comma(Pop)), 
             vjust = -0.5, size = 3, inherit.aes = FALSE) +
-  labs(x = "Group (Region)", y = "Population", title = "Population by Region Group and Sex (Stacked)") +
+  labs(x = "Region", y = "Population", title = "Population vs Region & Sex") +
+  scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels and adjust alignment
   )
 ```
+
+## The Code
+
+```{r}
+#| eval: false
+#Compute total population by Region and Sex
+stacked_data_region <- sgResData24 %>%
+  group_by(Region, Sex) %>%
+  summarise(Pop = sum(Pop, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Region) %>%
+  mutate(Percent = Pop / sum(Pop) * 100)
+
+#Compute total population for each Region group (for total label)
+labels_data_region <- stacked_data_region %>%
+  group_by(Region) %>%
+  summarise(Pop = sum(Pop))
+
+#Plot stacked bars with percent labels inside and total on top
+  ggplot(stacked_data_region, aes(x = Region, y = Pop, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(Percent), "%")), 
+            position = position_stack(vjust = 0.5), size = 3, color = "white") +
+  geom_text(data = labels_data_region, aes(x = Region, y = Pop, label = comma(Pop)), 
+            vjust = -0.5, size = 3, inherit.aes = FALSE) +
+  labs(x = "Region", y = "Population", title = "Population vs Region & Sex") +
+  scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels and adjust alignment
+  )
+```
+:::
+
+#### Observation from the Plot
+
+From the Bar chart, we can observe that the North-East Region has the highest population, followed by the Central and then West region. Based on the percentages observed for all 5 regions, we can also tell that there are more Females than Male in the population, with Males having 48 to 49% and Females having 51 to 52%. It can also be observed that the West Region has a greater proportion of Females(52%) compared to Males(48%).
+
+### Half-eye + Box Plot Visualisation of Age vs Region
+
+Plotting the Distribution of Age vs Region
+
+The **ggplot**, **dplyr** and **ggdist** library will be used for this visualisation.
+
+We first calculate the mean for each group to label the weighted means in the visualisation (using Age_num and Pop as the weight).
+
+The chart is then plotted using ggplot to plot a half-eye plot (together with ggdist) and boxplot together with the weighted mean calculated earlier indicated with a red point in each boxplot using geompoint(). The other respective packages are used to adjust the aesthetics of the plot.
+
+::: panel-tabset
+## The Plot
+
+```{r}
+#| echo: false
+library(ggplot2)
+library(dplyr)
+library(ggdist)
+
+# Compute weighted mean for each region
+mean_labels <- sgResData24 %>%
+  group_by(Region) %>%
+  summarise(mean_age = weighted.mean(Age_num, Pop))
+
+# Plot with mean labels
+ggplot(sgResData24, aes(x = Region, y = Age_num, fill = Region)) +
+  stat_halfeye(
+    aes(weight = Pop, fill = Region),
+    adjust = 0.5,
+    width = 0.6,
+    justification = -0.3,
+    .width = 0,
+    point_colour = NA
+  ) +
+  geom_point (data = mean_labels, aes(x = Region, y = mean_age), shape = 20, size = 3, color = "red") +
+  geom_boxplot(
+    width = .12,
+    outlier.shape = NA,
+    alpha = 0.6
+  ) +
+  geom_text(
+    data = mean_labels,
+    aes(x = Region, y = mean_age, label = round(mean_age, 1)),
+    #vjust = -0.8,
+    hjust = 1.5,
+    color = "red",
+    fontface = "bold",
+    size = 3
+  ) +
+  scale_y_continuous(breaks = seq(0, max(sgResData24$Age_num), by = 10))+ 
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+  ) +
+  labs(x = "Region", y = "Age", title = "Distribution of Age vs Region")
+```
+
+## The Code
+
+```{r}
+#| eval: false
+library(ggplot2)
+library(dplyr)
+library(ggdist)
+
+# Compute weighted mean for each region
+mean_labels <- sgResData24 %>%
+  group_by(Region) %>%
+  summarise(mean_age = weighted.mean(Age_num, Pop))
+
+# Plot with mean labels
+ggplot(sgResData24, aes(x = Region, y = Age_num, fill = Region)) +
+  stat_halfeye(
+    aes(weight = Pop, fill = Region),
+    adjust = 0.5,
+    width = 0.6,
+    justification = -0.3,
+    .width = 0,
+    point_colour = NA
+  ) +
+  geom_point (data = mean_labels, aes(x = Region, y = mean_age), shape = 20, size = 3, color = "red") +
+  geom_boxplot(
+    width = .12,
+    outlier.shape = NA,
+    alpha = 0.6
+  ) +
+  geom_text(
+    data = mean_labels,
+    aes(x = Region, y = mean_age, label = round(mean_age, 1)),
+    #vjust = -0.8,
+    hjust = 1.5,
+    color = "red",
+    fontface = "bold",
+    size = 3
+  ) +
+  scale_y_continuous(breaks = seq(0, max(sgResData24$Age_num), by = 10))+ 
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+  ) +
+  labs(x = "Region", y = "Age", title = "Distribution of Age vs Region")
+```
+:::
+
+::: callout-important
+## Use The Correct Data Variable with Correct Data Type
+
+Use Age_num (dbl type) instead of Age (chr type) for this Distribution plot
+:::
+
+#### Observation from the Plot
+
+We can view that the distribution of the age of the population across the region is the same, with roughly the same median as well based on the boxplot median position. However, it can be observed that the mean age are different for each region, with Central having the highest(44.1), followed by East(42.6) and West(41.6). The higher mean in Central Region may indicate a greater proportion of older people living in these areas compared to other Regions.
+
+This can also be observed from the distribution seen with the half-eye plot, where the end of the distribution graph shows a higher count of population above the age of around 80 as shown in the screenshot below:
+
+![](images/clipboard-2232811106.png){width="509"}

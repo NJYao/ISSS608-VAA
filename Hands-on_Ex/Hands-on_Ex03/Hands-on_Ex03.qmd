@@ -827,13 +827,15 @@ globalPop <- read_xls("data/GlobalPopulation.xls",
   mutate_each_(funs(factor(.)), col) %>%
   mutate(Year = as.integer(Year))
 ```
-::: {callout-note}
-## Things to note from the code chunk above
-- read_xls() of readxl package is used to import the Excel worksheet.
-- mutate_each_() of dplyr package is used to convert all character data type into factor.
-- mutate of dplyr package is used to convert data values of Year field into integer.
 
-Unfortunately, mutate_each_() was deprecated in dplyr 0.7.0. and funs() was deprecated in dplyr 0.8.0. In view of this, we will re-write the code by using mutate_at() as shown in the code chunk below.
+::::::: {callout-note}
+## Things to note from the code chunk above
+
+-   read_xls() of readxl package is used to import the Excel worksheet.
+-   mutate_each\_() of dplyr package is used to convert all character data type into factor.
+-   mutate of dplyr package is used to convert data values of Year field into integer.
+
+Unfortunately, mutate_each\_() was deprecated in dplyr 0.7.0. and funs() was deprecated in dplyr 0.8.0. In view of this, we will re-write the code by using mutate_at() as shown in the code chunk below.
 
 ```{r}
 #| eval: false
@@ -859,13 +861,14 @@ globalPop <- read_xls("chap03/data/GlobalPopulation.xls",
 
 gganimate extends the grammar of graphics as implemented by ggplot2 to include the description of animation. It does this by providing a range of new grammar classes that can be added to the plot object in order to customise how it should change with time.
 
-- transition_*() defines how the data should be spread out and how it relates to itself across time.
-- view_*() defines how the positional scales should change along the animation.
-- shadow_*() defines how data from other points in time should be presented in the given point in time.
-- enter_*()/exit_*() defines how new data should appear and how old data should disappear during the course of the animation.
-- ease_aes() defines how different aesthetics should be eased during transitions.
+-   transition\_\*() defines how the data should be spread out and how it relates to itself across time.
+-   view\_\*() defines how the positional scales should change along the animation.
+-   shadow\_\*() defines how data from other points in time should be presented in the given point in time.
+-   enter\_*()/exit\_*() defines how new data should appear and how old data should disappear during the course of the animation.
+-   ease_aes() defines how different aesthetics should be eased during transitions.
 
 ### Building a static population bubble plot
+
 In the code chunk below, the basic ggplot2 functions are used to create a static bubble plot.
 
 ```{r}
@@ -885,8 +888,7 @@ ggplot(globalPop, aes(x = Old, y = Young,
 
 In the code chunk below,
 
-transition_time() of gganimate is used to create transition through distinct states in time (i.e. Year).
-ease_aes() is used to control easing of aesthetics. The default is linear. Other methods are: quadratic, cubic, quartic, quintic, sine, circular, exponential, elastic, back, and bounce.
+transition_time() of gganimate is used to create transition through distinct states in time (i.e. Year). ease_aes() is used to control easing of aesthetics. The default is linear. Other methods are: quadratic, cubic, quartic, quintic, sine, circular, exponential, elastic, back, and bounce.
 
 ```{r}
 #| eval: false
@@ -905,6 +907,7 @@ ggplot(globalPop, aes(x = Old, y = Young,
 ```
 
 The animated bubble chart:
+
 ```{r}
 #| echo: false
 ggplot(globalPop, aes(x = Old, y = Young, 
@@ -921,16 +924,16 @@ ggplot(globalPop, aes(x = Old, y = Young,
   ease_aes('linear')          
 ```
 
-
 ## Animated Data visualisation: plotly
 
 ### Building an animated bubble plot: ggplotly() method
 
 In this sub-section, you will learn how to create an animated bubble plot by using ggplotly() method.
 
-::: {.panel-tabset}
+:::: panel-tabset
 ## The Plot
-```{}
+
+```         
 #| echo: false
 gg <- ggplot(globalPop, 
        aes(x = Old, 
@@ -950,7 +953,8 @@ ggplotly(gg)
 ```
 
 ## The Code
-```{}
+
+```         
 #| echo: false
 gg <- ggplot(globalPop, 
        aes(x = Old, 
@@ -969,17 +973,20 @@ gg <- ggplot(globalPop,
 ggplotly(gg)
 ```
 
-::: {.callout-notes}
+::: callout-notes
 ## Things to learn from the code chunk above
-- Appropriate ggplot2 functions are used to create a static bubble plot. The output is then saved as an R object called gg.
-- ggplotly() is then used to convert the R graphic object into an animated svg object.
+
+-   Appropriate ggplot2 functions are used to create a static bubble plot. The output is then saved as an R object called gg.
+-   ggplotly() is then used to convert the R graphic object into an animated svg object.
 :::
-:::
+::::
+
 Notice that although show.legend = FALSE argument was used, the legend still appears on the plot. To overcome this problem, theme(legend.position='none') should be used as shown in the plot and code chunk below.
 
-::: {.panel-tabset}
+::: panel-tabset
 ## The Plot
-```{}
+
+```         
 #| echo: false
 gg <- ggplot(globalPop, 
        aes(x = Old, 
@@ -999,7 +1006,8 @@ ggplotly(gg)
 ```
 
 ## The Code
-```{}
+
+```         
 #| eval: false
 gg <- ggplot(globalPop, 
        aes(x = Old, 
@@ -1023,9 +1031,10 @@ ggplotly(gg)
 
 In this sub-section, you will learn how to create an animated bubble plot by using plot_ly() method.
 
-::: {.panel-tabset}
+::: panel-tabset
 ## The Plot
-```{}
+
+```         
 #| echo: false
 bp <- globalPop %>%
   plot_ly(x = ~Old, 
@@ -1044,7 +1053,8 @@ bp
 ```
 
 ## The Code
-```{}
+
+```         
 #| eval: false
 bp <- globalPop %>%
   plot_ly(x = ~Old, 
@@ -1062,3 +1072,4 @@ bp <- globalPop %>%
 bp
 ```
 :::
+:::::::
