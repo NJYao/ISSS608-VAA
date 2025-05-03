@@ -308,9 +308,9 @@ distinct(sgResData24)
 ```
 :::
 
-## Data Visualisation
+# Data Visualisation
 
-### Population Pyramid Visualisation
+## Population Pyramid Plot Visualisation
 
 Plotting Age Group against the Population Count using a population pyramid
 
@@ -411,13 +411,13 @@ ggplot(pop_pyramid, aes(x = Age_group, y = Pop_plot, fill = Sex)) +
 ```
 :::
 
-#### Observation from the Plot
+### Observation from the Plot
 
 From the population pyramid chart, we can observe that the Age group of 30-39 has the largest population (14.9% + 15.4% of the overall population), and the largest population for both males and females respectively as well.
 
 We can also observe an aging population based on the shape of the population pyramid chart, with the 0-9, 10-19 and 20-29 Age group populations being lesser than the 30-39 Age group.
 
-### Bar Chart Visualisation of Region vs Population and Sex
+## Bar Chart Visualisation of Region vs Population and Sex
 
 Plotting Region vs Population and Sex.
 
@@ -491,11 +491,11 @@ labels_data_region <- stacked_data_region %>%
 ```
 :::
 
-#### Observation from the Plot
+### Observation from the Plot
 
 From the Bar chart, we can observe that the North-East Region has the highest population, followed by the Central and then West region. Based on the percentages observed for all 5 regions, we can also tell that there are more Females than Male in the population, with Males having 48 to 49% and Females having 51 to 52%. It can also be observed that the West Region has a greater proportion of Females(52%) compared to Males(48%).
 
-### Half-eye + Box Plot Visualisation of Age vs Region
+## Half-eye + Box Plot Visualisation of Age vs Region
 
 Plotting the Distribution of Age vs Region
 
@@ -607,7 +607,7 @@ ggplot(sgResData24, aes(x = Region, y = Age_num, fill = Region)) +
 Use Age_num (dbl type) instead of Age (chr type) for this Distribution plot
 :::
 
-#### Observation from the Plot
+### Observation from the Plot
 
 We can view that the distribution of the age of the population across the region is the same, with roughly the same median as well based on the boxplot median position. However, it can be observed that the mean age are different for each region, with Central having the highest(44.1), followed by East(42.6) and West(41.6). The higher mean in Central Region may indicate a greater proportion of older people living in these areas compared to other Regions.
 
