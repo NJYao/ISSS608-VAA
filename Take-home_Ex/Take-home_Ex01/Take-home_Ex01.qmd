@@ -36,7 +36,7 @@ The following R packages are loaded using pacman::p_load() on top of the tidyver
 -   dplyr: for data manipulation with the tidyverse package
 -   scales: for formatting and scaling data plots
 -   xml12: for working with HTML
--   sf: for handling GIS file formats 
+-   sf: for handling GIS file formats
 
 The sf and xml12 packages were used as a dataset is extracted from a GEOJSON file later on.
 
@@ -207,6 +207,7 @@ print(sgResData24)
 Referencing the URA 2019 masterplan map, we can group the Planning Areas into the different North, South, East, West and Central regions of Singapore.
 
 We reference this from the GEOJSON data obtained from this data.gov.sg website [link](https://data.gov.sg/collections/2104/view).
+
 
 ### Extracting the Town(PA) and Region data from the GeoJSON file
 
