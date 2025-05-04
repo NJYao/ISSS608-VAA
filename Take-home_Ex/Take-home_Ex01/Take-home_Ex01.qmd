@@ -33,11 +33,16 @@ The following R packages are loaded using pacman::p_load() on top of the tidyver
 -   ggrepel: an R package provides geoms for ggplot2 to repel overlapping text labels.
 -   ggthemes: an R package provides some extra themes, geoms, and scales for ‘ggplot2’.
 -   patchwork: an R package for preparing composite figure created using ggplot2.
--   dplyr: an R package for data manipulation with the tidyverse package
+-   dplyr: for data manipulation with the tidyverse package
+-   scales: for formatting and scaling data plots
+-   xml12: for working with HTML
+-   sf: for handling GIS file formats 
+
+The sf and xml12 packages were used as a dataset is extracted from a GEOJSON file later on.
 
 ```{r}
 pacman::p_load(tidyverse, ggplot2, ggrepel, patchwork, 
-               ggthemes,dplyr, xml12,sf,scales) 
+               ggthemes,dplyr, xml12, sf, scales) 
 ```
 
 ## Import data
@@ -318,7 +323,7 @@ The **ggplot** and **dplyr** library will be used for this visualisation.
 
 We first calculate the total population by summing the Pop and calculate other the values that will be used for labelling values for each group in the population pyramid using mutate(), summarise() and group_by() functions. Then we set the levels for the Age_groups so that the axis labels will be ordered in ascending order. The Pop values for the Males then have to be flipped into -ve values by using the **mutate()** and **ifelse()** functions.
 
-The population pyramid is then plot using ggplot, with the respective packages to adjust the aesthetic aspects of the plot.
+The population pyramid is then plot using ggplot, with the respective packages to adjust the aesthetic aspects of the plot such as defining the fill to show segregate the plot by Sex.There are also data labels added for the % of total population and count for each group of the pyramid plot.
 
 ::: panel-tabset
 ## The Plot
@@ -425,7 +430,7 @@ The **ggplot** and **dplyr** library will be used for this visualisation.
 
 We first calculate the total population by summing the Pop and calculate other the values that will be used for labelling values (the % and total group count) for each group in the bar chart using mutate(), summarise() and group_by() functions.
 
-The bar chart is then plotted using ggplot, with the respective packages to adjust the aesthetic aspects of the plot.
+The bar chart is then plotted using ggplot, with the respective packages to adjust the aesthetic aspects of the plot such as the addition of the total count and percentages for Males and Females within each group.
 
 ::: panel-tabset
 ## The Plot
@@ -503,7 +508,7 @@ The **ggplot**, **dplyr** and **ggdist** library will be used for this visualisa
 
 We first calculate the mean for each group to label the weighted means in the visualisation (using Age_num and Pop as the weight).
 
-The chart is then plotted using ggplot to plot a half-eye plot (together with ggdist) and boxplot together with the weighted mean calculated earlier indicated with a red point in each boxplot using geompoint(). The other respective packages are used to adjust the aesthetics of the plot.
+The chart is then plotted using ggplot to plot a half-eye plot (together with ggdist) and boxplot together. The other respective packages are used to adjust the aesthetics of the plo such as ith the weighted mean calculated earlier indicated with a red point in each boxplot using geompoint(). Each Region group is also assigned a different colour to help differentiate each group visually.
 
 ::: panel-tabset
 ## The Plot
@@ -611,6 +616,6 @@ Use Age_num (dbl type) instead of Age (chr type) for this Distribution plot
 
 We can view that the distribution of the age of the population across the region is the same, with roughly the same median as well based on the boxplot median position. However, it can be observed that the mean age are different for each region, with Central having the highest(44.1), followed by East(42.6) and West(41.6). The higher mean in Central Region may indicate a greater proportion of older people living in these areas compared to other Regions.
 
-This can also be observed from the distribution seen with the half-eye plot, where the end of the distribution graph shows a higher count of population above the age of around 80 as shown in the screenshot below:
+This can also be observed from the distribution seen with the half-eye plot, where the end of the distribution graph shows a higher distribution of population above the age of around 80 compared to the other regions as shown in the screenshot below:
 
 ![](images/clipboard-2232811106.png){width="509"}
