@@ -261,11 +261,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#extracting-the-townpa-and-region-data-from-the-geojson-file" id="toc-extracting-the-townpa-and-region-data-from-the-geojson-file" class="nav-link" data-scroll-target="#extracting-the-townpa-and-region-data-from-the-geojson-file">Extracting the Town(PA) and Region data from the GeoJSON file</a></li>
   </ul></li>
+  </ul></li>
   <li><a href="#data-visualisation" id="toc-data-visualisation" class="nav-link" data-scroll-target="#data-visualisation">Data Visualisation</a>
   <ul class="collapse">
-  <li><a href="#population-pyramid-visualisation" id="toc-population-pyramid-visualisation" class="nav-link" data-scroll-target="#population-pyramid-visualisation">Population Pyramid Visualisation</a></li>
-  <li><a href="#bar-chart-visualisation-of-region-vs-population-and-sex" id="toc-bar-chart-visualisation-of-region-vs-population-and-sex" class="nav-link" data-scroll-target="#bar-chart-visualisation-of-region-vs-population-and-sex">Bar Chart Visualisation of Region vs Population and Sex</a></li>
-  <li><a href="#half-eye-box-plot-visualisation-of-age-vs-region" id="toc-half-eye-box-plot-visualisation-of-age-vs-region" class="nav-link" data-scroll-target="#half-eye-box-plot-visualisation-of-age-vs-region">Half-eye + Box Plot Visualisation of Age vs Region</a></li>
+  <li><a href="#population-pyramid-plot-visualisation" id="toc-population-pyramid-plot-visualisation" class="nav-link" data-scroll-target="#population-pyramid-plot-visualisation">Population Pyramid Plot Visualisation</a>
+  <ul class="collapse">
+  <li><a href="#observation-from-the-plot" id="toc-observation-from-the-plot" class="nav-link" data-scroll-target="#observation-from-the-plot">Observation from the Plot</a></li>
+  </ul></li>
+  <li><a href="#bar-chart-visualisation-of-region-vs-population-and-sex" id="toc-bar-chart-visualisation-of-region-vs-population-and-sex" class="nav-link" data-scroll-target="#bar-chart-visualisation-of-region-vs-population-and-sex">Bar Chart Visualisation of Region vs Population and Sex</a>
+  <ul class="collapse">
+  <li><a href="#observation-from-the-plot-1" id="toc-observation-from-the-plot-1" class="nav-link" data-scroll-target="#observation-from-the-plot-1">Observation from the Plot</a></li>
+  </ul></li>
+  <li><a href="#half-eye-box-plot-visualisation-of-age-vs-region" id="toc-half-eye-box-plot-visualisation-of-age-vs-region" class="nav-link" data-scroll-target="#half-eye-box-plot-visualisation-of-age-vs-region">Half-eye + Box Plot Visualisation of Age vs Region</a>
+  <ul class="collapse">
+  <li><a href="#observation-from-the-plot-2" id="toc-observation-from-the-plot-2" class="nav-link" data-scroll-target="#observation-from-the-plot-2">Observation from the Plot</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -332,11 +341,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>ggrepel: an R package provides geoms for ggplot2 to repel overlapping text labels.</li>
 <li>ggthemes: an R package provides some extra themes, geoms, and scales for ‘ggplot2’.</li>
 <li>patchwork: an R package for preparing composite figure created using ggplot2.</li>
-<li>dplyr: an R package for data manipulation with the tidyverse package</li>
+<li>dplyr: for data manipulation with the tidyverse package</li>
+<li>scales: for formatting and scaling data plots</li>
+<li>xml12: for working with HTML</li>
+<li>sf: for handling GIS file formats</li>
 </ul>
+<p>The sf and xml12 packages were used as a dataset is extracted from a GEOJSON file later on.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, ggplot2, ggrepel, patchwork, </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               ggthemes,dplyr, xml12,sf,scales) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               ggthemes,dplyr, xml12, sf, scales) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="import-data" class="level2">
@@ -810,14 +823,15 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </section>
 </section>
-<section id="data-visualisation" class="level2">
-<h2 class="anchored" data-anchor-id="data-visualisation">Data Visualisation</h2>
-<section id="population-pyramid-visualisation" class="level3">
-<h3 class="anchored" data-anchor-id="population-pyramid-visualisation">Population Pyramid Visualisation</h3>
+</section>
+<section id="data-visualisation" class="level1">
+<h1>Data Visualisation</h1>
+<section id="population-pyramid-plot-visualisation" class="level2">
+<h2 class="anchored" data-anchor-id="population-pyramid-plot-visualisation">Population Pyramid Plot Visualisation</h2>
 <p>Plotting Age Group against the Population Count using a population pyramid</p>
 <p>The <strong>ggplot</strong> and <strong>dplyr</strong> library will be used for this visualisation.</p>
 <p>We first calculate the total population by summing the Pop and calculate other the values that will be used for labelling values for each group in the population pyramid using mutate(), summarise() and group_by() functions. Then we set the levels for the Age_groups so that the axis labels will be ordered in ascending order. The Pop values for the Males then have to be flipped into -ve values by using the <strong>mutate()</strong> and <strong>ifelse()</strong> functions.</p>
-<p>The population pyramid is then plot using ggplot, with the respective packages to adjust the aesthetic aspects of the plot.</p>
+<p>The population pyramid is then plot using ggplot, with the respective packages to adjust the aesthetic aspects of the plot such as defining the fill to show segregate the plot by Sex.There are also data labels added for the % of total population and count for each group of the pyramid plot.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">The Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">The Code</a></li></ul>
 <div class="tab-content">
@@ -877,18 +891,18 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </div>
 </div>
-<section id="observation-from-the-plot" class="level4">
-<h4 class="anchored" data-anchor-id="observation-from-the-plot">Observation from the Plot</h4>
+<section id="observation-from-the-plot" class="level3">
+<h3 class="anchored" data-anchor-id="observation-from-the-plot">Observation from the Plot</h3>
 <p>From the population pyramid chart, we can observe that the Age group of 30-39 has the largest population (14.9% + 15.4% of the overall population), and the largest population for both males and females respectively as well.</p>
 <p>We can also observe an aging population based on the shape of the population pyramid chart, with the 0-9, 10-19 and 20-29 Age group populations being lesser than the 30-39 Age group.</p>
 </section>
 </section>
-<section id="bar-chart-visualisation-of-region-vs-population-and-sex" class="level3">
-<h3 class="anchored" data-anchor-id="bar-chart-visualisation-of-region-vs-population-and-sex">Bar Chart Visualisation of Region vs Population and Sex</h3>
+<section id="bar-chart-visualisation-of-region-vs-population-and-sex" class="level2">
+<h2 class="anchored" data-anchor-id="bar-chart-visualisation-of-region-vs-population-and-sex">Bar Chart Visualisation of Region vs Population and Sex</h2>
 <p>Plotting Region vs Population and Sex.</p>
 <p>The <strong>ggplot</strong> and <strong>dplyr</strong> library will be used for this visualisation.</p>
 <p>We first calculate the total population by summing the Pop and calculate other the values that will be used for labelling values (the % and total group count) for each group in the bar chart using mutate(), summarise() and group_by() functions.</p>
-<p>The bar chart is then plotted using ggplot, with the respective packages to adjust the aesthetic aspects of the plot.</p>
+<p>The bar chart is then plotted using ggplot, with the respective packages to adjust the aesthetic aspects of the plot such as the addition of the total count and percentages for Males and Females within each group.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">The Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">The Code</a></li></ul>
 <div class="tab-content">
@@ -934,17 +948,17 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </div>
 </div>
-<section id="observation-from-the-plot-1" class="level4">
-<h4 class="anchored" data-anchor-id="observation-from-the-plot-1">Observation from the Plot</h4>
+<section id="observation-from-the-plot-1" class="level3">
+<h3 class="anchored" data-anchor-id="observation-from-the-plot-1">Observation from the Plot</h3>
 <p>From the Bar chart, we can observe that the North-East Region has the highest population, followed by the Central and then West region. Based on the percentages observed for all 5 regions, we can also tell that there are more Females than Male in the population, with Males having 48 to 49% and Females having 51 to 52%. It can also be observed that the West Region has a greater proportion of Females(52%) compared to Males(48%).</p>
 </section>
 </section>
-<section id="half-eye-box-plot-visualisation-of-age-vs-region" class="level3">
-<h3 class="anchored" data-anchor-id="half-eye-box-plot-visualisation-of-age-vs-region">Half-eye + Box Plot Visualisation of Age vs Region</h3>
+<section id="half-eye-box-plot-visualisation-of-age-vs-region" class="level2">
+<h2 class="anchored" data-anchor-id="half-eye-box-plot-visualisation-of-age-vs-region">Half-eye + Box Plot Visualisation of Age vs Region</h2>
 <p>Plotting the Distribution of Age vs Region</p>
 <p>The <strong>ggplot</strong>, <strong>dplyr</strong> and <strong>ggdist</strong> library will be used for this visualisation.</p>
 <p>We first calculate the mean for each group to label the weighted means in the visualisation (using Age_num and Pop as the weight).</p>
-<p>The chart is then plotted using ggplot to plot a half-eye plot (together with ggdist) and boxplot together with the weighted mean calculated earlier indicated with a red point in each boxplot using geompoint(). The other respective packages are used to adjust the aesthetics of the plot.</p>
+<p>The chart is then plotted using ggplot to plot a half-eye plot (together with ggdist) and boxplot together. The other respective packages are used to adjust the aesthetics of the plo such as ith the weighted mean calculated earlier indicated with a red point in each boxplot using geompoint(). Each Region group is also assigned a different colour to help differentiate each group visually.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">The Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false">The Code</a></li></ul>
 <div class="tab-content">
@@ -1019,14 +1033,13 @@ Use The Correct Data Variable with Correct Data Type
 <p>Use Age_num (dbl type) instead of Age (chr type) for this Distribution plot</p>
 </div>
 </div>
-<section id="observation-from-the-plot-2" class="level4">
-<h4 class="anchored" data-anchor-id="observation-from-the-plot-2">Observation from the Plot</h4>
+<section id="observation-from-the-plot-2" class="level3">
+<h3 class="anchored" data-anchor-id="observation-from-the-plot-2">Observation from the Plot</h3>
 <p>We can view that the distribution of the age of the population across the region is the same, with roughly the same median as well based on the boxplot median position. However, it can be observed that the mean age are different for each region, with Central having the highest(44.1), followed by East(42.6) and West(41.6). The higher mean in Central Region may indicate a greater proportion of older people living in these areas compared to other Regions.</p>
-<p>This can also be observed from the distribution seen with the half-eye plot, where the end of the distribution graph shows a higher count of population above the age of around 80 as shown in the screenshot below:</p>
+<p>This can also be observed from the distribution seen with the half-eye plot, where the end of the distribution graph shows a higher distribution of population above the age of around 80 compared to the other regions as shown in the screenshot below:</p>
 <p><img src="images/clipboard-2232811106.png" class="img-fluid" width="509"></p>
 
 
-</section>
 </section>
 </section>
 </section>
