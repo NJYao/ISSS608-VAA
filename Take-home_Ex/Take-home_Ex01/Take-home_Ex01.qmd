@@ -330,9 +330,12 @@ The population pyramid is then plot using ggplot, with the respective packages t
 ## The Plot
 
 ```{r}
-#| echo: false
+#| eval: false
+#| fig-width: 12
+#| fig-height: 8
 library(ggplot2)
 library(dplyr)
+library(scales)
 
 # Summarise and compute plot values
 pop_pyramid <- sgResData24 %>%
@@ -357,29 +360,38 @@ ggplot(pop_pyramid, aes(x = Age_group, y = Pop_plot, fill = Sex)) +
   geom_bar(stat = "identity", width = 0.8, position = "identity") +
   coord_flip() +
   geom_text(aes(label = Label),
-            position = position_nudge(y = ifelse(pop_pyramid$Sex == "Males", -70000, 10000)),
+            position = position_nudge(y = ifelse(pop_pyramid$Sex == "Males", -50000, 10000)),
             hjust = ifelse(pop_pyramid$Sex == "Male", 1, 0),
-            size = 2.5, color = 'black') +
+            size = 4, color = 'black') +
   scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
   scale_fill_manual(values = c("Males" = "#619CFF", "Females" = "#F8766D")) +
   labs(title = "Population vs Age Group & Sex",
-       subtitle = "                                    Males                                                          Females",
+       subtitle = "                                                   Males                                                                                      Females",
        x = "Age Group", y = "Population Count") +
   theme_minimal()+
   theme(
     plot.margin = margin(10, 20, 20, 20),  # top, right, bottom, left
-    legend.position = "none")
+    legend.position = "none",
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    plot.title = element_text(size = 18),
+    plot.subtitle = element_text(size = 14)
+    )
 ```
 
 ## The Code
 
 ```{r}
 #| eval: false
+#| fig-width: 12
+#| fig-height: 8
 library(ggplot2)
 library(dplyr)
 library(scales)
 
-# Summarise and compute values
+# Summarise and compute plot values
 pop_pyramid <- sgResData24 %>%
   group_by(Age_group, Sex) %>%
   summarise(Pop = sum(Pop), .groups = "drop") %>%
@@ -402,18 +414,25 @@ ggplot(pop_pyramid, aes(x = Age_group, y = Pop_plot, fill = Sex)) +
   geom_bar(stat = "identity", width = 0.8, position = "identity") +
   coord_flip() +
   geom_text(aes(label = Label),
-            position = position_nudge(y = ifelse(pop_pyramid$Sex == "Males", -70000, 10000)),
+            position = position_nudge(y = ifelse(pop_pyramid$Sex == "Males", -50000, 10000)),
             hjust = ifelse(pop_pyramid$Sex == "Male", 1, 0),
-            size = 2.5, color = 'black') +
+            size = 4, color = 'black') +
   scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
   scale_fill_manual(values = c("Males" = "#619CFF", "Females" = "#F8766D")) +
-  labs(title = "Singapore 2024 Population Pyramid",
-       subtitle = "                                    Males                                                          Females",
+  labs(title = "Population vs Age Group & Sex",
+       subtitle = "                                                   Males                                                                                      Females",
        x = "Age Group", y = "Population Count") +
   theme_minimal()+
   theme(
     plot.margin = margin(10, 20, 20, 20),  # top, right, bottom, left
-    legend.position = "none")
+    legend.position = "none",
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    plot.title = element_text(size = 18),
+    plot.subtitle = element_text(size = 14)
+    )
 ```
 :::
 
@@ -438,6 +457,8 @@ The bar chart is then plotted using ggplot, with the respective packages to adju
 
 ```{r}
 #| echo: false
+#| fig-width: 12
+#| fig-height: 8
 #Compute total population by Region and Sex
 stacked_data_region <- sgResData24 %>%
   group_by(Region, Sex) %>%
@@ -454,14 +475,19 @@ labels_data_region <- stacked_data_region %>%
   ggplot(stacked_data_region, aes(x = Region, y = Pop, fill = Sex)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(round(Percent), "%")), 
-            position = position_stack(vjust = 0.5), size = 3, color = "white") +
+            position = position_stack(vjust = 0.5), size = 5, color = "white") +
   geom_text(data = labels_data_region, aes(x = Region, y = Pop, label = comma(Pop)), 
-            vjust = -0.5, size = 3, inherit.aes = FALSE) +
+            vjust = -0.5, size = 5, inherit.aes = FALSE) +
   labs(x = "Region", y = "Population", title = "Population vs Region & Sex") +
   scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels and adjust alignment
+    axis.text.x = element_text(size = 12, angle = 45, hjust = 1),# Rotate x-axis labels and adjust alignment
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    legend.position = 'bottom', legend.text = element_text(size=12),
+    legend.title = element_text(size = 14)
   )
 ```
 
@@ -469,6 +495,8 @@ labels_data_region <- stacked_data_region %>%
 
 ```{r}
 #| eval: false
+#| fig-width: 12
+#| fig-height: 8
 #Compute total population by Region and Sex
 stacked_data_region <- sgResData24 %>%
   group_by(Region, Sex) %>%
@@ -485,14 +513,19 @@ labels_data_region <- stacked_data_region %>%
   ggplot(stacked_data_region, aes(x = Region, y = Pop, fill = Sex)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(round(Percent), "%")), 
-            position = position_stack(vjust = 0.5), size = 3, color = "white") +
+            position = position_stack(vjust = 0.5), size = 5, color = "white") +
   geom_text(data = labels_data_region, aes(x = Region, y = Pop, label = comma(Pop)), 
-            vjust = -0.5, size = 3, inherit.aes = FALSE) +
+            vjust = -0.5, size = 5, inherit.aes = FALSE) +
   labs(x = "Region", y = "Population", title = "Population vs Region & Sex") +
   scale_y_continuous(labels = function(x) comma(abs(x)), expand = expansion(mult = c(0.1, 0.1))) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels and adjust alignment
+    axis.text.x = element_text(size = 12, angle = 45, hjust = 1),# Rotate x-axis labels and adjust alignment
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    legend.position = 'bottom', legend.text = element_text(size=12),
+    legend.title = element_text(size = 14)
   )
 ```
 :::
@@ -516,6 +549,8 @@ The chart is then plotted using ggplot to plot a half-eye plot (together with gg
 
 ```{r}
 #| echo: false
+#| fig-width: 12
+#| fig-height: 8
 library(ggplot2)
 library(dplyr)
 library(ggdist)
@@ -563,6 +598,8 @@ ggplot(sgResData24, aes(x = Region, y = Age_num, fill = Region)) +
 
 ```{r}
 #| eval: false
+#| fig-width: 12
+#| fig-height: 8
 library(ggplot2)
 library(dplyr)
 library(ggdist)
