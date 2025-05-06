@@ -208,7 +208,6 @@ Referencing the URA 2019 masterplan map, we can group the Planning Areas into th
 
 We reference this from the GEOJSON data obtained from this data.gov.sg website [link](https://data.gov.sg/collections/2104/view).
 
-
 ### Extracting the Town(PA) and Region data from the GeoJSON file
 
 The **sf** package is used here to help extract the spatial vector data from the GEOJSON data to extract the Town and Regions of Singapore.
