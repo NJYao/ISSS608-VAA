@@ -12,4 +12,291 @@ execute:
   freeze: true
 ---
 
-## TEST TEST TEST
+# Take Home Exercise 1 Part 2
+
+## The Task
+
+-   Selecting one submission provided by your classmate, critic three good design principles and three areas for further improvement. With reference to the comment, prepare the makeover version of the data visualisation.
+
+## Selected Visualisation and Feedback
+
+Selected Visualisation: [Marga Thura](https://isss608-ay2024-2025.netlify.app/take-home_ex/take-home_ex01/take-home_ex01): Section 3, Plot 2
+
+![](images/clipboard-1580375219.png){fig-align="center"}
+
+### 3 Good Design Principles
+
+1.  Usage of thousands separator in data labels and axis to improve readability for numbers
+
+2.  X-axis labels are tilted in an angle to help with readability
+
+3.  Soft gridlines with a lighter shade than the bar fills are used that do not distract from the main bar graph data
+
+### 3 Areas of Improvement:
+
+1.  Choice of color for the bars - a darker color can be used to further improve the contrast of the bar graph from the page
+
+2.  Alignment of Data labels with respective bars and data labels can be adjusted so that the labels do not exceed the plot area
+
+3.  Current graph has too many groups and the number difference is too wide - the graphs can be split to focus on top and bottom 10 populations and focus on these groups instead to improve clarity as it allows graphs to show lesser groups and adjust scaling accordingly for clarity
+
+## Replicating Data Loading and Cleaning.
+
+I replicated the data loading and cleaning of data using the code provided from Marga's Take-home Exercise 1 page:
+
+```{r}
+# Load necessary library
+library(readr)
+
+# Read the CSV file from the specified relative path
+respopagesex2024 <- read_csv("data/respopagesex2024.csv")
+```
+
+```{r}
+pacman::p_load(tidyverse, ggrepel, ggthemes, 
+               hrbrthemes, patchwork, 
+               haven, ggiraph, plotly, DT, 
+               knitr, scales,
+               ggridges, ggpubr, 
+               gganimate, gapminder, ggdist, 
+               ggtext, ggalt,
+               cowplot)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+
+# Load the dataset
+respop <- read_csv("data/respopagesex2024.csv")
+
+# Convert types and clean
+respop_clean <- respop %>%
+  mutate(
+    Pop = as.numeric(Pop),
+    Age = as.numeric(Age),
+    PA = as.factor(PA),
+    SZ = as.factor(SZ),
+    Sex = factor(Sex, levels = c("Males", "Females"))
+  ) %>%
+  filter(!is.na(Pop), Pop > 0)
+print(respop_clean)
+```
+
+::: callout-note
+## Adjustment Made:
+
+Made an adjustment to use the cleaned dataset which was cleaned above for the summary
+:::
+
+```{r}
+  library(readr)
+  library(dplyr)
+  library(ggplot2)
+  library(scales)
+
+  # Load and summarize population data
+  # respopagesex2024 <- read_csv("TakeHome_01/respopagesex2024.csv")
+  #pop_by_pa <- respopagesex2024 %>% 
+  pop_by_pa <- respop_clean %>%  #adjusted to use the cleaned dataset
+    mutate(Pop = as.numeric(Pop)) %>%
+    filter(!is.na(Pop) & Pop > 0) %>%
+    group_by(PA) %>%
+    summarise(Total_Pop = sum(Pop, na.rm = TRUE))
+
+  # Check population range
+  print(summary(pop_by_pa$Total_Pop))
+```
+
+```         
+```
+
+## Makeover Version of Visualisation
+
+Adjustments I have made to Marga's original graph based on the 3 Areas of Improvement feedback:
+
+-   Choice of color for the bars - a darker color can be used to further improve the contrast of the bar graph from the page:
+
+::: callout-note
+## Adjustment #1:
+
+Adjusted fill color for geombar plot from "grey70" to a darker "grey40"
+:::
+
+-   Alignment of Data labels with respective bars and data labels can be adjusted so that the labels do not exceed the plot area:
+
+::: callout-note
+## Adjustment #2:
+
+Adjusted geom_text hjust and vjust values to centre data labels to the respective bars in the chart
+:::
+
+-   Current graph has too many groups and the number difference is too wide - the graphs can be split to focus on top and bottom 10 populations and focus on these groups instead to improve clarity as it allows graphs to show lesser groups and adjust scaling accordingly for clarity:
+
+::: callout-note
+## Adjustment #3:
+
+1.  Flipped the axis for population and planning area for better clarity
+
+2.  Adjusted the visualisation to generate plot1 for top 10 population PAs and plot2 for bottom 10 population PAs. Then generated a composite figure of plot1 and plot2 together using the patchwork extension
+
+3.  Other miscellaneous adjustments to text size, axis limits to accommodate aesthetic adjustments for plot1, plot2 and the composite graph
+:::
+
+::: panel-tabset
+## Composite Visualisation (using patchwork)
+
+```{r}
+#| echo: false
+
+# Create bar chart for btm 10
+btm_n <- 10  # 
+btm_pa <- pop_by_pa %>%
+  slice_min(order_by = Total_Pop, n = btm_n)
+
+plot2 <- ggplot(data = btm_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
+  geom_bar(stat = "identity", fill = "grey40", color = "grey90") +
+  geom_text(
+    aes(label = comma(Total_Pop)),
+    #angle = 90,
+    hjust = -0.2,
+    vjust = 0.4,
+    size = 3
+  ) +
+  coord_flip()+
+  theme_bw() +
+  ggtitle(paste("Bottom", btm_n, "Planning Areas by Population (2024)")) +
+  xlab("Planning Area") +
+  ylab("Total Population") +
+  #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
+  scale_y_continuous(
+  labels = comma,
+  breaks = seq(0, 5000, by = 1000),
+  limits = c(0, 5000)
+)
+
+# Create bar chart for top 10
+top_n <- 10  
+top_pa <- pop_by_pa %>%
+  slice_max(order_by = Total_Pop, n = top_n)
+
+plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
+  geom_bar(stat = "identity", fill = "grey40", color = "grey90") +
+  geom_text(
+    aes(label = comma(Total_Pop)),
+    #angle = 90,
+    hjust = -0.2,
+    vjust = 0.4,
+    size = 3
+  ) +
+  coord_flip()+
+  theme_bw() +
+  ggtitle(paste("Top", top_n, "Planning Areas by Population (2024)")) +
+  xlab("Planning Area") +
+  ylab("Total Population") +
+  #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
+  scale_y_continuous(
+  labels = comma,
+  breaks = seq(0, 310000, by = 100000),
+  limits = c(0, 310000)
+)
+```
+
+```{r}
+library(patchwork)
+plot1 / plot2
+```
+
+## Cleaning Code
+
+```{r}
+# Disable scientific notation globally
+options(scipen = 999)
+
+# Load data
+respopagesex2024 <- read_csv("data/respopagesex2024.csv")
+
+# Trim whitespace from PA and SZ
+respopagesex2024 <- respopagesex2024 %>%
+  mutate(
+    PA = trimws(PA),
+    SZ = trimws(SZ)
+  )
+
+# Clean and summarize population by PA, including subzone count
+pop_by_pa <- respopagesex2024 %>%
+  mutate(Pop = as.numeric(Pop)) %>%
+  filter(!is.na(Pop) & Pop > 0) %>%
+  group_by(PA) %>%
+  summarise(
+    Total_Pop = sum(Pop, na.rm = TRUE),
+    Num_Subzones = n_distinct(SZ)  # Count unique subzones per PA
+  ) %>%
+  arrange(desc(Total_Pop))
+```
+
+## Creating Bar Chart for Top 10 PAs
+
+```{r}
+# Create bar chart for top 10
+top_n <- 10  
+top_pa <- pop_by_pa %>%
+  slice_max(order_by = Total_Pop, n = top_n)
+
+plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
+  geom_bar(stat = "identity", fill = "grey40", color = "grey90") +
+  geom_text(
+    aes(label = comma(Total_Pop)),
+    #angle = 90,
+    hjust = -0.2,
+    vjust = 0.4,
+    size = 3
+  ) +
+  coord_flip()+
+  theme_bw() +
+  ggtitle(paste("Top", top_n, "Planning Areas by Population (2024)")) +
+  xlab("Planning Area") +
+  ylab("Total Population") +
+  #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
+  scale_y_continuous(
+  labels = comma,
+  breaks = seq(0, 310000, by = 100000),
+  limits = c(0, 310000)
+)
+
+print(plot1)
+```
+
+## Creating Bar Chart for Bottom 10 PAs
+
+```{r}
+
+# Create bar chart for btm 10
+btm_n <- 10  # 
+btm_pa <- pop_by_pa %>%
+  slice_min(order_by = Total_Pop, n = btm_n)
+
+plot2 <- ggplot(data = btm_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
+  geom_bar(stat = "identity", fill = "grey40", color = "grey90") +
+  geom_text(
+    aes(label = comma(Total_Pop)),
+    #angle = 90,
+    hjust = -0.2,
+    vjust = 0.4,
+    size = 3
+  ) +
+  coord_flip()+
+  theme_bw() +
+  ggtitle(paste("Bottom", btm_n, "Planning Areas by Population (2024)")) +
+  xlab("Planning Area") +
+  ylab("Total Population") +
+  #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
+  scale_y_continuous(
+  labels = comma,
+  breaks = seq(0, 5000, by = 1000),
+  limits = c(0, 5000)
+)
+
+print(plot2)
+```
+:::
