@@ -113,7 +113,7 @@ Made an adjustment to use the cleaned dataset which was cleaned above for the su
 
 ## Makeover Version of Visualisation
 
-Adjustments I have made to Marga's original graph based on the 3 Areas of Improvement feedback:
+**Adjustments I have made to Marga's original graph based on the 3 Areas of Improvement feedback:**
 
 -   Choice of color for the bars - a darker color can be used to further improve the contrast of the bar graph from the page:
 
