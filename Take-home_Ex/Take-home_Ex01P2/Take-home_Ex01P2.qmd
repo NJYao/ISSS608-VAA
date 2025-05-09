@@ -28,9 +28,9 @@ Selected Visualisation: [Marga Thura](https://isss608-ay2024-2025.netlify.app/ta
 
 1.  Usage of thousands separator in data labels and axis to improve readability for numbers
 
-2.  X-axis labels are tilted in an angle to help with readability
+2.  X-axis labels are tilted in an angle to help with readability for the Planning Area groups
 
-3.  Soft gridlines with a lighter shade than the bar fills are used that do not distract from the main bar graph data
+3.  Soft gridlines with a lighter shade than the barchart bar fill colors are used that do not distract from the main barchart data
 
 ### 3 Areas of Improvement:
 
