@@ -165,6 +165,7 @@ plot2 <- ggplot(data = btm_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
+  theme(panel.grid.major.y = element_blank())+
   ggtitle(paste("Bottom", btm_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
