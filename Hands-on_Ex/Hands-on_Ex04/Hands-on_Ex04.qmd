@@ -864,6 +864,32 @@ ggbetweenstats(
 
 Default information: - statistical details - Bayes Factor - sample sizes - distribution summary
 
+Trying out with Parametric
+
+```{r}
+#Trying out in class teachings
+ggbetweenstats(
+  data = exam,
+  x = GENDER, 
+  y = MATHS,
+  type = "p", #adjust from np(non-parametric) to p (parametric). label change to show   mean instead of median, changes the statistical test and results accordingly
+  messages = FALSE
+)
+```
+
+Trying out with Robust
+
+```{r}
+#Trying out in class teachings
+ggbetweenstats(
+  data = exam,
+  x = GENDER, 
+  y = MATHS,
+  type = "r", # r for robust - mean trimmed outliers are trimmed if there are any of them
+  messages = FALSE
+)
+```
+
 ### **Oneway ANOVA Test: *ggbetweenstats()* method**
 
 In the code chunk below, [*ggbetweenstats()*](https://indrajeetpatil.github.io/ggstatsplot/reference/ggbetweenstats.html) is used to build a visual for One-way ANOVA test on English score by race.
@@ -907,6 +933,17 @@ ggscatterstats(
   )
 ```
 
+Trying out Marginal plots in class
+
+```{r}
+ggscatterstats(
+  data = exam,
+  x = MATHS,
+  y = ENGLISH,
+  marginal = TRUE,
+  )
+```
+
 ### **Significant Test of Association (Dependence) : *ggbarstats()* methods**
 
 In the code chunk below, the Maths scores is binned into a 4-class variable by using [*cut()*](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/cut).
@@ -926,6 +963,8 @@ ggbarstats(exam1,
            x = MATHS_bins, 
            y = GENDER)
 ```
+
+In class: For categorical data, recommended to use mosaic plots, by default ggstatplot will use bar chart. benefit, width of mosaic plot represents quantity variation - more variation or observations if wider.
 
 # **Visualising Uncertainty**
 
@@ -1341,8 +1380,9 @@ Gentle advice: This function comes with many arguments, students are advised to 
 
 ### **Installing ungeviz package**
 
-```{r}
+```{r eval= FALSE}
 devtools::install_github("wilkelab/ungeviz")
+# can input {r eval=FALSE} so that it won't keep running whenever render or run all
 ```
 
 Note: You only need to perform this step once.

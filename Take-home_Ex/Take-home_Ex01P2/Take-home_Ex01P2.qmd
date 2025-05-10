@@ -171,8 +171,9 @@ plot2 <- ggplot(data = btm_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
   scale_y_continuous(
   labels = comma,
-  breaks = seq(0, 5000, by = 1000),
-  limits = c(0, 5000)
+  expand = c(0, 0),
+  breaks = seq(0, 4750, by = 1000),
+  limits = c(0, 4750)
 )
 
 # Create bar chart for top 10
@@ -191,14 +192,16 @@ plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
+  theme(panel.grid.major.y = element_blank())+
   ggtitle(paste("Top", top_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
   #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
   scale_y_continuous(
   labels = comma,
-  breaks = seq(0, 310000, by = 100000),
-  limits = c(0, 310000)
+  expand = c(0, 0),
+  breaks = seq(0, 315000, by = 50000),
+  limits = c(0, 315000)
 )
 ```
 
@@ -254,14 +257,16 @@ plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
+  theme(panel.grid.major.y = element_blank())+
   ggtitle(paste("Top", top_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
   #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
   scale_y_continuous(
   labels = comma,
-  breaks = seq(0, 310000, by = 100000),
-  limits = c(0, 310000)
+  expand = c(0, 0),
+  breaks = seq(0, 315000, by = 50000),
+  limits = c(0, 315000)
 )
 
 print(plot1)
@@ -287,14 +292,16 @@ plot2 <- ggplot(data = btm_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
+  theme(panel.grid.major.y = element_blank())+
   ggtitle(paste("Bottom", btm_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
   #theme(axis.text.x = element_text(angle = 55, hjust = 1)) +
   scale_y_continuous(
   labels = comma,
-  breaks = seq(0, 5000, by = 1000),
-  limits = c(0, 5000)
+  expand = c(0, 0),
+  breaks = seq(0, 4750, by = 1000),
+  limits = c(0, 4750)
 )
 
 print(plot2)
