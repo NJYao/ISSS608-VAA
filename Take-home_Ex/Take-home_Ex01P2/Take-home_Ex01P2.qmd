@@ -1,6 +1,6 @@
 ---
 title: "Take-home Exercise 1 Part 2"
-date: "May 7, 2025"
+date: "May 10, 2025"
 date-modified: "last-modified"
 author: "Ng Jin Yao"
 format: html
@@ -38,7 +38,7 @@ Selected Visualisation: [Marga Thura](https://isss608-ay2024-2025.netlify.app/ta
 
 2.  Alignment of Data labels with respective bars and data labels can be adjusted so that the labels do not exceed the plot area
 
-3.  Current graph has too many groups and the number difference is too wide - the graphs can be split to focus on top and bottom 10 populations and focus on these groups instead to improve clarity as it allows graphs to show lesser groups and adjust scaling accordingly for clarity
+3.  Current graph has too many groups and the number difference is too wide, affecting the scaling and readability of the data labels - the graphs can be split to focus on top and bottom 10 populations to improve clarity as it allows graphs to show lesser groups and adjust scaling accordingly to improve the aesthetics
 
 ## Replicating Data Loading and Cleaning.
 
@@ -120,7 +120,7 @@ Made an adjustment to use the cleaned dataset which was cleaned above for the su
 ::: callout-note
 ## Adjustment #1:
 
-Adjusted fill color for geombar plot from "grey70" to a darker "grey40"
+Adjusted fill color for geombar plot from "grey70" to a darker "grey40".
 :::
 
 -   Alignment of Data labels with respective bars and data labels can be adjusted so that the labels do not exceed the plot area:
@@ -131,7 +131,7 @@ Adjusted fill color for geombar plot from "grey70" to a darker "grey40"
 Adjusted geom_text hjust and vjust values to centre data labels to the respective bars in the chart
 :::
 
--   Current graph has too many groups and the number difference is too wide - the graphs can be split to focus on top and bottom 10 populations and focus on these groups instead to improve clarity as it allows graphs to show lesser groups and adjust scaling accordingly for clarity:
+-   Current graph has too many groups and the number difference is too wide, affecting the scaling and readability of the data labels - the graphs can be split to focus on top and bottom 10 populations to improve clarity as it allows graphs to show lesser groups and adjust scaling accordingly to improve the aesthetics:
 
 ::: callout-note
 ## Adjustment #3:
@@ -140,7 +140,7 @@ Adjusted geom_text hjust and vjust values to centre data labels to the respectiv
 
 2.  Adjusted the visualisation to generate plot1 for top 10 population PAs and plot2 for bottom 10 population PAs. Then generated a composite figure of plot1 and plot2 together using the patchwork extension
 
-3.  Other miscellaneous adjustments to text size, axis limits to accommodate aesthetic adjustments for plot1, plot2 and the composite graph
+3.  Other miscellaneous adjustments to text size, axis limits to accommodate aesthetic adjustments for plot1, plot2 and the composite graph such as removing the horizontal axis and adjusting text size.
 :::
 
 ::: panel-tabset
