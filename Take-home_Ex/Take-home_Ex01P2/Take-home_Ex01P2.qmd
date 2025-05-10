@@ -165,7 +165,7 @@ plot2 <- ggplot(data = btm_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
-  theme(panel.grid.major.y = element_blank())+
+  theme(panel.grid.major.y = element_blank(),panel.border = element_blank())+
   ggtitle(paste("Bottom", btm_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
@@ -193,7 +193,7 @@ plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
-  theme(panel.grid.major.y = element_blank())+
+ theme(panel.grid.major.y = element_blank(),panel.border = element_blank())+
   ggtitle(paste("Top", top_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
@@ -201,8 +201,8 @@ plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   scale_y_continuous(
   labels = comma,
   expand = c(0, 0),
-  breaks = seq(0, 315000, by = 50000),
-  limits = c(0, 315000)
+  breaks = seq(0, 325000, by = 50000),
+  limits = c(0, 325000)
 )
 ```
 
@@ -258,7 +258,7 @@ plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
-  theme(panel.grid.major.y = element_blank())+
+  theme(panel.grid.major.y = element_blank(),panel.border = element_blank())+
   ggtitle(paste("Top", top_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
@@ -266,8 +266,8 @@ plot1 <- ggplot(data = top_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   scale_y_continuous(
   labels = comma,
   expand = c(0, 0),
-  breaks = seq(0, 315000, by = 50000),
-  limits = c(0, 315000)
+  breaks = seq(0, 325000, by = 50000),
+  limits = c(0, 325000)
 )
 
 print(plot1)
@@ -293,7 +293,7 @@ plot2 <- ggplot(data = btm_pa, aes(x = reorder(PA, Total_Pop), y = Total_Pop)) +
   ) +
   coord_flip()+
   theme_bw() +
-  theme(panel.grid.major.y = element_blank())+
+  theme(panel.grid.major.y = element_blank(),panel.border = element_blank())+
   ggtitle(paste("Bottom", btm_n, "Planning Areas by Population (2024)")) +
   xlab("Planning Area") +
   ylab("Total Population") +
