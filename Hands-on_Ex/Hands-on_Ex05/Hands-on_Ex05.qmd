@@ -1,6 +1,6 @@
 ---
 title: "Hands-on_Ex05"
-date: "May 16, 2025"
+date: "May 14, 2025"
 date-modified: "last-modified"
 author: "Ng Jin Yao"
 format: 
@@ -56,9 +56,13 @@ The data sets used in this hands-on exercise is from an oil exploration and extr
 
 -   *GAStech-email_edges.csv* which consists of two weeks of 9063 emails correspondances between 55 employees.
 
+    ![](images/clipboard-2217976830.png)
+
 ### **The nodes data**
 
--   *GAStech_email_nodes.csv* which consist of the names, department and title of the 55 employees![](images/clipboard-2166758786.png)
+-   *GAStech_email_nodes.csv* which consist of the names, department and title of the 55 employees
+
+    ![](images/clipboard-2166758786.png)
 
 ### **Importing network data from files**
 
