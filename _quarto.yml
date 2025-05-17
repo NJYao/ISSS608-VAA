@@ -27,7 +27,7 @@ website:
           href: "Take-home_Ex/Take-home_Ex01P2/Take-home_Ex01P2.html"
     - text: "In Class Exercise"
       menu:
-        - text: "In Class Exercise 1" 
+        - text: "In Class Exercise 5" 
           href: "Take-home_Ex/Take-home_Ex02/MC1_release/MC1.html"
      
           
@@ -58,6 +58,11 @@ website:
             href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html"
           - text: "Take Home Exercise 1 P2" 
             href: "Take-home_Ex/Take-home_Ex01P2/Take-home_Ex01P2.html"
+
+      - section: "In Class Exercise"
+        contents:
+          - text: "In Class Exercise 5" 
+            href: "Take-home_Ex/Take-home_Ex02/MC1_release/MC1.html"
       
 format:
   html:
