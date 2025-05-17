@@ -592,7 +592,9 @@ The code chunk below will be used to plot an interactive network graph by using 
 
 ```{r}
 visNetwork(GAStech_nodes, 
-           GAStech_edges_aggregated)
+           GAStech_edges_aggregated) 
+
+#this is the part which makes it a force directed network graph
 ```
 
 ### **Working with layout**

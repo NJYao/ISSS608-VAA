@@ -178,6 +178,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
     </ul>
   </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-in-class-exercise" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">In Class Exercise</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-in-class-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex02/MC1_release/MC1.html">
+ <span class="dropdown-text">In Class Exercise 1</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
@@ -378,7 +389,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">May 14, 2025</p>
+      <p class="date-modified">May 17, 2025</p>
     </div>
   </div>
     
@@ -2565,78 +2576,80 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb37-642"><a href="#cb37-642" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-645"><a href="#cb37-645" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb37-646"><a href="#cb37-646" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes, </span>
-<span id="cb37-647"><a href="#cb37-647" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated)</span>
-<span id="cb37-648"><a href="#cb37-648" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-649"><a href="#cb37-649" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-650"><a href="#cb37-650" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Working with layout**</span></span>
+<span id="cb37-647"><a href="#cb37-647" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) </span>
+<span id="cb37-648"><a href="#cb37-648" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-649"><a href="#cb37-649" aria-hidden="true" tabindex="-1"></a><span class="co">#this is the part which makes it a force directed network graph</span></span>
+<span id="cb37-650"><a href="#cb37-650" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-651"><a href="#cb37-651" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-652"><a href="#cb37-652" aria-hidden="true" tabindex="-1"></a>In the code chunk below, Fruchterman and Reingold layout is used.</span>
+<span id="cb37-652"><a href="#cb37-652" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Working with layout**</span></span>
 <span id="cb37-653"><a href="#cb37-653" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-656"><a href="#cb37-656" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-657"><a href="#cb37-657" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
-<span id="cb37-658"><a href="#cb37-658" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
-<span id="cb37-659"><a href="#cb37-659" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) </span>
-<span id="cb37-660"><a href="#cb37-660" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-661"><a href="#cb37-661" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-662"><a href="#cb37-662" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Working with visual attributes - Nodes**</span></span>
+<span id="cb37-654"><a href="#cb37-654" aria-hidden="true" tabindex="-1"></a>In the code chunk below, Fruchterman and Reingold layout is used.</span>
+<span id="cb37-655"><a href="#cb37-655" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-658"><a href="#cb37-658" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-659"><a href="#cb37-659" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
+<span id="cb37-660"><a href="#cb37-660" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
+<span id="cb37-661"><a href="#cb37-661" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) </span>
+<span id="cb37-662"><a href="#cb37-662" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-663"><a href="#cb37-663" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-664"><a href="#cb37-664" aria-hidden="true" tabindex="-1"></a>visNetwork() looks for a field called “group” in the nodes object and colour the nodes according to the values of the group field.</span>
+<span id="cb37-664"><a href="#cb37-664" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Working with visual attributes - Nodes**</span></span>
 <span id="cb37-665"><a href="#cb37-665" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-666"><a href="#cb37-666" aria-hidden="true" tabindex="-1"></a>The code chunk below rename Department field to group.</span>
+<span id="cb37-666"><a href="#cb37-666" aria-hidden="true" tabindex="-1"></a>visNetwork() looks for a field called “group” in the nodes object and colour the nodes according to the values of the group field.</span>
 <span id="cb37-667"><a href="#cb37-667" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-670"><a href="#cb37-670" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-671"><a href="#cb37-671" aria-hidden="true" tabindex="-1"></a>GAStech_nodes <span class="ot">&lt;-</span> GAStech_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb37-672"><a href="#cb37-672" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">group =</span> Department) </span>
-<span id="cb37-673"><a href="#cb37-673" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-674"><a href="#cb37-674" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-675"><a href="#cb37-675" aria-hidden="true" tabindex="-1"></a>When we rerun the code chunk below, visNetwork shades the nodes by assigning unique colour to each category in the&nbsp;*group*&nbsp;field.</span>
+<span id="cb37-668"><a href="#cb37-668" aria-hidden="true" tabindex="-1"></a>The code chunk below rename Department field to group.</span>
+<span id="cb37-669"><a href="#cb37-669" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-672"><a href="#cb37-672" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-673"><a href="#cb37-673" aria-hidden="true" tabindex="-1"></a>GAStech_nodes <span class="ot">&lt;-</span> GAStech_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb37-674"><a href="#cb37-674" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">group =</span> Department) </span>
+<span id="cb37-675"><a href="#cb37-675" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-676"><a href="#cb37-676" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-679"><a href="#cb37-679" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-680"><a href="#cb37-680" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
-<span id="cb37-681"><a href="#cb37-681" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
-<span id="cb37-682"><a href="#cb37-682" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb37-683"><a href="#cb37-683" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb37-684"><a href="#cb37-684" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">123</span>)</span>
-<span id="cb37-685"><a href="#cb37-685" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-686"><a href="#cb37-686" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-687"><a href="#cb37-687" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Working with visual attributes - Edges**</span></span>
+<span id="cb37-677"><a href="#cb37-677" aria-hidden="true" tabindex="-1"></a>When we rerun the code chunk below, visNetwork shades the nodes by assigning unique colour to each category in the&nbsp;*group*&nbsp;field.</span>
+<span id="cb37-678"><a href="#cb37-678" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-681"><a href="#cb37-681" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-682"><a href="#cb37-682" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
+<span id="cb37-683"><a href="#cb37-683" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
+<span id="cb37-684"><a href="#cb37-684" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb37-685"><a href="#cb37-685" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb37-686"><a href="#cb37-686" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">123</span>)</span>
+<span id="cb37-687"><a href="#cb37-687" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-688"><a href="#cb37-688" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-689"><a href="#cb37-689" aria-hidden="true" tabindex="-1"></a>In the code run below *visEdges()* is used to symbolise the edges.\</span>
-<span id="cb37-690"><a href="#cb37-690" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The argument *arrows* is used to define where to place the arrow.\</span>
-<span id="cb37-691"><a href="#cb37-691" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The *smooth* argument is used to plot the edges using a smooth curve.</span>
-<span id="cb37-692"><a href="#cb37-692" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-695"><a href="#cb37-695" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-696"><a href="#cb37-696" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
-<span id="cb37-697"><a href="#cb37-697" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
-<span id="cb37-698"><a href="#cb37-698" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb37-699"><a href="#cb37-699" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visEdges</span>(<span class="at">arrows =</span> <span class="st">"to"</span>, </span>
-<span id="cb37-700"><a href="#cb37-700" aria-hidden="true" tabindex="-1"></a>           <span class="at">smooth =</span> <span class="fu">list</span>(<span class="at">enabled =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb37-701"><a href="#cb37-701" aria-hidden="true" tabindex="-1"></a>                         <span class="at">type =</span> <span class="st">"curvedCW"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb37-702"><a href="#cb37-702" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb37-703"><a href="#cb37-703" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">123</span>)</span>
-<span id="cb37-704"><a href="#cb37-704" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-705"><a href="#cb37-705" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-706"><a href="#cb37-706" aria-hidden="true" tabindex="-1"></a>Visit&nbsp;<span class="co">[</span><span class="ot">Option</span><span class="co">](http://datastorm-open.github.io/visNetwork/edges.html)</span>&nbsp;to find out more about visEdges’s argument.</span>
+<span id="cb37-689"><a href="#cb37-689" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Working with visual attributes - Edges**</span></span>
+<span id="cb37-690"><a href="#cb37-690" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-691"><a href="#cb37-691" aria-hidden="true" tabindex="-1"></a>In the code run below *visEdges()* is used to symbolise the edges.\</span>
+<span id="cb37-692"><a href="#cb37-692" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The argument *arrows* is used to define where to place the arrow.\</span>
+<span id="cb37-693"><a href="#cb37-693" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The *smooth* argument is used to plot the edges using a smooth curve.</span>
+<span id="cb37-694"><a href="#cb37-694" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-697"><a href="#cb37-697" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-698"><a href="#cb37-698" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
+<span id="cb37-699"><a href="#cb37-699" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
+<span id="cb37-700"><a href="#cb37-700" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb37-701"><a href="#cb37-701" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visEdges</span>(<span class="at">arrows =</span> <span class="st">"to"</span>, </span>
+<span id="cb37-702"><a href="#cb37-702" aria-hidden="true" tabindex="-1"></a>           <span class="at">smooth =</span> <span class="fu">list</span>(<span class="at">enabled =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb37-703"><a href="#cb37-703" aria-hidden="true" tabindex="-1"></a>                         <span class="at">type =</span> <span class="st">"curvedCW"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb37-704"><a href="#cb37-704" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb37-705"><a href="#cb37-705" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">123</span>)</span>
+<span id="cb37-706"><a href="#cb37-706" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-707"><a href="#cb37-707" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-708"><a href="#cb37-708" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Interactivity**</span></span>
+<span id="cb37-708"><a href="#cb37-708" aria-hidden="true" tabindex="-1"></a>Visit&nbsp;<span class="co">[</span><span class="ot">Option</span><span class="co">](http://datastorm-open.github.io/visNetwork/edges.html)</span>&nbsp;to find out more about visEdges’s argument.</span>
 <span id="cb37-709"><a href="#cb37-709" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-710"><a href="#cb37-710" aria-hidden="true" tabindex="-1"></a>In the code chunk below, *visOptions()* is used to incorporate interactivity features in the data visualisation.</span>
+<span id="cb37-710"><a href="#cb37-710" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Interactivity**</span></span>
 <span id="cb37-711"><a href="#cb37-711" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-712"><a href="#cb37-712" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>The argument *highlightNearest* highlights nearest when clicking a node.</span>
+<span id="cb37-712"><a href="#cb37-712" aria-hidden="true" tabindex="-1"></a>In the code chunk below, *visOptions()* is used to incorporate interactivity features in the data visualisation.</span>
 <span id="cb37-713"><a href="#cb37-713" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-714"><a href="#cb37-714" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>The argument *nodesIdSelection* adds an id node selection creating an HTML select element.</span>
+<span id="cb37-714"><a href="#cb37-714" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>The argument *highlightNearest* highlights nearest when clicking a node.</span>
 <span id="cb37-715"><a href="#cb37-715" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-718"><a href="#cb37-718" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-719"><a href="#cb37-719" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
-<span id="cb37-720"><a href="#cb37-720" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
-<span id="cb37-721"><a href="#cb37-721" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb37-722"><a href="#cb37-722" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb37-723"><a href="#cb37-723" aria-hidden="true" tabindex="-1"></a>             <span class="at">nodesIdSelection =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb37-724"><a href="#cb37-724" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb37-725"><a href="#cb37-725" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">123</span>)</span>
-<span id="cb37-726"><a href="#cb37-726" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-727"><a href="#cb37-727" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-728"><a href="#cb37-728" aria-hidden="true" tabindex="-1"></a>Visit&nbsp;<span class="co">[</span><span class="ot">Option</span><span class="co">](http://datastorm-open.github.io/visNetwork/options.html)</span>&nbsp;to find out more about visOption’s argument.</span>
+<span id="cb37-716"><a href="#cb37-716" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>The argument *nodesIdSelection* adds an id node selection creating an HTML select element.</span>
+<span id="cb37-717"><a href="#cb37-717" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-720"><a href="#cb37-720" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-721"><a href="#cb37-721" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(GAStech_nodes,</span>
+<span id="cb37-722"><a href="#cb37-722" aria-hidden="true" tabindex="-1"></a>           GAStech_edges_aggregated) <span class="sc">%&gt;%</span></span>
+<span id="cb37-723"><a href="#cb37-723" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visIgraphLayout</span>(<span class="at">layout =</span> <span class="st">"layout_with_fr"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb37-724"><a href="#cb37-724" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visOptions</span>(<span class="at">highlightNearest =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb37-725"><a href="#cb37-725" aria-hidden="true" tabindex="-1"></a>             <span class="at">nodesIdSelection =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb37-726"><a href="#cb37-726" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLegend</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb37-727"><a href="#cb37-727" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visLayout</span>(<span class="at">randomSeed =</span> <span class="dv">123</span>)</span>
+<span id="cb37-728"><a href="#cb37-728" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-729"><a href="#cb37-729" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-730"><a href="#cb37-730" aria-hidden="true" tabindex="-1"></a>Visit&nbsp;<span class="co">[</span><span class="ot">Option</span><span class="co">](http://datastorm-open.github.io/visNetwork/options.html)</span>&nbsp;to find out more about visOption’s argument.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
