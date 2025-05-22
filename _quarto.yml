@@ -28,9 +28,12 @@ website:
           href: "Take-home_Ex/Take-home_Ex01P2/Take-home_Ex01P2.html"
     - text: "In Class Exercise"
       menu:
+        - text: "Tableu Plots"
+          url: https://public.tableau.com/app/profile/jin.yao.ng/vizzes
         - text: "In Class Exercise 5" 
           href: "Take-home_Ex/Take-home_Ex02/MC1_release/MC1.html"
-     
+
+         
           
     right:
       - href: index.qmd
@@ -64,6 +67,8 @@ website:
 
       - section: "In Class Exercise"
         contents:
+          - text: "Tableu Plots"
+            url: https://public.tableau.com/app/profile/jin.yao.ng/vizzes
           - text: "In Class Exercise 5" 
             href: "Take-home_Ex/Take-home_Ex02/MC1_release/MC1.html"
       

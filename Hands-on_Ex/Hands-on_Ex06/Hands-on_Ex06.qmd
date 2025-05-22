@@ -1,5 +1,5 @@
 ---
-title: "Hands-on_Ex06"
+title: "Hands-on Exercise 6"
 date: "May 22, 2025"
 date-modified: "last-modified"
 author: "Ng Jin Yao"
@@ -566,26 +566,36 @@ Next, code chunk below will be used to plot a basic slopegraph as shown below.
 
 ```{r}
 #| echo: false
-rice %>% 
+#| fig-height: 14 #increase height to prevent bunching up of labels
+#| fig-width: 8
+rice %>%
   mutate(Year = factor(Year)) %>%
-  filter(Year %in% c(1961, 1980)) %>%
+  filter(Year %in% c(1961,1980)) %>%
   newggslopegraph(Year, Yield, Country,
                 Title = "Rice Yield of Top 11 Asian Counties",
                 SubTitle = "1961-1980",
-                Caption = "Prepared by: Ng Jin Yao")
+                Caption = "Prepared by: Ng Jin Yao",
+                YTextSize = 4, #increase Y axis and datapoint text size
+                DataTextSize = 3
+  )
 ```
 
 ## The Code
 
 ```{r}
 #| eval: false
-rice %>% 
+#| fig-height: 14 #increase height to prevent bunching up of labels
+#| fig-width: 8
+rice %>%
   mutate(Year = factor(Year)) %>%
-  filter(Year %in% c(1961, 1980)) %>%
+  filter(Year %in% c(1961,1980)) %>%
   newggslopegraph(Year, Yield, Country,
                 Title = "Rice Yield of Top 11 Asian Counties",
                 SubTitle = "1961-1980",
-                Caption = "Prepared by: Ng Jin Yao")
+                Caption = "Prepared by: Ng Jin Yao",
+                YTextSize = 4, #increase Y axis and datapoint text size
+                DataTextSize = 3 
+  )
 ```
 
 :::
