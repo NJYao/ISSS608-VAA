@@ -1,0 +1,1217 @@
+---
+title: "MC1"
+date: "May 14, 2025"
+date-modified: "last-modified"
+author: "Ng Jin Yao"
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+::: callout-important
+## Important
+
+You are required to install the R packages above, if necessary, before continue to the next step\
+Check packages to ensure they are installed
+:::
+
+```{r}
+pacman::p_load(tidyverse, jsonlite, 
+               SmartEDA, tidygraph, 
+               ggraph)
+
+#tidygraph to build graph object, to work tgt with ggraph
+#ggplot no need to call out again as its in tidyverse
+
+#SmartEDA library for exploratory data analysis, good to have it to check data
+
+
+```
+
+## Importing Knowledge Graph Data
+
+```{r}
+kg <- fromJSON("data/MC1_graph.json")
+```
+
+### Inspect Structure
+
+```{r}
+str(kg,max.level = 1)
+#structure enable to check structure of the data
+#good to have this line to check structues of data
+```
+
+::: callout-note
+directed - tells you if its a directed graph
+
+nodes and links are in dataframe- can be read
+
+Can see data types etc from Environment tab of R-studio - look at the structure
+
+![](images/clipboard-2889161820.png)
+
+Can open and see the data table
+
+![](images/clipboard-2172143603.png)
+
+![](images/clipboard-3982246560.png)
+:::
+
+### Extract and Inspect
+
+```{r}
+nodes_tbl <- as_tibble(kg$nodes) #kg$ know that pull nodes out
+edges_tbl <- as_tibble(kg$links)
+
+```
+
+## Initial EDA
+
+```{r}
+ggplot(data = edges_tbl,
+       aes(y= `Edge Type`)) +
+  geom_bar()
+##want to know how many classes available for edge type
+## field names always use ``, not ''
+```
+
+```{r}
+ggplot 
+```
+
+## Creating Knowledge Graph
+
+This is
+
+### Step 1: Mappying from node id to row index
+
+avoid multiple id that have 0 0 but actually they have missing value
+
+to make sure they have unique id code
+
+To reassign ID
+
+depends on scenario, may need to subset data first before extracting - depends on use case
+
+```{r}
+id_map <- tibble(id = nodes_tbl$id, index = seq_len(nrow(nodes_tbl)))
+```
+
+### Step 2: Map source and target IDs to row indices
+
+```{r}
+edges_tbl <- edges_tbl %>%
+  left_join(id_map,by = c("source" = "id"))%>%
+    rename(from =index) %>%
+    left_join(id_map, by = c("target" = "id"))%>%
+    rename(to = index)
+## see data table original source is 0 now become from 1
+```
+
+### Step 3: Filter out any unmatched (invalid) edges
+
+```{r}
+edges_tbl <- edges_tbl %>%
+  filter(!is.na(from), !is.na(to))
+```
+
+### Step 4: Creating the graph
+
+```{r}
+graph <- tbl_graph(nodes = nodes_tbl,
+                   edges = edges_tbl,
+                   directed = kg$directed)
+#if its directed, true, if not false. BUt in this case there is data to show its directed = true so can reference the data from the data
+```
+
+## Visualising the knowledge graph
+
+```{r}
+set.seed(1234)
+#once fix this, everytime run random is the same number
+```
+
+### Visualising the Whole Graph
+
+```{r}
+#| eval: false
+ggraph(graph, layout = "fr") +
+  geom_edge_link(alpha = 0.3,
+                 colour = "gray") +
+  geom_node_point(aes(color = `Node Type`),
+                  size = 4) +
+  geom_node_text(aes(label = name),
+                 repel = TRUE,
+                 size =2.5) +
+  theme_void()
+
+```
+
+#### Step 1:Filter edges to only "Memberof"
+
+mining for those "Memberof"
+
+```{r}
+graph_memberof <- graph %>%
+  activate(edges) %>%
+  filter (`Edge Type` == "MemberOf")
+
+##filter off the edges but the nodes are still there, still a large set of data 17412 as the source
+```
+
+#### Step 2: Extract only connected nodes (ie used in these edges)
+
+```{r}
+##additional code to remove and only used connected nodes, those that are useful
+used_nodes_indices <- graph_memberof %>%
+  activate(edges)%>%
+  as_tibble() %>%
+  select(from, to) %>%
+  unlist() %>%
+  unique()
+```
+
+#### Step 3: keep only those node
+
+```{r}
+graph_memberof <- graph_memberof %>%
+  activate(nodes) %>%
+  mutate(row_id = row_number()) %>%
+  filter(row_id %in% used_nodes_indices) %>%
+  select(-row_id) # optional cleanup
+```
+
+#### plot the sub graph
+
+```{r}
+ggraph(graph_memberof,
+       layout = "fr") +
+  geom_edge_link(alpha= 0.5,
+                 colour = "gray") +
+  geom_node_point(aes(color = `Node Type`),
+                  size = 1)+
+  geom_node_text(aes(label = name),
+                 repel = TRUE,
+                 size=2.5)
+  theme_void()
+```
+
+visnetwork graph
+
+plotting a visnetwork graph to visualise the interactions centering around sailor shift
+
+Step 1 :
+
+Load Libraries
+
+```{r}
+library(dplyr)
+library(igraph)
+library(visNetwork)
+library(jsonlite)
+```
+
+Load Json Data
+
+```{r}
+# --- 1. Load your JSON data ---
+# Assuming 'MC1_graph.json' is in your working directory
+kg <- fromJSON("data/MC1_graph.json")
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+
+```
+
+set filter and no. of hops
+
+```{r}
+# --- Configuration ---
+target_name <- "Sailor Shift"
+max_hops_for_context <- 3
+```
+
+Defining edge type colors
+
+```{r}
+# --- Define ALL possible Edge Type Colors (Global and Consistent) ---
+all_edge_type_colors <- c(
+  "PerformerOf" = "#FF5733",
+  "ComposerOf" = "#33FF57",
+  "ProducerOf" = "#3357FF",
+  "LyricistOf" = "#FF33F5",
+  "RecordedBy" = "#F5FF33",
+  "InterpolatesFrom" = "#8A2BE2",
+  "InStyleOf" = "#DAA520",
+  "LyricalReferenceTo" = "#5F9EA0",
+  "CoverOf" = "#DC143C",
+  "DirectlySamples" = "#6A5ACD",
+  "DistributedBy" = "#20B2AA",
+  "MemberOf" = "#8B4513",
+  "default" = "#CCCCCC" # Fallback color for any unlisted type
+)
+
+# --- Define ALL possible Node Type Colors (Global and Consistent) ---
+all_node_type_colors <- c(
+  "Song" = "lightblue",
+  "Person" = "orange",
+  "MusicalGroup" = "#CF9FFF",
+  "RecordLabel" = "lightgreen",
+  "default" = "gray" # Fallback color for any unlisted type
+)
+```
+
+```{r}
+# --- Get target node ID ---
+sailor_node <- nodes_tbl %>% filter(name == target_name)
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found.", sep=""))
+sailor_id <- as.character(sailor_node$id)
+```
+
+```{r}
+# --- Prepare edges_igraph_df for filtering and visNetwork ---
+edges_igraph_df <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  rename(from = source, to = target) # Rename to from/to for visNetwork
+```
+
+```{r}
+# --- Section 1: General Context Network (2-hop) ---
+# Build igraph for neighborhood calculation
+g <- graph_from_data_frame(edges_igraph_df, directed = FALSE)
+
+```
+
+```{r}
+# Get N-hop neighborhood for general context
+ego_nodes_indices <- ego(graph = g, order = max_hops_for_context, nodes = sailor_id, mode = "all")[[1]]
+connected_ids_general <- names(ego_nodes_indices)
+```
+
+```{r}
+# Filter nodes for the general context subgraph
+sub_nodes_general <- nodes_tbl %>%
+  filter(as.character(id) %in% connected_ids_general) %>%
+  mutate(
+    id = as.character(id),
+    label = name,
+    stage_name_str = if_else(!is.na(stage_name), paste0("<b>Stage Name:</b> ", stage_name, "<br>"), ""),
+    release_date_str = if_else(!is.na(release_date), paste0("<b>Release Date:</b> ", release_date, "<br>"), ""),
+    # Include genre information for the tooltip
+    genre_str = if_else(!is.na(genre), paste0("<b>Genre:</b> ", genre, "<br>"), ""),
+    notable_str = if_else(!is.na(notable), paste0("<b>Notable:</b> ", notable, "<br>"), ""),
+    title = paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      genre_str, # Add genre to the tooltip
+      stage_name_str,
+      release_date_str,
+      notable_str
+    ),
+    group = `Node Type`,
+    # --- ADD THIS LINE TO CONTROL NODE SIZE ---
+    size = ifelse(id == sailor_id, 50, 15) # Sailor Shift size 50, others 15
+  ) %>%
+  select(-stage_name_str, -release_date_str, -genre_str, -notable_str)
+```
+
+```{r}
+# Filter edges for the general context subgraph and add color
+sub_edges_general <- edges_igraph_df %>%
+  filter(from %in% sub_nodes_general$id & to %in% sub_nodes_general$id) %>%
+  mutate(color = all_edge_type_colors[`Edge Type`])
+sub_edges_general$color[is.na(sub_edges_general$color)] <- all_edge_type_colors["default"]
+
+```
+
+```{r}
+# Visualize General Context Network
+graph_general_context <- visNetwork(nodes = sub_nodes_general, edges = sub_edges_general,
+                                    main = paste0("'", target_name, "' Network (", max_hops_for_context, "-hop Context)")) %>%
+  visNodes(shape = "dot", size = 15, label = ~label, title = ~title) %>%
+  visEdges(
+    arrows = "to",
+    label = ~`Edge Type`,
+    font = list(size = 10, align = "middle"),
+    color = list(color = ~color, highlight = ~color)
+  ) %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE, selected = sailor_id)) %>%
+  # Define node groups and their colors explicitly (needed for visLegend)
+  visGroups(groupname = "Song", color = "lightblue") %>%
+  visGroups(groupname = "Person", color = "orange") %>%
+  visGroups(groupname = "RecordLabel", color = "lightgreen") %>%
+  # Separate legend for nodes (on the left)
+  visLegend(
+    main = "Node Types",
+    useGroups = TRUE, # Show node groups in this legend
+    position = "left",
+    width = 0.15 # Adjust width as needed
+  ) %>%
+  # Separate legend for edges (on the right)
+  visLegend(
+    main = "Edge Types",
+    # Do not use useGroups or useEdges here as we are manually adding edges
+    addEdges = data.frame(
+      color = unname(all_edge_type_colors),
+      label = names(all_edge_type_colors),
+      font.align = "top" # Or "middle", "bottom"
+    ),
+    position = "right",
+    width = 0.15 # Adjust width as needed
+  ) %>%
+  visIgraphLayout(layout = "layout_with_fr", randomSeed = 42)%>% # Apply FR layout
+  visOptions(selectedBy = "group", 
+             highlightNearest = TRUE, 
+             nodesIdSelection = TRUE)
+
+graph_general_context
+
+```
+
+Optional - save as a html to view
+
+```{r}
+visSave(graph_general_context, file = paste0(target_name, "_general_network_", max_hops_for_context, "hop.html"))
+```
+
+#### 
+
+## Want Graph
+
+```{r}
+library(dplyr)
+library(jsonlite)
+library(igraph)
+library(visNetwork)
+library(viridisLite) # For the viridis color palette, used for group_colors
+
+# --- 1. Load your JSON data ---
+# Assuming 'MC1_graph.json' is in your working directory
+kg <- fromJSON("data/MC1_graph.json")
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+
+# --- Configuration ---
+target_name <- "Sailor Shift"
+max_hops_for_context <- 2 # For 2-hop neighborhood
+
+# --- Define ALL possible Edge Type Colors (Global and Consistent) ---
+all_edge_type_colors <- c(
+  "PerformerOf" = "#FF5733",
+  "ComposerOf" = "#33FF57",
+  "ProducerOf" = "#3357FF",
+  "LyricistOf" = "#FF33F5",
+  "RecordedBy" = "#F5FF33",
+  "InterpolatesFrom" = "#8A2BE2",
+  "InStyleOf" = "#DAA520",
+  "LyricalReferenceTo" = "#5F9EA0",
+  "CoverOf" = "#DC143C",
+  "DirectlySamples" = "#6A5ACD",
+  "DistributedBy" = "#20B2AA",
+  "MemberOf" = "#8B4513",
+  "default" = "#CCCCCC" # Fallback color for any unlisted type
+)
+
+# --- Define ALL possible Node Type Colors (Global and Consistent) ---
+all_node_type_colors <- c(
+  "Song" = "lightblue",
+  "Person" = "orange",
+  "MusicalGroup" = "#CF9FFF",
+  "RecordLabel" = "lightgreen",
+  "Album" = "brown", # Added a color for Album
+  "default" = "gray" # Fallback color for any unlisted type
+)
+
+# --- NEW: Define which edge types to display and include in the legend ---
+# Only these specific edge types will be displayed
+desired_edge_types_to_display <- c(
+  "InterpolatesFrom",
+  "DirectlySamples",
+  "InStyleOf",
+  "CoverOf",
+  "LyricalReferenceTo",
+  "ProducerOf",
+  "ComposerOf",
+  "PerformerOf",
+  "LyricistOf",
+  "MemberOf"
+)
+
+# --- IMPORTANT: Strict Node ID Cleaning ---
+# This step ensures all node IDs are valid numbers before processing
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(
+    # Attempt to convert ID to numeric. If it fails, it becomes NA.
+    temp_numeric_id = as.numeric(as.character(id))
+  ) %>%
+  # Filter out nodes whose IDs could not be converted to a valid number
+  filter(!is.na(temp_numeric_id)) %>%
+  # Use the cleaned numeric ID, convert back to character for consistency with igraph
+  mutate(id = as.character(temp_numeric_id)) %>%
+  select(-temp_numeric_id) # Remove the temporary column
+
+# --- Get target node ID from the cleaned nodes table ---
+sailor_node <- nodes_tbl_cleaned %>% filter(name == target_name)
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found in cleaned data.", sep=""))
+sailor_id <- as.character(sailor_node$id) # Ensure sailor_id is character
+
+# --- IMPORTANT: Pre-filter edges to ensure valid source/target IDs ---
+# Get a list of all valid node IDs from the cleaned nodes_tbl
+valid_node_ids <- nodes_tbl_cleaned$id
+
+edges_df_for_igraph <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  # Filter edges: both source AND target must exist in the cleaned list of node IDs
+  filter(source %in% valid_node_ids & target %in% valid_node_ids) %>%
+  # Ensure source and target are character type for consistency with node IDs
+  mutate(across(c(source, target), as.character)) %>%
+  # Rename source/target to from/to here for consistency
+  rename(from = source, to = target)
+
+# --- Build full igraph from the pre-filtered edge list ---
+# Explicitly provide the vertices using the cleaned node IDs for robustness
+g_full <- graph_from_data_frame(edges_df_for_igraph, directed = TRUE, vertices = nodes_tbl_cleaned$id)
+
+# --- Get N-hop neighborhood (2-hop in this case) ---
+ego_nodes_indices <- ego(graph = g_full, order = max_hops_for_context, nodes = sailor_id, mode = "all")[[1]]
+connected_ids_general <- names(ego_nodes_indices)
+
+# --- Prepare Nodes for visNetwork ---
+nodes_for_visnetwork <- nodes_tbl_cleaned %>%
+  filter(id %in% connected_ids_general) %>%
+  mutate(
+    # 'id' column for visNetwork's internal mapping (already character)
+    label = name, # 'label' column for display
+    title = paste0( # 'title' for hover text (tooltip)
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      if_else(`Node Type` == "Song" & !is.na(release_date), paste0("<b>Release Date:</b> ", release_date, "<br>"), ""),
+      if_else(!is.na(genre), paste0("<b>Genre:</b> ", genre, "<br>"), ""),
+      if_else(!is.na(stage_name), paste0("<b>Stage Name:</b> ", stage_name, "<br>"), ""),
+      if_else(!is.na(notable), paste0("<b>Notable:</b> ", notable, "<br>"), "")
+    ),
+    # IMPORTANT: 'group' column for highlightNearest and selectedBy.
+    # For Songs, group by genre. For others, group by Node Type.
+    group = if_else(`Node Type` == "Song" & !is.na(genre), genre, `Node Type`),
+    # Set default size for nodes, you can customize this
+    # --- ADJUSTED: Sailor Shift node size set to 50 ---
+    size = ifelse(id == sailor_id, 50, 15)
+  )
+
+# --- Prepare Edges for visNetwork ---
+# Filter edges for the general context subgraph AND by desired_edge_types_to_display
+sub_edges_general <- edges_df_for_igraph %>%
+  filter(from %in% nodes_for_visnetwork$id & to %in% nodes_for_visnetwork$id) %>%
+  # NEW: Filter by the desired edge types (now only specific types)
+  filter(`Edge Type` %in% desired_edge_types_to_display) %>%
+  mutate(
+    label = `Edge Type`, # Label for edge display
+    title = `Edge Type`, # Title for edge hover text
+    arrows = "to", # Add arrows for directed graph
+    # Assign color based on `Edge Type` using the full color mapping
+    color = all_edge_type_colors[`Edge Type`]
+  )
+
+# Ensure no NA colors if a type wasn't in `all_edge_type_colors` (though it should be)
+sub_edges_general$color[is.na(sub_edges_general$color)] <- all_edge_type_colors["default"]
+
+
+# --- Define node colors based on group (genre or Node Type) for initial rendering ---
+# Use the global `all_node_type_colors` for consistency across all graphs
+unique_node_groups <- unique(nodes_for_visnetwork$group)
+node_group_colors <- setNames(rep(all_node_type_colors["default"], length(unique_node_groups)), unique_node_groups) # Start with default
+for (group_name in names(all_node_type_colors)) {
+  if (group_name %in% unique_node_groups) {
+    node_group_colors[group_name] <- all_node_type_colors[group_name]
+  }
+}
+# Make sure any genre-specific colors are handled if 'group' became genre
+# For example, if "Oceanus Folk" is a genre, ensure its color is set here
+# node_group_colors["Oceanus Folk"] <- "#FFD700" # If Oceanus Folk is a genre
+
+# Correctly assign colors from `nodes_for_visnetwork` directly.
+# The 'color' column in nodes_for_visnetwork already has the logic for Sailor Shift's color
+# and then falls back to `all_node_type_colors`.
+# We don't need a `node_group_colors` here anymore if we define `color` in `nodes_for_visnetwork` directly.
+# Let's add the color directly to nodes_for_visnetwork in the mutate step, simplifying this.
+nodes_for_visnetwork <- nodes_for_visnetwork %>%
+  mutate(
+    base_color = all_node_type_colors[`Node Type`],
+    base_color = ifelse(is.na(base_color), all_node_type_colors["default"], base_color),
+    # Use the golden color for Sailor Shift, otherwise use the base_color
+    node_display_color = ifelse(id == sailor_id, "gold", base_color)
+  ) %>%
+  select(-base_color) # Remove the temporary column
+
+# --- Create the visNetwork plot ---
+graph_general_context <- visNetwork(nodes = nodes_for_visnetwork, edges = sub_edges_general,
+                                    main = paste0("'", target_name, "' Network (", max_hops_for_context, "-hop Context) - Selected Edge Types")) %>%
+  visNodes(
+    color = list(
+      background = ~node_display_color, # Use the directly calculated color
+      border = "black",
+      highlight = list(background = "red", border = "darkred"),
+      hover = list(background = "lightgray", border = "darkgray")
+    ),
+    shadow = TRUE,
+    font = list(size = 12),
+    shape = "dot"
+  ) %>%
+  visEdges(
+    arrows = "to",
+    label = ~`Edge Type`,
+    font = list(size = 10, align = "middle"),
+    # Use the 'color' column defined in sub_edges_general for edges
+    color = list(color = ~color, highlight = ~color)
+  ) %>%
+  visOptions(
+    highlightNearest = TRUE,
+    nodesIdSelection = TRUE, # Allow selecting nodes by ID from a dropdown
+    selectedBy = "group" # Enables a dropdown to select/highlight nodes by their 'group' (genre, Node Type)
+  ) %>%
+  # Define node groups and their colors explicitly for the legend (visGroups)
+  # Ensure these match the all_node_type_colors or specific genre colors
+  visGroups(groupname = "Song", color = all_node_type_colors["Song"]) %>%
+  visGroups(groupname = "Person", color = all_node_type_colors["Person"]) %>%
+  visGroups(groupname = "RecordLabel", color = all_node_type_colors["RecordLabel"]) %>%
+  visGroups(groupname = "Album", color = all_node_type_colors["Album"]) %>% # Add Album group
+  visGroups(groupname = "MusicalGroup", color = all_node_type_colors["MusicalGroup"]) %>% # Add MusicalGroup
+  # Add more visGroups calls for each genre if you want them to appear separately in the legend
+  # For example: visGroups(groupname = "Oceanus Folk", color = "#FFD700")
+
+  # Legend (on the left)
+  visLegend(
+    main = "Node Types & Genres", # Updated legend title to reflect genre groups
+    useGroups = TRUE, # Show node groups in this legend
+    position = "left",
+    width = 0.15
+  ) %>%
+  visInteraction(
+    navigationButtons = TRUE,
+    keyboard = TRUE
+  ) %>%
+  # Using visIgraphLayout for FR layout
+  visIgraphLayout(layout = "layout_with_fr", randomSeed = 42)
+
+
+
+# Save the network as an HTML file
+visSave(graph_general_context, file = paste0(target_name, "_general_network_", max_hops_for_context, "hop_selected_edges.html"))
+
+# Display the network
+graph_general_context
+
+```
+
+```{r}
+library(dplyr)
+library(jsonlite)
+library(igraph)
+library(visNetwork)
+library(viridisLite) # For the viridis color palette, used for group_colors
+
+# --- 1. Load your JSON data ---
+# Assuming 'MC1_graph.json' is in your working directory
+kg <- fromJSON("data/MC1_graph.json")
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+
+# --- Configuration ---
+target_name <- "Sailor Shift"
+
+# --- Define the specific edge types for this new visualization ---
+desired_edge_types_for_group_interactions <- c(
+  "InterpolatesFrom",
+  "DirectlySamples",
+  "InStyleOf",
+  "CoverOf",
+  "LyricalReferenceTo"
+)
+
+
+# --- IMPORTANT: Strict Node ID Cleaning ---
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(
+    temp_numeric_id = as.numeric(as.character(id))
+  ) %>%
+  filter(!is.na(temp_numeric_id)) %>%
+  mutate(id = as.character(temp_numeric_id)) %>%
+  select(-temp_numeric_id)
+
+# --- Get target node ID ---
+sailor_node <- nodes_tbl_cleaned %>% filter(name == target_name)
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found in cleaned data.", sep=""))
+sailor_id <- as.character(sailor_node$id)
+
+# --- Prepare edges for igraph and visNetwork ---
+edges_df_processed <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  filter(source %in% nodes_tbl_cleaned$id & target %in% nodes_tbl_cleaned$id) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  rename(from = source, to = target)
+
+# --- Core Logic for the New Visualization ---
+
+# 1. Filter edges to only include the desired interaction types
+relevant_edges_for_group_interactions <- edges_df_processed %>%
+  filter(`Edge Type` %in% desired_edge_types_for_group_interactions)
+
+# 2. Identify all nodes (including Sailor Shift) connected by these specific edge types
+nodes_connected_by_specific_edges <- unique(c(relevant_edges_for_group_interactions$from, relevant_edges_for_group_interactions$to))
+
+# 3. Filter for 'MusicalGroup' and 'Person' nodes that are within this specific interaction context,
+#    AND explicitly include 'Sailor Shift' node.
+target_group_node_ids <- nodes_tbl_cleaned %>%
+  filter(id %in% nodes_connected_by_specific_edges) %>%
+  filter(`Node Type` %in% c("MusicalGroup", "Person")) %>%
+  pull(id)
+
+# Add sailor_id to the list of target group nodes
+target_group_node_ids <- unique(c(target_group_node_ids, sailor_id))
+
+
+# 4. Prepare the final nodes for the visualization
+# This includes the identified 'MusicalGroup', 'Person', and 'Sailor Shift' nodes
+nodes_for_new_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% target_group_node_ids) %>%
+  mutate(
+    id = as.character(id),
+    label = name,
+    title = paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      if_else(!is.na(stage_name), paste0("<b>Stage Name:</b> ", stage_name, "<br>"), ""),
+      if_else(!is.na(release_date), paste0("<b>Release Date:</b> ", release_date, "<br>"), ""),
+      if_else(!is.na(genre), paste0("<b>Genre:</b> ", genre, "<br>"), ""),
+      if_else(!is.na(notable), paste0("<b>Notable:</b> ", notable, "<br>"), "")
+    ),
+    group = `Node Type`, # Group by Node Type for coloring/legend
+    size = ifelse(id == sailor_id, 40, 20), # Make Sailor Shift node larger
+     # First, get the base color from the global map based on Node Type
+    base_color = all_node_type_colors[`Node Type`],
+    # Handle cases where Node Type might not be in the map (will result in NA)
+    base_color = ifelse(is.na(base_color), all_node_type_colors["default"], base_color),
+    # Then, apply the specific color for Sailor Shift, overriding the base color
+    color = ifelse(id == sailor_id, "gold", base_color)
+  )
+
+# 5. Prepare the final edges for the visualization
+edges_for_new_vis <- relevant_edges_for_group_interactions %>%
+  filter(from %in% nodes_for_new_vis$id & to %in% nodes_for_new_vis$id) %>%
+  mutate(
+    label = `Edge Type`,
+    title = `Edge Type`,
+    arrows = "to",
+    color = all_edge_type_colors[`Edge Type`]
+  )
+
+# Ensure no NA colors if a type wasn't in `all_edge_type_colors`
+edges_for_new_vis$color[is.na(edges_for_new_vis$color)] <- all_edge_type_colors["default"]
+
+# --- IMPORTANT: Check if nodes or edges are empty before plotting ---
+if (nrow(nodes_for_new_vis) == 0) {
+  message("No nodes found for the specified filters. Cannot create the network graph.")
+} else if (nrow(edges_for_new_vis) == 0) {
+  message("No edges found for the specified filters between the selected nodes. The network graph will be empty or show only isolated nodes.")
+} else {
+  # --- Create the NEW visNetwork plot ---
+  graph_group_interactions <- visNetwork(nodes = nodes_for_new_vis, edges = edges_for_new_vis,
+                                         main = paste0("Interactions of '", target_name, "' with Musical Groups and Persons")) %>%
+    visNodes(
+      # UPDATED: Use the 'color' column for background color
+      color = list(
+        background = ~color,
+        border = "black",
+        highlight = list(background = "red", border = "darkred"),
+        hover = list(background = "lightgray", border = "darkgray")
+      ),
+      shadow = TRUE,
+      font = list(size = 12),
+      shape = "dot"
+    ) %>%
+    visEdges(
+      color = list(color = ~color, highlight = ~color),
+      smooth = TRUE,
+      shadow = TRUE,
+      font = list(size = 10, align = "middle")
+    ) %>%
+    visOptions(
+      highlightNearest = TRUE,
+      nodesIdSelection = list(enabled = TRUE, selected = sailor_id),
+      selectedBy = "group"
+    ) %>%
+    # Define node groups and their colors explicitly for the legend.
+    # Note: Sailor Shift's explicit color will override its group color visually,
+    # but it will still be part of its original 'Node Type' group in the dropdown/legend.
+    visGroups(groupname = "Person", color = "orange") %>%
+    visGroups(groupname = "MusicalGroup", color = "#CF9FFF") %>%
+    visGroups(groupname = "Song", color = "lightblue") %>%
+
+    # Separate legend for nodes (on the left)
+    visLegend(
+      main = "Node Types",
+      useGroups = TRUE,
+      position = "left",
+      width = 0.15
+    ) %>%
+    # Separate legend for edges (on the right)
+    visLegend(
+      main = "Edge Types",
+      addEdges = data.frame(
+        color = all_edge_type_colors[desired_edge_types_for_group_interactions],
+        label = desired_edge_types_for_group_interactions,
+        font.align = "top"
+      ),
+      position = "right",
+      width = 0.15
+    ) %>%
+    visInteraction(
+      navigationButtons = TRUE,
+      keyboard = TRUE
+    ) %>%
+    visIgraphLayout(layout = "layout_with_fr", randomSeed = 42)
+
+  # Save the network as an HTML file
+  visSave(graph_group_interactions, file = paste0(target_name, "_group_interactions_with_sailor_shift_highlighted.html"))
+}
+
+  # Display the network
+  graph_group_interactions
+```
+
+```{r}
+library(dplyr)
+library(jsonlite)
+library(igraph)
+library(visNetwork)
+library(viridisLite) # For the viridis color palette, used for group_colors
+
+# --- 1. Load your JSON data ---
+# Assuming 'MC1_graph.json' is in your working directory
+kg <- fromJSON("data/MC1_graph.json")
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+
+# --- Configuration ---
+target_name <- "Sailor Shift"
+max_hops_for_context <- 2 # Define the maximum number of hops from Sailor Shift
+
+# --- Define the specific edge types for this new visualization ---
+desired_edge_types_for_group_interactions <- c(
+  "InterpolatesFrom",
+  "DirectlySamples",
+  "InStyleOf",
+  "CoverOf"
+)
+
+
+# --- IMPORTANT: Strict Node ID Cleaning ---
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(
+    temp_numeric_id = as.numeric(as.character(id))
+  ) %>%
+  filter(!is.na(temp_numeric_id)) %>%
+  mutate(id = as.character(temp_numeric_id)) %>%
+  select(-temp_numeric_id)
+
+# --- Get target node ID ---
+sailor_node <- nodes_tbl_cleaned %>% filter(name == target_name)
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found in cleaned data.", sep=""))
+sailor_id <- as.character(sailor_node$id)
+
+# --- Prepare edges for igraph and visNetwork ---
+edges_df_processed <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  filter(source %in% nodes_tbl_cleaned$id & target %in% nodes_tbl_cleaned$id) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  rename(from = source, to = target)
+
+# --- Build igraph from full edges_df_processed for neighborhood calculation ---
+g <- graph_from_data_frame(edges_df_processed, directed = FALSE) # Use directed = TRUE if your graph is truly directed for path finding
+
+# --- Core Logic for the New Visualization with Hop Limit ---
+
+# 1. Get nodes within N-hop neighborhood of Sailor Shift
+ego_nodes_indices <- ego(graph = g, order = max_hops_for_context, nodes = sailor_id, mode = "all")[[1]]
+connected_ids_within_hops <- names(ego_nodes_indices)
+
+# 2. Filter edges to be within this N-hop neighborhood AND also be one of the desired interaction types
+relevant_edges_for_display <- edges_df_processed %>%
+  filter(from %in% connected_ids_within_hops & to %in% connected_ids_within_hops) %>% # Filter by hops first
+  filter(`Edge Type` %in% desired_edge_types_for_group_interactions) # Then by specific edge types
+
+# 3. Identify all nodes involved in these filtered edges
+nodes_involved_in_filtered_edges <- unique(c(relevant_edges_for_display$from, relevant_edges_for_display$to))
+
+# 4. Filter for ALL desired node types from the nodes involved in the filtered edges,
+#    AND explicitly include 'Sailor Shift' node.
+target_nodes_for_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% nodes_involved_in_filtered_edges) %>%
+  filter(`Node Type` %in% c("Person", "Song", "RecordLabel", "Album", "MusicalGroup")) %>%
+  pull(id)
+
+# Add sailor_id to the list of target nodes for visualization
+target_nodes_for_vis <- unique(c(target_nodes_for_vis, sailor_id))
+
+
+# 5. Prepare the final nodes for the visualization
+nodes_for_new_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% target_nodes_for_vis) %>%
+  mutate(
+    id = as.character(id),
+    label = name,
+    title = paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      if_else(!is.na(stage_name), paste0("<b>Stage Name:</b> ", stage_name, "<br>"), ""),
+      if_else(!is.na(release_date), paste0("<b>Release Date:</b> ", release_date, "<br>"), ""),
+      if_else(!is.na(genre), paste0("<b>Genre:</b> ", genre, "<br>"), ""),
+      if_else(!is.na(notable), paste0("<b>Notable:</b> ", notable, "<br>"), "")
+    ),
+    group = `Node Type`,
+    size = ifelse(id == sailor_id, 30, 20),
+    base_color = all_node_type_colors[`Node Type`],
+    base_color = ifelse(is.na(base_color), all_node_type_colors["default"], base_color),
+    color = ifelse(id == sailor_id, "gold", base_color)
+  ) %>%
+  select(-base_color)
+
+# For any node types not explicitly defined in all_node_type_colors, use the default
+nodes_for_new_vis$color[is.na(nodes_for_new_vis$color)] <- all_node_type_colors["default"]
+
+
+# 6. Prepare the final edges for the visualization
+# Filter the 'relevant_edges_for_display' further to ensure both ends are in 'nodes_for_new_vis'
+edges_for_new_vis <- relevant_edges_for_display %>%
+  filter(from %in% nodes_for_new_vis$id & to %in% nodes_for_new_vis$id) %>%
+  mutate(
+    label = `Edge Type`,
+    title = `Edge Type`,
+    arrows = "to",
+    color = all_edge_type_colors[`Edge Type`]
+  )
+
+# Ensure no NA colors if a type wasn't in `all_edge_type_colors`
+edges_for_new_vis$color[is.na(edges_for_new_vis$color)] <- all_edge_type_colors["default"]
+
+# --- IMPORTANT: Check if nodes or edges are empty before plotting ---
+if (nrow(nodes_for_new_vis) == 0) {
+  message("No nodes found for the specified filters and hop limit. Cannot create the network graph.")
+} else if (nrow(edges_for_new_vis) == 0) {
+  message("No edges found for the specified filters and hop limit between the selected nodes. The network graph will be empty or show only isolated nodes.")
+} else {
+  # --- Create the NEW visNetwork plot ---
+  graph_group_interactions <- visNetwork(nodes = nodes_for_new_vis, edges = edges_for_new_vis,
+                                         main = paste0("Interactions of '", target_name, "' (", max_hops_for_context, "-hop relevant connections)")) %>% # Updated title
+    visNodes(
+      color = list(
+        background = ~color,
+        border = "black",
+        highlight = list(background = "red", border = "darkred"),
+        hover = list(background = "lightgray", border = "darkgray")
+      ),
+      shadow = TRUE,
+      font = list(size = 12),
+      shape = "dot"
+    ) %>%
+    visEdges(
+      color = list(color = ~color, highlight = ~color),
+      smooth = TRUE,
+      shadow = TRUE,
+      font = list(size = 10, align = "middle")
+    ) %>%
+    visOptions(
+      highlightNearest = TRUE,
+      nodesIdSelection = list(enabled = TRUE, selected = sailor_id),
+      selectedBy = "group"
+    ) %>%
+    # Define node groups and their colors explicitly for the legend using global map
+    visGroups(groupname = "Person", color = all_node_type_colors["Person"]) %>%
+    visGroups(groupname = "MusicalGroup", color = all_node_type_colors["MusicalGroup"]) %>%
+    visGroups(groupname = "Song", color = all_node_type_colors["Song"]) %>%
+    visGroups(groupname = "RecordLabel", color = all_node_type_colors["RecordLabel"]) %>%
+    visGroups(groupname = "Album", color = all_node_type_colors["Album"]) %>%
+
+    # Separate legend for nodes (on the left)
+    visLegend(
+      main = "Node Types",
+      useGroups = TRUE,
+      position = "left",
+      width = 0.15
+    ) %>%
+    # Separate legend for edges (on the right)
+    visLegend(
+      main = "Edge Types",
+      addEdges = data.frame(
+        color = all_edge_type_colors[desired_edge_types_for_group_interactions],
+        label = desired_edge_types_for_group_interactions,
+        font.align = "top"
+      ),
+      position = "right",
+      width = 0.15
+    ) %>%
+    visInteraction(
+      navigationButtons = TRUE,
+      keyboard = TRUE
+    ) %>%
+    visIgraphLayout(layout = "layout_with_fr", randomSeed = 42)
+
+  # Save the network as an HTML file
+  visSave(graph_group_interactions, file = paste0(target_name, "_interactions_", max_hops_for_context, "hop_related_types_highlighted.html")) # Updated filename
+}
+
+  # Display the network
+  graph_group_interactions
+
+```
+
+```{r}
+library(dplyr)
+library(jsonlite)
+library(igraph)
+library(visNetwork)
+library(viridisLite) # For the viridis color palette, used for group_colors
+
+# --- 1. Load your JSON data ---
+# Assuming 'MC1_graph.json' is in your working directory
+kg <- fromJSON("data/MC1_graph.json")
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+
+# --- Configuration ---
+target_name <- "Sailor Shift"
+max_hops_for_context <- 2 # Define the maximum number of hops from Sailor Shift
+
+# --- Define the specific edge types for this new visualization ---
+# These are the edge types that will be colored specifically and listed in the legend.
+# If an edge type exists in the data but is NOT in this list, it will use 'default' color.
+desired_edge_types_for_group_interactions <- c(
+  "InterpolatesFrom",
+  "DirectlySamples",
+  "InStyleOf",
+  "CoverOf",
+  "PerformerOf",
+  "ComposerOf",
+  "ProducerOf",
+  "LyricistOf",
+  "RecordedBy",
+  "LyricalReferenceTo",
+  "DistributedBy",
+  "MemberOf"
+) # Including all common types for the legend to be comprehensive
+
+# --- Define ALL possible Edge Type Colors (Global and Consistent) ---
+all_edge_type_colors <- c(
+  "PerformerOf" = "#FF5733",
+  "ComposerOf" = "#33FF57",
+  "ProducerOf" = "#3357FF",
+  "LyricistOf" = "#FF33F5",
+  "RecordedBy" = "#F5FF33",
+  "InterpolatesFrom" = "#8A2BE2",
+  "InStyleOf" = "#DAA520",
+  "LyricalReferenceTo" = "#5F9EA0",
+  "CoverOf" = "#DC143C",
+  "DirectlySamples" = "#6A5ACD",
+  "DistributedBy" = "#20B2AA",
+  "MemberOf" = "#8B4513",
+  "default" = "#CCCCCC" # Fallback color for any unlisted type
+)
+
+# --- Define ALL possible Node Type Colors (Global and Consistent) ---
+all_node_type_colors <- c(
+  "Song" = "lightblue",
+  "Person" = "orange",
+  "MusicalGroup" = "#CF9FFF",
+  "RecordLabel" = "lightgreen",
+  "Album" = "brown", # Added a color for Album
+  "default" = "gray" # Fallback color for any unlisted type
+)
+
+# --- IMPORTANT: Strict Node ID Cleaning ---
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(
+    temp_numeric_id = as.numeric(as.character(id))
+  ) %>%
+  filter(!is.na(temp_numeric_id)) %>%
+  mutate(id = as.character(temp_numeric_id)) %>%
+  select(-temp_numeric_id)
+
+# --- Get target node ID ---
+sailor_node <- nodes_tbl_cleaned %>% filter(name == target_name)
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found in cleaned data.", sep=""))
+sailor_id <- as.character(sailor_node$id)
+
+# --- Prepare edges for igraph and visNetwork ---
+edges_df_processed <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  filter(source %in% nodes_tbl_cleaned$id & target %in% nodes_tbl_cleaned$id) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  rename(from = source, to = target)
+
+# --- Build igraph from full edges_df_processed for neighborhood calculation ---
+# Using directed = FALSE here unless your graph truly implies only one-way relationships
+g <- graph_from_data_frame(edges_df_processed, directed = FALSE)
+
+# --- Core Logic for the New Visualization with Hop Limit ---
+
+# 1. Get nodes within N-hop neighborhood of Sailor Shift
+ego_nodes_indices <- ego(graph = g, order = max_hops_for_context, nodes = sailor_id, mode = "all")[[1]]
+connected_ids_within_hops <- names(ego_nodes_indices)
+
+# 2. Filter ALL edges to be only within this N-hop neighborhood (no edge type filtering yet)
+relevant_edges_for_display <- edges_df_processed %>%
+  filter(from %in% connected_ids_within_hops & to %in% connected_ids_within_hops)
+
+# 3. Identify all nodes involved in these filtered edges
+nodes_involved_in_filtered_edges <- unique(c(relevant_edges_for_display$from, relevant_edges_for_display$to))
+
+# 4. Filter for ALL desired node types from the nodes involved in the filtered edges,
+#    AND explicitly include 'Sailor Shift' node.
+target_nodes_for_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% nodes_involved_in_filtered_edges) %>%
+  filter(`Node Type` %in% c("Person", "Song", "RecordLabel", "Album", "MusicalGroup")) %>%
+  pull(id)
+
+# Add sailor_id to the list of target nodes for visualization
+target_nodes_for_vis <- unique(c(target_nodes_for_vis, sailor_id))
+
+
+# 5. Prepare the final nodes for the visualization
+nodes_for_new_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% target_nodes_for_vis) %>%
+  mutate(
+    id = as.character(id),
+    label = name,
+    title = paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      if_else(!is.na(stage_name), paste0("<b>Stage Name:</b> ", stage_name, "<br>"), ""),
+      if_else(!is.na(release_date), paste0("<b>Release Date:</b> ", release_date, "<br>"), ""),
+      if_else(!is.na(genre), paste0("<b>Genre:</b> ", genre, "<br>"), ""),
+      if_else(!is.na(notable), paste0("<b>Notable:</b> ", notable, "<br>"), "")
+    ),
+    group = `Node Type`,
+    size = ifelse(id == sailor_id, 40, 20),
+    base_color = all_node_type_colors[`Node Type`],
+    base_color = ifelse(is.na(base_color), all_node_type_colors["default"], base_color),
+    color = ifelse(id == sailor_id, "gold", base_color)
+  ) %>%
+  select(-base_color)
+
+# For any node types not explicitly defined in all_node_type_colors, use the default
+nodes_for_new_vis$color[is.na(nodes_for_new_vis$color)] <- all_node_type_colors["default"]
+
+
+# 6. Prepare the final edges for the visualization
+# Filter the 'relevant_edges_for_display' further to ensure both ends are in 'nodes_for_new_vis'
+edges_for_new_vis <- relevant_edges_for_display %>%
+  filter(from %in% nodes_for_new_vis$id & to %in% nodes_for_new_vis$id) %>%
+  mutate(
+    label = `Edge Type`,
+    title = `Edge Type`,
+    arrows = "to",
+    color = all_edge_type_colors[`Edge Type`] # Still use global edge type map for colors
+  )
+
+# Ensure no NA colors if a type wasn't in `all_edge_type_colors`
+edges_for_new_vis$color[is.na(edges_for_new_vis$color)] <- all_edge_type_colors["default"]
+
+# --- IMPORTANT: Check if nodes or edges are empty before plotting ---
+if (nrow(nodes_for_new_vis) == 0) {
+  message("No nodes found for the specified filters and hop limit. Cannot create the network graph.")
+} else if (nrow(edges_for_new_vis) == 0) {
+  message("No edges found for the specified filters and hop limit between the selected nodes. The network graph will be empty or show only isolated nodes.")
+} else {
+  # --- Create the NEW visNetwork plot ---
+  graph_group_interactions <- visNetwork(nodes = nodes_for_new_vis, edges = edges_for_new_vis,
+                                         main = paste0("Interactions of '", target_name, "' (", max_hops_for_context, "-hop All Relevant Connections)")) %>% # Updated title
+    visNodes(
+      color = list(
+        background = ~color,
+        border = "black",
+        highlight = list(background = "red", border = "darkred"),
+        hover = list(background = "lightgray", border = "darkgray")
+      ),
+      shadow = TRUE,
+      font = list(size = 12),
+      shape = "dot"
+    ) %>%
+    visEdges(
+      color = list(color = ~color, highlight = ~color),
+      smooth = TRUE,
+      shadow = TRUE,
+      font = list(size = 10, align = "middle")
+    ) %>%
+    visOptions(
+      highlightNearest = TRUE,
+      nodesIdSelection = list(enabled = TRUE, selected = sailor_id),
+      selectedBy = "group"
+    ) %>%
+    # Define node groups and their colors explicitly for the legend using global map
+    visGroups(groupname = "Person", color = all_node_type_colors["Person"]) %>%
+    visGroups(groupname = "MusicalGroup", color = all_node_type_colors["MusicalGroup"]) %>%
+    visGroups(groupname = "Song", color = all_node_type_colors["Song"]) %>%
+    visGroups(groupname = "RecordLabel", color = all_node_type_colors["RecordLabel"]) %>%
+    visGroups(groupname = "Album", color = all_node_type_colors["Album"]) %>%
+
+    # Separate legend for nodes (on the left)
+    visLegend(
+      main = "Node Types",
+      useGroups = TRUE,
+      position = "left",
+      width = 0.15
+    ) %>%
+    # Separate legend for edges (on the right)
+    visLegend(
+      main = "Edge Types",
+      # Create data for edge legend based on actual edge types present in the graph
+      addEdges = data.frame(
+        edge_types_in_graph <- unique(edges_for_new_vis$`Edge Type`),
+        color = all_edge_type_colors[edge_types_in_graph],
+        label = edge_types_in_graph,
+        font.align = "top"
+      ),
+      position = "right",
+      width = 0.15
+    ) %>%
+    visInteraction(
+      navigationButtons = TRUE,
+      keyboard = TRUE
+    ) %>%
+    visIgraphLayout(layout = "layout_with_fr", randomSeed = 42)
+
+  # Save the network as an HTML file
+  visSave(graph_group_interactions, file = paste0(target_name, "_interactions_", max_hops_for_context, "hop_all_edge_types_highlighted.html")) # Updated filename
+}
+
+  # Display the network
+  graph_group_interactions
+
+
+```
+
+from the 3 hop graph:
+
+Design and develop visualizations and visual analytic tools that will allow Silas to explore and understand the profile of Sailor Shift’s career
+
+Who has she been most influenced by over time?
+
+Who has she collaborated with and directly or indirectly influenced?
+
+How has she influenced collaborators of the broader Oceanus Folk community?
+
+## Observation
+
+Some links did not adhere to schema definition. linkage of interpolatesfrom between 2 person/musicalgroup instead of 2 songs/albums
+
+![](images/clipboard-1171006063.png)
+
+![](images/clipboard-2358576012.png)
