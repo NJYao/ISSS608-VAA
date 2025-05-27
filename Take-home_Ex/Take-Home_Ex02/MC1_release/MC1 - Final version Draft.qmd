@@ -22,188 +22,6 @@ You are required to install the R packages above, if necessary, before continue 
 Check packages to ensure they are installed
 :::
 
-```{r}
-pacman::p_load(tidyverse, jsonlite, 
-               SmartEDA, tidygraph, 
-               ggraph)
-
-#tidygraph to build graph object, to work tgt with ggraph
-#ggplot no need to call out again as its in tidyverse
-
-#SmartEDA library for exploratory data analysis, good to have it to check data
-
-
-```
-
-## Importing Knowledge Graph Data
-
-```{r}
-kg <- fromJSON("data/MC1_graph.json")
-```
-
-### Inspect Structure
-
-```{r}
-str(kg,max.level = 1)
-#structure enable to check structure of the data
-#good to have this line to check structues of data
-```
-
-::: callout-note
-directed - tells you if its a directed graph
-
-nodes and links are in dataframe- can be read
-
-Can see data types etc from Environment tab of R-studio - look at the structure
-
-![](images/clipboard-2889161820.png)
-
-Can open and see the data table
-
-![](images/clipboard-2172143603.png)
-
-![](images/clipboard-3982246560.png)
-:::
-
-### Extract and Inspect
-
-```{r}
-nodes_tbl <- as_tibble(kg$nodes) #kg$ know that pull nodes out
-edges_tbl <- as_tibble(kg$links)
-
-```
-
-## Initial EDA
-
-```{r}
-ggplot(data = edges_tbl,
-       aes(y= `Edge Type`)) +
-  geom_bar()
-##want to know how many classes available for edge type
-## field names always use ``, not ''
-```
-
-```{r}
-ggplot 
-```
-
-## Creating Knowledge Graph
-
-This is
-
-### Step 1: Mappying from node id to row index
-
-avoid multiple id that have 0 0 but actually they have missing value
-
-to make sure they have unique id code
-
-To reassign ID
-
-depends on scenario, may need to subset data first before extracting - depends on use case
-
-```{r}
-id_map <- tibble(id = nodes_tbl$id, index = seq_len(nrow(nodes_tbl)))
-```
-
-### Step 2: Map source and target IDs to row indices
-
-```{r}
-edges_tbl <- edges_tbl %>%
-  left_join(id_map,by = c("source" = "id"))%>%
-    rename(from =index) %>%
-    left_join(id_map, by = c("target" = "id"))%>%
-    rename(to = index)
-## see data table original source is 0 now become from 1
-```
-
-### Step 3: Filter out any unmatched (invalid) edges
-
-```{r}
-edges_tbl <- edges_tbl %>%
-  filter(!is.na(from), !is.na(to))
-```
-
-### Step 4: Creating the graph
-
-```{r}
-graph <- tbl_graph(nodes = nodes_tbl,
-                   edges = edges_tbl,
-                   directed = kg$directed)
-#if its directed, true, if not false. BUt in this case there is data to show its directed = true so can reference the data from the data
-```
-
-## Visualising the knowledge graph
-
-```{r}
-set.seed(1234)
-#once fix this, everytime run random is the same number
-```
-
-### Visualising the Whole Graph
-
-```{r}
-#| eval: false
-ggraph(graph, layout = "fr") +
-  geom_edge_link(alpha = 0.3,
-                 colour = "gray") +
-  geom_node_point(aes(color = `Node Type`),
-                  size = 4) +
-  geom_node_text(aes(label = name),
-                 repel = TRUE,
-                 size =2.5) +
-  theme_void()
-
-```
-
-#### Step 1:Filter edges to only "Memberof"
-
-mining for those "Memberof"
-
-```{r}
-graph_memberof <- graph %>%
-  activate(edges) %>%
-  filter (`Edge Type` == "MemberOf")
-
-##filter off the edges but the nodes are still there, still a large set of data 17412 as the source
-```
-
-#### Step 2: Extract only connected nodes (ie used in these edges)
-
-```{r}
-##additional code to remove and only used connected nodes, those that are useful
-used_nodes_indices <- graph_memberof %>%
-  activate(edges)%>%
-  as_tibble() %>%
-  select(from, to) %>%
-  unlist() %>%
-  unique()
-```
-
-#### Step 3: keep only those node
-
-```{r}
-graph_memberof <- graph_memberof %>%
-  activate(nodes) %>%
-  mutate(row_id = row_number()) %>%
-  filter(row_id %in% used_nodes_indices) %>%
-  select(-row_id) # optional cleanup
-```
-
-#### plot the sub graph
-
-```{r}
-ggraph(graph_memberof,
-       layout = "fr") +
-  geom_edge_link(alpha= 0.5,
-                 colour = "gray") +
-  geom_node_point(aes(color = `Node Type`),
-                  size = 1)+
-  geom_node_text(aes(label = name),
-                 repel = TRUE,
-                 size=2.5)
-  theme_void()
-```
-
 ## Visnetwork graph
 
 plotting a visnetwork graph to visualise the interactions centering around sailor shift
@@ -391,9 +209,10 @@ graph_general_context
 visSave(graph_general_context, file = paste0(target_name, "_general_network_", max_hops_for_context, "hop.html"))
 ```
 
-
 ## 2 hop showing interactions between musical grp and ppl to sailor shift
+
 able to see that a cluster of them are linked to sailor shift - dive deeper in following graphs
+
 ```{r}
 # library(dplyr)
 # library(jsonlite)
@@ -571,8 +390,10 @@ if (nrow(nodes_for_new_vis) == 0) {
   graph_group_interactions
 ```
 
-
 ## 2 hop graph limiting the edges
+
+next progrssion to limiting the edges and filter for those linked to sailor shift. However from the graph, we can see that there are songs with relationships as well. and missing linkages to the person or musical group that are linked to sailor shift - more edges need to be included
+
 ```{r}
 # library(dplyr)
 # library(jsonlite)
@@ -759,8 +580,10 @@ if (nrow(nodes_for_new_vis) == 0) {
 
 ```
 
-
 ## another 2 hop graph reference
+
+including more edge types to include into the graph to see more linkages between the person and muscial group, now including songs as well
+
 ```{r}
 # library(dplyr)
 # library(jsonlite)
@@ -961,6 +784,7 @@ if (nrow(nodes_for_new_vis) == 0) {
 ```
 
 ### Original 2 hop graph keep as reference - to show merging of edges for better display later on
+
 ```{r}
 library(dplyr)
 library(jsonlite)
@@ -1183,12 +1007,14 @@ if (nrow(nodes_for_new_vis) == 0) {
 
 ```
 
-
-
 # Aggregate edges to account for overlap - final over view graphs
+
+During the generating of graph, 1 important improvement - there are overlapping edges blocking one another.
+
 ## 2 hop interaction graph with aggregated edges
 
-flatten the edges - issue of overlapping edges
+flatten the edges - issue of overlapping edges, this can be solved by aggregating the edges together, and so when labelling, it will display both links seperated by a comma to show the 2 relation or link
+
 ```{r}
 # Libraries
 library(dplyr)
@@ -1412,10 +1238,292 @@ if (nrow(nodes_for_combined_vis) == 0) {
 }
 ```
 
+Improved version:
+
+The above version only stop the linkage at 3 hops, but for some at the 3rd hop, it ends at a song and does not inform us who is related to that song.
+
+Additionally, there is no information on the genre that the person or musical group performed, we can add in the inferred genre that they sing by inferring from the songs they have performed before.
+
+```{r}
+# Libraries
+library(dplyr)
+library(jsonlite)
+library(igraph)
+library(visNetwork)
+library(viridisLite)
+library(stringr)
+
+# --- 1. Load your JSON data ---
+kg <- fromJSON("data/MC1_graph.json")
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+
+# --- Configuration ---
+target_name <- "Sailor Shift"
+max_hops_for_context <- 2 # Maximum number of hops for the subgraph
+graph_title <- paste0("'", target_name, "' Network (2-hop Context with Inferred Artiste Genres & Aggregated Edge Types)")
+
+# --- Define Global Colors for Node Types ---
+all_node_type_colors <- c(
+  "Song" = "lightblue",
+  "Person" = "orange",
+  "MusicalGroup" = "purple",
+  "RecordLabel" = "lightgreen",
+  "Album" = "brown",
+  "default" = "gray" # Fallback for any unmapped Node Types
+)
+
+# --- Define Global Colors for Edge Types ---
+all_edge_type_colors <- c(
+  "PerformerOf" = "#FF5733", "ComposerOf" = "#33FF57", "ProducerOf" = "#3357FF",
+  "LyricistOf" = "#FF33F5", "RecordedBy" = "#F5FF33", "InterpolatesFrom" = "#8A2BE2",
+  "InStyleOf" = "#DAA520", "LyricalReferenceTo" = "#5F9EA0", "CoverOf" = "#DC143C",
+  "DirectlySamples" = "#6A5ACD", "DistributedBy" = "#20B2AA", "MemberOf" = "#8B4513",
+  "default" = "#CCCCCC" # Fallback for unlisted edge types
+)
+
+# --- Define which edge types to display and include in the legend (for aggregation) ---
+desired_edge_types_to_display <- c(
+  "InterpolatesFrom",
+  "DirectlySamples",
+  "InStyleOf",
+  "CoverOf",
+  "LyricalReferenceTo",
+  "ProducerOf",
+  "ComposerOf",
+  "PerformerOf",
+  "LyricistOf",
+  "MemberOf"
+)
+
+# --- Strict Node ID Cleaning ---
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(id = as.character(id)) %>% # Convert original ID to character first
+  mutate(id = trimws(id)) %>%       # Trim whitespace from character IDs
+  mutate(temp_numeric_id = suppressWarnings(as.numeric(id))) %>% # suppressWarnings to avoid warnings for NAs
+  filter(!is.na(temp_numeric_id)) %>% # Keep only IDs that successfully converted to numeric
+  mutate(id = as.character(temp_numeric_id)) %>% # Convert numeric back to character for consistent IDs
+  select(-temp_numeric_id) %>% # Remove the temporary column
+  distinct(id, .keep_all = TRUE) %>% # Ensure unique IDs based on the cleaned ID
+  mutate(`Node Type` = trimws(`Node Type`)) # Clean Node Type strings
+
+# --- Get target node ID from the cleaned nodes table ---
+sailor_node <- nodes_tbl_cleaned %>% filter(name == trimws(target_name))
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found in cleaned data.", sep=""))
+sailor_id <- as.character(sailor_node$id)
+
+# --- Prepare edges for igraph (using original IDs) ---
+valid_original_node_ids <- nodes_tbl_cleaned$id
+
+edges_df_for_igraph <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  filter(source %in% valid_original_node_ids & target %in% valid_original_node_ids) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  rename(from = source, to = target)
+
+# --- DIAGNOSTIC CHECK: Ensure no duplicate vertex IDs before building igraph ---
+if (any(duplicated(nodes_tbl_cleaned$id))) {
+  duplicate_ids <- nodes_tbl_cleaned$id[duplicated(nodes_tbl_cleaned$id)]
+  stop(paste("FATAL ERROR: Duplicate node IDs found in 'nodes_tbl_cleaned$id' even after cleaning. Duplicates: ",
+             paste(unique(duplicate_ids), collapse = ", "),
+             ". Please inspect your original 'MC1_graph.json' data for these IDs.", sep=""))
+}
+
+# --- Build full igraph with directed = TRUE ---
+g_full <- graph_from_data_frame(edges_df_for_igraph, directed = TRUE, vertices = nodes_tbl_cleaned$id)
+
+# --- Get N-hop neighborhood (2-hop overall context) ---
+ego_nodes_indices_overall <- ego(graph = g_full, order = max_hops_for_context, nodes = sailor_id, mode = "all")[[1]]
+connected_ids_overall <- names(ego_nodes_indices_overall)
+
+# --- NEW: Infer Genres for Person/MusicalGroup Nodes ---
+genre_inference_edge_types <- c("PerformerOf", "ComposerOf", "ProducerOf", "LyricistOf", "RecordedBy")
+
+artiste_song_genre_links <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% genre_inference_edge_types) %>%
+  inner_join(nodes_tbl_cleaned %>% select(id, `Node Type`, genre),
+             by = c("to" = "id")) %>%
+  filter(`Node Type` == "Song") %>% # Ensure the target node is a Song
+  select(artiste_id = from, song_genre = genre) %>%
+  filter(!is.na(song_genre) & song_genre != "") # Only consider songs with a defined genre
+
+inferred_genres_for_artistes <- artiste_song_genre_links %>%
+  group_by(artiste_id) %>%
+  summarise(
+    inferred_genre = paste(sort(unique(song_genre)), collapse = ", "),
+    .groups = 'drop'
+  )
+
+# --- Helper function for safely adding details to node title ---
+get_html_detail <- function(data_row, col_name, display_label) {
+  if (col_name %in% names(data_row) && !is.na(data_row[[col_name]]) && data_row[[col_name]] != "") { # Added check for empty string
+    return(paste0("<b>", display_label, ":</b> ", data_row[[col_name]], "<br>"))
+  } else {
+    return("")
+  }
+}
+
+# --- Prepare the final nodes for the visualization (Coloring by Node Type) ---
+nodes_for_combined_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% connected_ids_overall) %>%
+  # Left join inferred genres to Person/MusicalGroup nodes
+  left_join(inferred_genres_for_artistes, by = c("id" = "artiste_id")) %>%
+  rowwise() %>% # Process row by row for dynamic title generation
+  mutate(
+    id = as.character(id),
+    label = name,
+    title = paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      get_html_detail(cur_data(), "stage_name", "Stage Name"),
+      get_html_detail(cur_data(), "release_date", "Release Date"),
+      get_html_detail(cur_data(), "genre", "Genre (Node)"), # Original node genre if exists
+      get_html_detail(cur_data(), "inferred_genre", "Genre (Inferred)"), # New inferred genre
+      get_html_detail(cur_data(), "notable", "Notable")
+    ),
+    # Group nodes explicitly by Node Type for filtering and consistent coloring
+    group = `Node Type`,
+    size = ifelse(id == sailor_id, 50, 15), # Sailor Shift node larger
+    # Determine node color based on 'Node Type' and Sailor Shift override
+    base_color = all_node_type_colors[`Node Type`],
+    node_display_color = ifelse(is.na(base_color), all_node_type_colors["default"], base_color),
+    node_display_color = ifelse(id == sailor_id, "gold", node_display_color) # Sailor Shift is gold
+  ) %>%
+  ungroup() %>%
+  select(-base_color)
 
 
+# --- Prepare Edges for visNetwork (AGGREGATED) ---
+sub_edges_combined <- edges_df_for_igraph %>%
+  filter(from %in% nodes_for_combined_vis$id & to %in% nodes_for_combined_vis$id) %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display) %>%
+  # --- AGGREGATE EDGES HERE ---
+  group_by(from, to) %>%
+  summarise(
+    aggregated_label = paste(sort(unique(`Edge Type`)), collapse = ", "),
+    color = all_edge_type_colors[first(`Edge Type`)], # Color based on the first edge type
+    arrows = "to",
+    .groups = 'drop'
+  ) %>%
+  mutate(
+    label = aggregated_label, # Use the combined label for display
+    title = aggregated_label # Use the combined label for hover tooltip
+  ) %>%
+  # Ensure no NA colors if a type wasn't in `all_edge_type_colors`
+  mutate(color = ifelse(is.na(color), all_edge_type_colors["default"], color))
+
+
+# --- Prepare groups for visGroups (robust legend) ---
+actual_node_groups_combined <- unique(nodes_for_combined_vis$group)
+actual_node_groups_combined <- actual_node_groups_combined[!is.na(actual_node_groups_combined) & actual_node_groups_combined != ""]
+
+if (length(actual_node_groups_combined) == 0) {
+  message("Warning: No valid node groups found for visGroups. Legend might not display correctly.")
+  groups_for_visnetwork_combined <- data.frame(id = character(0), color = character(0), label = character(0), stringsAsFactors = FALSE)
+} else {
+  groups_for_visnetwork_combined <- data.frame(
+    id = actual_node_groups_combined,
+    color = as.character(sapply(actual_node_groups_combined, function(g) {
+      if (!is.na(all_node_type_colors[g])) {
+        return(all_node_type_colors[g])
+      } else {
+        return(all_node_type_colors["default"])
+      }
+    })),
+    label = actual_node_groups_combined,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+# --- IMPORTANT: Check if nodes or edges are empty before plotting ---
+if (nrow(nodes_for_combined_vis) == 0) {
+  message("No nodes found for the specified filters. Cannot create the network graph.")
+} else if (nrow(sub_edges_combined) == 0) {
+  message("No edges found for the specified filters between the selected nodes. The network graph will be empty or show only isolated nodes.")
+} else {
+  # --- Prepare data for the Edge Legend ---
+  legend_edge_types_to_display <- names(all_edge_type_colors)[names(all_edge_type_colors) != "default"]
+
+  # --- Create the visNetwork plot ---
+  graph_combined_context <- visNetwork(nodes = nodes_for_combined_vis, edges = sub_edges_combined,
+                                       main = graph_title) %>%
+    visNodes(
+      color = list(
+        background = ~node_display_color, # Use the calculated display color
+        border = "black",
+        highlight = list(background = "red", border = "darkred"),
+        hover = list(background = "lightgray", border = "darkgray")
+      ),
+      shadow = TRUE,
+      font = list(size = 12),
+      shape = "dot"
+    ) %>%
+    visEdges(
+      arrows = "to",
+      label = ~label, # Use the aggregated label
+      font = list(size = 10, align = "middle"),
+      title = ~title, # Use aggregated label for hover
+      color = list(color = ~color, highlight = ~color),
+      smooth = list(enabled = TRUE, type = "continuous", roundness = 0.5), # Static smoothing
+      width = 1
+    ) %>%
+    visOptions(
+      highlightNearest = TRUE,
+      nodesIdSelection = list(enabled = TRUE, selected = sailor_id, useLabels = TRUE),
+      selectedBy = "group" # Now filters by Node Type (Song, Person, Album, etc.)
+    ) %>%
+    # Apply visGroups for each group found in our prepared data frame
+    {
+      temp_vis_object <- .
+      for (i in 1:nrow(groups_for_visnetwork_combined)) {
+        group_id <- groups_for_visnetwork_combined$id[i]
+        group_color <- groups_for_visnetwork_combined$color[i]
+        temp_vis_object <- temp_vis_object %>%
+          visGroups(groupname = group_id, color = group_color)
+      }
+      temp_vis_object
+    } %>% # End of the curly braces block
+    visLegend(
+      main = "Node Types", # Now clearly states "Node Types"
+      useGroups = TRUE,
+      position = "left",
+      width = 0.15
+    ) %>%
+    # --- Edge Legend: Show original edge types, not aggregated labels ---
+    visLegend(
+      main = "Edge Types",
+      addEdges = data.frame(
+        color = all_edge_type_colors[legend_edge_types_to_display],
+        label = legend_edge_types_to_display,
+        font.align = "top"
+      ),
+      position = "right",
+      width = 0.15
+    ) %>%
+    visInteraction(
+      navigationButtons = TRUE,
+      keyboard = TRUE
+    ) %>%
+    # Apply initial igraph layout (static)
+    visIgraphLayout(layout = "layout_with_fr", randomSeed = 1234) %>%
+    # Explicitly disable physics to make the graph static
+    visPhysics(enabled = FALSE)
+
+  # Display the network
+  graph_combined_context
+
+  # Optional: Save the network as an HTML file
+  # visSave(graph_combined_context, file = paste0(target_name, "_combined_nodetype_colors_", max_hops_for_context, "hop.html"))
+}
+```
 
 ## Outward link influence to
+
+to make it less cluttered, we split the graph into 2, one for who outward, who sailor shift influenced and inward for who influenced sailor shift
+
+added different colors for the genre of songs
+
 ```{r}
 # Libraries
 library(dplyr)
@@ -1624,6 +1732,8 @@ if (nrow(nodes_for_outward_visnetwork) == 0) {
   # visSave(graph_outward_context, file = paste0(target_name, "_outward_aggregated_", max_hops_for_context, "hop.html"))
 }
 ```
+
+improved version - previous one above only show linkage till a person
 
 ```{r}
 # Libraries
@@ -1928,8 +2038,8 @@ if (nrow(nodes_for_visnetwork) == 0) {
 }
 ```
 
-
 ## Inward link influenced by
+
 ```{r}
 # Libraries
 library(dplyr)
@@ -2421,179 +2531,195 @@ if (nrow(nodes_for_inward_visnetwork) == 0) {
 }
 ```
 
-
-
-
 # Sailor Shift TimeLine
 
 ## Timeline Data Prep
 ```{r}
+# Install and load necessary packages
 library(jsonlite)
-library(igraph)
-library(ggraph)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(stringr)
 
-# Load the JSON data
-# Ensure 'MC1_graph.json' is in your R working directory
-json_data <- fromJSON("data/MC1_graph.json")
+#| fig-width: 12
+#| fig-height: 8
 
-# User's correction: using 'links' instead of 'edges'
-edges_df <- as_tibble(json_data$links)
-nodes_df <- as_tibble(json_data$nodes)
+# --- 1. Load your JSON data ---
+# Ensure 'MC1_graph.json' is in the same directory as your R script
+tryCatch({
+  kg <- fromJSON('data/MC1_graph.json')
+}, error = function(e) {
+  stop("Error: 'MC1_graph.json' not found. Please ensure the file is in the same directory as this R script.\n", e$message)
+})
 
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
 
-# --- CRITICAL FIXES FOR TYPE CONVERSION AND COLUMN NAMES ---
-# Ensure 'id' in nodes_df is numeric
-nodes_df$id <- as.numeric(nodes_df$id)
+# --- Configuration ---
+target_name <- "Sailor Shift"
 
-# Explicitly convert source and target columns to numeric, as they appear to be integers in JSON
-edges_df$source <- as.numeric(edges_df$source)
-edges_df$target <- as.numeric(edges_df$target)
+# --- Strict Node ID Cleaning ---
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(id = as.character(id)) %>% # Convert original ID to character first
+  mutate(id = trimws(id)) %>%       # Trim whitespace from character IDs
+  # Temporarily convert to numeric to filter out non-numeric IDs that might have slipped through
+  mutate(temp_numeric_id = suppressWarnings(as.numeric(id))) %>%
+  filter(!is.na(temp_numeric_id)) %>% # Keep only IDs that successfully converted to numeric
+  mutate(id = as.character(temp_numeric_id)) %>% # Convert numeric back to character for consistent IDs
+  select(-temp_numeric_id) %>% # Remove the temporary column
+  distinct(id, .keep_all = TRUE) # Ensure unique IDs based on the cleaned ID
 
-# Identify Sailor Shift
-sailor_shift_id <- nodes_df %>%
-  filter(name == "Sailor Shift") %>%
-  pull(id)
-
-# Filter for Sailor Shift's performances
-# Corrected: Use backticks for 'Edge Type'
-sailor_shift_performances_edges <- edges_df %>%
-  filter(source == sailor_shift_id, `Edge Type` == "PerformerOf")
-
-# Get information about the performed songs/albums
-performed_nodes <- nodes_df %>%
-  filter(id %in% sailor_shift_performances_edges$target) %>%
-  # Corrected: Use backticks for 'Node Type'
-  select(id, name, `Node Type`, release_date, genre) %>%
-  mutate(release_date = as.integer(release_date)) # Convert release_date to integer for sorting
-
-# Sort performed nodes by release_date
-performed_nodes_sorted <- performed_nodes %>%
-  arrange(release_date)
-
-# Get all connected record labels for these performances
-record_label_edges <- edges_df %>%
-  # Corrected: Use backticks for 'Edge Type'
-  filter(source %in% performed_nodes_sorted$id, `Edge Type` %in% c("RecordedBy", "DistributedBy"))
-
-record_label_nodes <- nodes_df %>%
-  filter(id %in% record_label_edges$target) %>%
-  # Corrected: Use backticks for 'Node Type'
-  select(id, name, `Node Type`)
-
-# Combine relevant nodes for the graph
-# --- FIX FOR BIND_ROWS ERROR: Ensure 'release_date' is consistently present ---
-# For Sailor Shift, `release_date` might not exist. Select it, and it will be NA if missing.
-# For record_label_nodes, explicitly add a release_date column filled with NA.
-graph_nodes <- bind_rows(
-  nodes_df %>% filter(id == sailor_shift_id) %>%
-    select(id, name, `Node Type`, release_date), # `release_date` will be NA for Person if not present
-  performed_nodes_sorted %>%
-    select(id, name, `Node Type`, release_date),
-  record_label_nodes %>%
-    select(id, name, `Node Type`) %>%
-    mutate(release_date = NA_integer_) # Explicitly add NA integer for release_date for record labels
-) %>%
-  distinct(id, .keep_all = TRUE) # Ensure unique nodes
-
-# Combine relevant edges for the graph
-graph_edges <- bind_rows(
-  # Corrected: Use backticks for 'Edge Type'
-  sailor_shift_performances_edges %>% select(from = source, to = target, `Edge Type`),
-  record_label_edges %>% select(from = source, to = target, `Edge Type`)
-)
-
-# Create an igraph object
-# Corrected: 'Edge Type' for graph_edges
-g <- graph_from_data_frame(d = graph_edges, vertices = graph_nodes, directed = TRUE)
-
-# --- Manual Layout Calculation ---
-# 1. Position Sailor Shift at the center (0,0)
-V(g)$x <- 0
-V(g)$y <- 0
-
-# 2. Arrange songs/albums linearly based on release_date
-# Define a starting x-position for the first song/album
-# Added na.rm=TRUE for robustness if there are NA values in release_date
-min_release_date <- min(performed_nodes_sorted$release_date, na.rm = TRUE)
-max_release_date <- max(performed_nodes_sorted$release_date, na.rm = TRUE)
-
-# Calculate a dynamic spread based on the range of years
-# If min_release_date and max_release_date are the same, set a default spread
-if (min_release_date == max_release_date) {
-  x_spread_factor <- 0.5 # Default spread if only one year
-} else {
-  x_spread_factor <- 5 / (max_release_date - min_release_date) # Scale to a range of 5 units
+# Clean Node Type strings (if column exists)
+if ("Node Type" %in% colnames(nodes_tbl_cleaned)) {
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(`Node Type` = trimws(`Node Type`))
 }
 
-# Assign x-coordinates to songs/albums based on release_date
-# Use a common y-coordinate for the main line of songs/albums
-song_album_y_pos <- 1.5 # Position songs/albums above Sailor Shift, adjusted for better spacing
+# --- Get target node ID for 'Sailor Shift' ---
+sailor_node <- nodes_tbl_cleaned %>%
+  filter(name == trimws(target_name))
 
-for (i in 1:nrow(performed_nodes_sorted)) {
-  node_id <- performed_nodes_sorted$id[i]
-  release_year <- performed_nodes_sorted$release_date[i]
-  
-  # Map year to x-coordinate, centered around 0
-  V(g)$x[V(g)$id == node_id] <- (release_year - min_release_date) * x_spread_factor - (max_release_date - min_release_date) * x_spread_factor / 2
-  V(g)$y[V(g)$id == node_id] <- song_album_y_pos
+if (nrow(sailor_node) == 0) {
+  stop(paste("No node named '", target_name, "' found in cleaned data. Ensure the name is correct and node ID is valid.", sep=""))
+}
+sailor_id <- as.character(sailor_node$id)
+
+# --- Prepare edges for igraph (using original IDs) ---
+valid_node_ids <- nodes_tbl_cleaned$id
+
+edges_df_for_igraph <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  mutate(across(c(source, target), trimws)) %>% # Trim source/target IDs
+  filter(source %in% valid_node_ids & target %in% valid_node_ids) %>%
+  rename(from = source, to = target)
+
+# --- Identify relevant songs and albums for Sailor Shift's timeline ---
+# We'll consider nodes directly connected to Sailor Shift (both from and to)
+relevant_connected_ids <- unique(c(
+  edges_df_for_igraph %>% filter(from == sailor_id) %>% pull(to),
+  edges_df_for_igraph %>% filter(to == sailor_id) %>% pull(from)
+))
+
+# Filter nodes for songs and albums that are relevant and have a release_date
+timeline_nodes <- nodes_tbl_cleaned %>%
+  filter(id %in% relevant_connected_ids & `Node Type` %in% c("Song", "Album")) %>%
+  select(id, name, `Node Type`, release_date) %>%
+  # --- FIX: Handling release_date as just a year ---
+  # Filter out non-numeric or empty release_date entries that are not 4 digits
+  filter(!is.na(release_date) & str_detect(as.character(release_date), "^\\d{4}$")) %>%
+  # Convert year string to a Date object (e.g., "2040" -> "2040-01-01")
+  mutate(release_date = lubridate::ymd(paste0(release_date, "-01-01"))) %>%
+  # Ensure only valid dates remain after conversion (in case paste0 creates invalid dates)
+  filter(!is.na(release_date)) %>%
+  distinct(id, .keep_all = TRUE) # Ensure unique entries
+
+# If no relevant nodes found after parsing, stop
+if (nrow(timeline_nodes) == 0) {
+  stop("No relevant songs or albums with valid release dates found for Sailor Shift to create a timeline after parsing years.")
 }
 
-# 3. Position Record Labels
-# Position labels around the songs/albums they are connected to
-# For simplicity, let's place them slightly above or below their connected song/album
-# This is a basic approach; a more sophisticated layout might use a force-directed algorithm
-# for labels after fixing song/album positions.
-record_label_y_pos_offset <- 0.5 # Offset from song/album y-position
+# --- Simulate 'written_date' and 'notoriety_date' ---
+set.seed(42) # For reproducibility
 
-for (label_id in record_label_nodes$id) {
-  # Find songs/albums connected to this label
-  # Corrected: 'Edge Type' for graph_edges
-  connected_songs_albums <- graph_edges %>%
-    filter(to == label_id, from %in% performed_nodes_sorted$id) %>%
-    pull(from)
-  
-  if (length(connected_songs_albums) > 0) {
-    # Get the x-coordinate of the first connected song/album
-    avg_x <- mean(V(g)$x[V(g)$id %in% connected_songs_albums], na.rm = TRUE) # Added na.rm
-    
-    V(g)$x[V(g)$id == label_id] <- avg_x + runif(1, -0.1, 0.1) # Add slight jitter
-    V(g)$y[V(g)$id == label_id] <- song_album_y_pos + record_label_y_pos_offset
+timeline_data <- timeline_nodes %>%
+  mutate(written_date = as.Date(NA), # Initialize with NA Date
+         notoriety_date = as.Date(NA))
+
+# Simulate written_date for 30% of entries
+num_to_simulate_written <- floor(nrow(timeline_data) * 0.3)
+if (num_to_simulate_written > 0) {
+  written_indices <- sample(1:nrow(timeline_data), num_to_simulate_written, replace = FALSE)
+  for (i in written_indices) {
+    release_dt <- timeline_data$release_date[i]
+    if (!is.na(release_dt)) {
+      # Written date 30-365 days before release
+      days_before <- sample(30:365, 1)
+      timeline_data$written_date[i] <- release_dt - days(days_before)
+    }
   }
 }
 
-# Ensure Sailor Shift is at 0,0
-V(g)$x[V(g)$id == sailor_shift_id] <- 0
-V(g)$y[V(g)$id == sailor_shift_id] <- 0
+# Simulate notoriety_date for 20% of remaining entries
+remaining_indices <- setdiff(1:nrow(timeline_data), written_indices)
+num_to_simulate_notoriety <- floor(length(remaining_indices) * 0.2)
+if (num_to_simulate_notoriety > 0) {
+  notoriety_indices <- sample(remaining_indices, num_to_simulate_notoriety, replace = FALSE)
+  for (i in notoriety_indices) {
+    release_dt <- timeline_data$release_date[i]
+    if (!is.na(release_dt)) {
+      # Notoriety date 30-365 days after release
+      days_after <- sample(30:365, 1)
+      timeline_data$notoriety_date[i] <- release_dt + days(days_after)
+    }
+  }
+}
 
+# Create event_description
+timeline_data <- timeline_data %>%
+  mutate(event_description = paste0(name, " (", `Node Type`, ")"))
 
-# --- Edge Length Adjustment for Sailor Shift's performances ---
-# Calculate the 'length' aesthetic for edges based on release_date
-# For edges from Sailor Shift to songs/albums:
-# Longer edges for greater years, shorter for earlier years.
-# Normalize release dates to a range (e.g., 1 to 5) for edge lengths.
-min_year <- min(performed_nodes_sorted$release_date, na.rm = TRUE)
-max_year <- max(performed_nodes_sorted$release_date, na.rm = TRUE)
+# --- Create the timeline plot ---
+ggplot(timeline_data, aes(y = 0)) + # Y-axis position for points
 
-edge_length_factor <- function(year) {
-  if (is.null(year) || is.na(year)) return(1) # Default length
-  if (min_year == max_year) return(2) # Avoid division by zero if all years are same
-  
-  # Scale year from min_year to max_year to a range like 1 to 5
-  scaled_length <- 1 + (year - min_year) / (max_year - min_year) * 4 # Adjust max multiplier as needed
+  # Plot release events as points
+  geom_point(aes(x = release_date,
+                 shape = ifelse(!is.na(notoriety_date), "Notoriety Event", "Release Event")),
+             size = 4, color = "darkblue") +
+
+  # Add vertical lines for written dates
+  geom_segment(aes(x = written_date, xend = written_date,
+                   y = 0, yend = 0.2), # Line goes upwards for text
+               color = "darkgreen", linetype = "dashed", size = 0.5, na.rm = TRUE) +
+
+  # Add vertical lines for notoriety dates
+  geom_segment(aes(x = notoriety_date, xend = notoriety_date,
+                   y = 0, yend = -0.2), # Line goes downwards for notoriety indicator
+               color = "red", linetype = "dotted", size = 0.5, na.rm = TRUE) +
+
+  # Add text labels for events
+  geom_text(aes(x = release_date, label = event_description, y = 0.05), # Position slightly above the point
+            vjust = 0, hjust = 0.5, size = 3, angle = 90, check_overlap = TRUE) +
+
+  # Add text labels for written dates
+  geom_text(aes(x = written_date, label = paste0("Written: ", format(written_date, "%Y-%m-%d")), y = 0.2),
+            vjust = 0, hjust = 0.5, size = 2.5, angle = 90, color = "darkgreen", na.rm = TRUE, check_overlap = TRUE) +
+
+  # Add text labels for notoriety dates
+  geom_text(aes(x = notoriety_date, label = paste0("Notoriety: ", format(notoriety_date, "%Y-%m-%d")), y = -0.2),
+            vjust = 1, hjust = 0.5, size = 2.5, angle = 90, color = "red", na.rm = TRUE, check_overlap = TRUE) +
+
+  # Customize appearance
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y",
+               limits = c(min(timeline_data$release_date, na.rm = TRUE) - years(1), max(timeline_data$release_date, na.rm = TRUE) + years(1))) + # Extend x-axis slightly
+  scale_y_continuous(limits = c(-0.5, 0.5), breaks = NULL) + # Adjust y-axis for labels and lines, hide breaks
+  scale_shape_manual(values = c("Release Event" = 16, "Notoriety Event" = 17)) + # Circle for release, triangle for notoriety
+  labs(title = paste0("Timeline for ", target_name, "'s Associated Releases & Events"),
+       x = "Year",
+       y = NULL,
+       shape = "Event Type") + # Legend title for shapes
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(), # Remove minor grid lines
+        panel.grid.major.y = element_blank(), # Remove major horizontal grid lines
+        axis.text.x = element_text(angle = 45, hjust = 1),# Angle x-axis labels
+        legend.position = "bottom") # Position legend at the bottom
 ```
+
 
 ## Questions
 
-    -   Can see when she released songs and what these songs any linkage to other songs or people and influence - can determine who influence her most
+```         
+-   Can see when she released songs and what these songs any linkage to other songs or people and influence - can determine who influence her most
 
-        -   from current graphs
+    -   from current graphs
 
-            -   lyricalreferenceto - drowned harbour
+        -   lyricalreferenceto - drowned harbour
 
-            -   instyleof - the fittle & the fjord
+        -   instyleof - the fittle & the fjord
 
-            -   directlysamples and has been a member of - Ivy Echos
+        -   directlysamples and has been a member of - Ivy Echos
+```
 
 -   when did she team up with or collaborate with or write songs for different persons or groups
 
@@ -2601,6 +2727,4 @@ edge_length_factor <- function(year) {
 
 -   
 
-##Approach
-data cleaning
-show full chart of sailor shift
+##Approach data cleaning show full chart of sailor shift
