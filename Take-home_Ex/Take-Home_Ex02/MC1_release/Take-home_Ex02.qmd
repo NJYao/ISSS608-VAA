@@ -3,10 +3,10 @@ title: "Take Home Exercise 2"
 date: "Jun 01, 2025"
 date-modified: "last-modified"
 author: "Ng Jin Yao"
-format:
-    html:
-      code-fold: true
-      code-tools: true
+format: 
+  html:
+    code-fold: true
+    code-tools: true
 editor: visual
 execute: 
   eval: true
@@ -1292,9 +1292,11 @@ browsable(
 
     The visualization will allow Silas to:
 
-    -    View who Sailor Shift has collaborated with by viewing which Song nodes have a edge linking Sailor Shift to another group or person. (e.g for the song Tidesworn Ballad, it can be seen from the graph that this song is a collaboration between Sailor Shift and Beatrice Albright as both of them are LyricistOf and PerformerOf that song.
+    -   View who Sailor Shift has collaborated with by viewing which Song nodes have a edge linking Sailor Shift to another group or person. (e.g for the song Tidesworn Ballad, it can be seen from the graph that this song is a collaboration between Sailor Shift and Beatrice Albright as both of them are LyricistOf and PerformerOf that song.
 
         ![](images/clipboard-1854104278.png){width="275"}
+
+    <!-- -->
 
     -   Silas can also view who Sailor Shift might have directly. An example would be Claire Holmes and The Phantom Operators who Interpolates directly from Sailor Shift.
 

@@ -7,7 +7,6 @@ format:
   html:
     code-fold: true
     code-tools: true
-editor: visual
 execute: 
   eval: true
   echo: true
