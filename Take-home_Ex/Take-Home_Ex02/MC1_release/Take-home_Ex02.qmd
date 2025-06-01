@@ -3,7 +3,7 @@ title: "Take Home Exercise 2"
 date: "Jun 01, 2025"
 date-modified: "last-modified"
 author: "Ng Jin Yao"
-format: 
+format:
   html:
     code-fold: true
     code-tools: true
@@ -45,9 +45,7 @@ pacman::p_load(tidyverse, jsonlite,
                SmartEDA, tidygraph, 
                ggraph,dplyr,igraph, 
                visNetwork,RColorBrewer,
-               htmlwidgets,htmltools)
-
-# The following tidyverse packages are used as well: stringr,lubridate, tidyr
+               htmltools)
 ```
 
 Note that the following tidyverse packages are used as well: stringr, lubridate, tidyr
@@ -388,7 +386,7 @@ visSave(graph_group_interactions, file = paste0(target_name, "_group_interaction
 graph_group_interactions
 ```
 
-::: callout-notes
+::: callout-note
 ## Observation
 
 When looking at the edges that are linked to Sailor Shift directly or indirectly through other person or musical group nodes, it can be seen that o a group of person or musical nodes are linked or influenced to Sailor Shift. From here we will dive deeper into the person or groups which are influenced by her.
@@ -503,18 +501,55 @@ From the network graph above, we can see that there are edges connecting directl
 
 ## Final visualization Tool to Assist Silas's exploration and analysis
 
-From the previous graph, the following improvements will be made: 
-- To improve clarify, we will be generating 2 graphs using: 
-  - Outward directed edges - who Sailor Shift, her songs or albums was influenced by 
-  - Inward directed edges - who Sailor Shift, her songs or albums has influenced. 
-- Songs and albums which are notable will be represented by a star shape instead 
-- Used gradient colors for song and album to help visualize the release_year of the song/ album (Darker for more recent years and lighter for older)
-- Added adjustment to node sizes(other than Sailor Shift) using the degree for each node to represent how connected a certain node is.
-- Due to limitations for visNetwork to display gradient and multiple shapes + colors as legends for groups, a HTML generated legends will be generated and used with the network graphs.
+From the previous graph, the following improvements will be made:
 
-### Who has Sailor Shift Influenced? - Inward Directed Graph
+-   Increase visOptions degree for highlighting when clicking or hovering a node from 1 to 2 - to improve the visibility of indirect linkages between Sailor Shift and other Person/MusicalGroups
 
-#### Prepatory Code for the visNetwork graph
+-   To introduce inferred genre for a Person/MusicalGroup
+
+-   To improve clarify, we will be generating 2 graphs using:
+
+    -   Outward directed edges - who Sailor Shift, her songs or albums was influenced by
+
+    -   Inward directed edges - who Sailor Shift, her songs or albums has influenced. -
+
+-   Songs and albums which are notable will be represented by a star shape instead
+
+-   Used gradient colors for song and album to help visualize the release_year of the song/ album (Darker for more recent years and lighter for older)
+
+-   Added adjustment to node sizes(other than Sailor Shift) using the degree for each node to represent how connected a certain node is.
+
+-   Due to limitations for visNetwork to display gradient and multiple shapes + colors as legends for groups, a HTML generated legends will be generated and used with the network graphs.
+
+### Getting Inferred Genres for Person/ MusicalGroup
+
+The code block below will assist in retrieving the inferred genre of a Person or MusicalGroup based on the "PerformerOf", "ComposerOf", "ProducerOf", "LyricistOf", "RecordedBy" edges linked to the Person or MusicalGroup.
+
+This will be used in the tooltip and shows the genre of the Person or MusicalGroup node to help with analysis.
+
+```{r}
+genre_inference_edge_types <- c("PerformerOf", "ComposerOf", "ProducerOf", "LyricistOf", "RecordedBy")
+
+artiste_song_genre_links <- edges_igraph_df %>%
+  filter(`Edge Type` %in% genre_inference_edge_types) %>%
+  inner_join(nodes_tbl_cleaned %>% select(id, `Node Type`, genre),
+             by = c("to" = "id")) %>%
+  filter(`Node Type` == "Song") %>% # Ensure the target node is a Song
+  select(artiste_id = from, song_genre = genre) %>%
+  filter(!is.na(song_genre) & song_genre != "") # Only consider songs with a defined genre
+
+inferred_genres_for_artistes <- artiste_song_genre_links %>%
+  group_by(artiste_id) %>%
+  summarise(
+    inferred_genre = paste(sort(unique(song_genre)), collapse = ", "),
+    .groups = 'drop'
+  )
+```
+
+### Who was Influenced by Sailor Shift? - Inward Directed Graph
+
+#### Preparatory Code for the visNetwork graph
+
 ```{r}
 # Global Definitions for inward and outward directed graph
 desired_edge_types_to_display <- c(
@@ -611,19 +646,12 @@ sailor_node <- nodes_tbl_cleaned %>% filter(tolower(name) == tolower(target_name
 if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found.", sep=""))
 sailor_id <- sailor_node$id
 
-# Prepare Edges for visNetwork (and ensure IDs are consistent)
-edges_df_for_igraph <- edges_tbl %>%
-  rename(from = source, to = target) %>%
-  mutate(across(c(from, to), as.character)) %>%
-  mutate(across(c(from, to), trimws)) %>%
-  mutate(across(c(from, to), tolower))
-
 valid_node_ids_set <- unique(nodes_tbl_cleaned$id)
-edges_df_for_igraph <- edges_df_for_igraph %>%
+edges_igraph_df <- edges_igraph_df %>%
   filter(from %in% valid_node_ids_set & to %in% valid_node_ids_set)
 
 # Songs linked to Sailor Shift (direct edges)
-sailor_songs <- edges_df_for_igraph %>%
+sailor_songs <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          from == sailor_id | to == sailor_id) %>%
   mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
@@ -632,7 +660,7 @@ sailor_songs <- edges_df_for_igraph %>%
   pull(target_id)
 
 # Albums linked to Sailor Shift (direct edges)
-sailor_albums <- edges_df_for_igraph %>%
+sailor_albums <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          from == sailor_id | to == sailor_id) %>%
   mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
@@ -641,7 +669,7 @@ sailor_albums <- edges_df_for_igraph %>%
   pull(target_id)
 
 # Songs/albums that link to Sailor Shift's songs or albums
-linked_in_targets <- edges_df_for_igraph %>%
+linked_in_targets <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          to %in% union(sailor_songs, sailor_albums)) %>%
   pull(from)
@@ -650,12 +678,12 @@ linked_in_targets <- edges_df_for_igraph %>%
 all_in_targets <- union(union(sailor_songs, sailor_albums), linked_in_targets)
 
 # Contributors to those songs/albums
-contributors_to_targets <- edges_df_for_igraph %>%
+contributors_to_targets <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          to %in% all_in_targets)
 
 # Edges to Sailor Shift or her songs/albums
-edges_to_sailor <- edges_df_for_igraph %>%
+edges_to_sailor <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          to == sailor_id | to %in% union(sailor_songs, sailor_albums))
 
@@ -696,7 +724,7 @@ nodes_inward_vis <- nodes_tbl_cleaned %>%
   rowwise() %>%
   mutate(
     label = name,
-    title = HTML(paste0(
+    title = paste0(
       "<b>Name:</b> ", name, "<br>",
       "<b>Node Type:</b> ", `Node Type`, "<br>",
       get_html_detail(cur_data(), "stage_name", "Stage Name"),
@@ -704,7 +732,7 @@ nodes_inward_vis <- nodes_tbl_cleaned %>%
       get_html_detail(cur_data(), "genre", "Genre (Node)"),
       get_html_detail(cur_data(), "inferred_genre", "Genre (Inferred)"),
       get_html_detail(cur_data(), "notable", "Notable")
-    )),
+    ),
     group = `Node Type`,
     size = case_when(
       id == sailor_id ~ 60
@@ -780,10 +808,11 @@ nodes_inward_vis <- nodes_inward_vis %>%
   mutate(size = ifelse(id == sailor_id, 60, degree_scaled))
 ```
 
-#### Rendering the Inward network graph
+#### Rendering the 'Influenced By' Sailor Shift Network graph
+
 ```{r}
 graph_inward <- visNetwork(nodes_inward_vis, edges_inward_final,
-                           main = paste0(target_name," 'Influenced' Network Graph")) %>%
+                           main = paste0("'Influenced By' ",target_name," Network Graph")) %>%
   visNodes(
     color = list(
       background = ~color.background,
@@ -805,7 +834,7 @@ graph_inward <- visNetwork(nodes_inward_vis, edges_inward_final,
     width = 1
   ) %>%
   visOptions(
-    highlightNearest = list(enabled = TRUE, degree = 1, hover = TRUE, algorithm = "hierarchical"),
+    highlightNearest = list(enabled = TRUE, degree = 2, hover = TRUE, algorithm = "hierarchical"),
     nodesIdSelection = list(enabled = TRUE, selected = sailor_id, useLabels = TRUE),
     selectedBy = "group"
   ) %>%
@@ -826,9 +855,10 @@ graph_inward
 
 ```
 
-### Who Influenced Sailor Shift - Outward Directed Graph
+### Who Influenced Sailor Shift? - Outward Directed Graph
 
-#### Prepatory Code for the visNetwork graph
+#### Preparatory Code for the visNetwork graph
+
 ```{r}
 get_html_detail <- function(value, label) {
   if (!is.null(value) && !is.na(value) && as.character(value) != "") {
@@ -917,18 +947,18 @@ if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found.
 sailor_id <- sailor_node$id
 
 # --- Prepare Edges for visNetwork (and ensure IDs are consistent) ---
-edges_df_for_igraph <- edges_tbl %>%
+edges_igraph_df <- edges_tbl %>%
   rename(from = source, to = target) %>%
   mutate(across(c(from, to), as.character)) %>%
   mutate(across(c(from, to), trimws)) %>%
   mutate(across(c(from, to), tolower))
 
 valid_node_ids_set <- unique(nodes_tbl_cleaned$id)
-edges_df_for_igraph <- edges_df_for_igraph %>%
+edges_igraph_df <- edges_igraph_df %>%
   filter(from %in% valid_node_ids_set & to %in% valid_node_ids_set)
 
 # --- Outward Graph Logic ---
-sailor_songs <- edges_df_for_igraph %>%
+sailor_songs <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          from == sailor_id | to == sailor_id) %>%
   mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
@@ -936,7 +966,7 @@ sailor_songs <- edges_df_for_igraph %>%
   filter(`Node Type` == "Song") %>%
   pull(target_id)
 
-sailor_albums <- edges_df_for_igraph %>%
+sailor_albums <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          from == sailor_id | to == sailor_id) %>%
   mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
@@ -944,18 +974,18 @@ sailor_albums <- edges_df_for_igraph %>%
   filter(`Node Type` == "Album") %>%
   pull(target_id)
 
-linked_out_targets <- edges_df_for_igraph %>%
+linked_out_targets <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          from %in% union(sailor_songs, sailor_albums)) %>%
   pull(to)
 
 all_out_targets <- union(union(sailor_songs, sailor_albums), linked_out_targets)
 
-contributors_to_targets <- edges_df_for_igraph %>%
+contributors_to_targets <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          to %in% all_out_targets)
 
-edges_from_sailor <- edges_df_for_igraph %>%
+edges_from_sailor <- edges_igraph_df %>%
   filter(`Edge Type` %in% desired_edge_types_to_display,
          from == sailor_id | from %in% union(sailor_songs, sailor_albums))
 
@@ -1006,7 +1036,7 @@ nodes_outward_vis <- nodes_tbl_cleaned %>%
   rowwise() %>%
   mutate(
     label = name,
-    title = HTML(paste0(
+    title = paste0(
       "<b>Name:</b> ", name, "<br>",
       "<b>Node Type:</b> ", `Node Type`, "<br>",
       get_html_detail(stage_name, "Stage Name"),
@@ -1014,7 +1044,7 @@ nodes_outward_vis <- nodes_tbl_cleaned %>%
       get_html_detail(genre, "Genre (Node)"),
       get_html_detail(inferred_genre, "Genre (Inferred)"),
       get_html_detail(notable, "Notable")
-    )),
+    ),
     group = `Node Type`,
     size = case_when(
       id == sailor_id ~ 60,
@@ -1090,10 +1120,11 @@ nodes_outward_vis <- nodes_outward_vis %>%
   mutate(size = ifelse(id == sailor_id, 60, degree_scaled))
 ```
 
-#### Rendering the Outward network graph
+#### Rendering the 'Influenced' Sailor Shift Network graph
+
 ```{r}
 graph_outward <- visNetwork(nodes_outward_vis, edges_outward_final,
-                            main = paste0(target_name," 'Influenced By' Network Graph")) %>%
+                            main = paste0("'Influenced' ",target_name," Network Graph")) %>%
   visNodes(
     shadow = TRUE,
     font = list(size = 12),
@@ -1109,7 +1140,7 @@ graph_outward <- visNetwork(nodes_outward_vis, edges_outward_final,
     width = 1
   ) %>%
   visOptions(
-    highlightNearest = list(enabled = TRUE, degree = 1, hover = TRUE, algorithm = "hierarchical"),
+    highlightNearest = list(enabled = TRUE, degree = 2, hover = TRUE, algorithm = "hierarchical"),
     nodesIdSelection = list(enabled = TRUE, selected = sailor_id, useLabels = TRUE),
     selectedBy = "group"
   ) %>%
@@ -1124,17 +1155,6 @@ graph_outward <- visNetwork(nodes_outward_vis, edges_outward_final,
       visGroups(groupname = "Unknown", color = all_node_type_colors["Unknown"], shape = "dot")
     vis_obj
   } %>%
-  # visLegend(main = "Node Types", useGroups = TRUE, position = "left", width = 0.15) %>%
-  # visLegend(
-  #   main = "Edge Types",
-  #   addEdges = data.frame(
-  #     color = all_edge_type_colors[legend_edge_types_to_display],
-  #     label = legend_edge_types_to_display,
-  #     font.align = "top"
-  #   ),
-  #   position = "right",
-  #   width = 0.15
-  # ) %>%
   visInteraction(navigationButtons = TRUE, keyboard = TRUE) %>%
   visIgraphLayout(layout = "layout_with_fr", randomSeed = 1234) %>%
   visPhysics(enabled = FALSE)
@@ -1152,7 +1172,6 @@ This legends will only be used for the nodes as the edges already have labelling
 #### Node Shape and Color Legends
 
 ```{r}
-library(htmltools)
 
 custom_legend <- tags$div(
   style = "margin-bottom:16px;",
@@ -1218,7 +1237,7 @@ song_gradient_legend <- tags$div(
   tags$div(
     style = sprintf("height:18px;width:200px;background:linear-gradient(to right, %s);border:1px solid #888;margin:2px 0;",
                     paste(song_palette_func(10), collapse = ","))),
-  tags$span(min_song_year), 
+  tags$span(min_song_year),
   tags$span(max_song_year, style = "margin-left:130px;")
 )
 
@@ -1229,7 +1248,7 @@ album_gradient_legend <- tags$div(
   tags$div(
     style = sprintf("height:18px;width:200px;background:linear-gradient(to right, %s);border:1px solid #888;margin:2px 0;",
                     paste(album_palette_func(10), collapse = ","))),
-  tags$span(min_album_year), 
+  tags$span(min_album_year),
   tags$span(max_album_year, style = "margin-left:130px;")
 )
 
@@ -1255,7 +1274,7 @@ legend_panel <- tags$div(
 legend_panel
 ```
 
-### Sailor Shift "influenced" network - Inward directed Graph
+### Final - "Influenced By" Sailor Shift network - Inward directed Graph
 
 ```{r}
 browsable(
@@ -1267,12 +1286,34 @@ browsable(
 ```
 
 ::: callout-note
-## Notes
+**From the "Influenced By" Sailor Shift Network graph, we will be able to help Silas answer the following questions:**
 
-From the
+-   **Who has she collaborated with and directly or indirectly influenced?**
+
+    The visualization will allow Silas to:
+
+    -    View who Sailor Shift has collaborated with by viewing which Song nodes have a edge linking Sailor Shift to another group or person. (e.g for the song Tidesworn Ballad, it can be seen from the graph that this song is a collaboration between Sailor Shift and Beatrice Albright as both of them are LyricistOf and PerformerOf that song.
+
+        ![](images/clipboard-1854104278.png){width="275"}
+
+    -   Silas can also view who Sailor Shift might have directly. An example would be Claire Holmes and The Phantom Operators who Interpolates directly from Sailor Shift.
+
+        ![](images/clipboard-3937778880.png)
+
+    -   Another Example would be an indirect influence, such as Genevieve Bell, Jasper Quinn and Julia Carter who all performed InStyleOf Ivy Echos, where Sailor Shift used to be a memberOf and indirectly influenced these persons from there.
+
+        ![](images/clipboard-416846807.png){width="402"}
+
+<!-- -->
+
+-   **How has she influenced collaborators of the broader Oceanus Folk community?**
+
+    -   We can see from the Sailor Shift graph that she has helped many others of the Oceanus Folk Community, like the MusicalGroup "The Brine Choir" to gain attention in the Oceanus Folk Scene. For example "The Brine Choir" has collaborated on 3 songs in 2034, 2035 and 2038 where all 3 of them are Notable Songs. This seems to be the case observed from the graph from many other collaborators in the Oceanus Folk artistes as well.
+
+        ![](images/clipboard-2457092321.png)
 :::
 
-### Sailor Shift "influenced by" network - Outward directed Graph
+### Final - "Influenced" Sailor Shift network - Outward directed Graph
 
 ```{r}
 browsable(
@@ -1284,41 +1325,18 @@ browsable(
 ```
 
 ::: callout-notes
-## Notes
+**From the "Influenced By" Sailor Shift Network graph, we will be able to help Silas answer the following questions:**
 
-From the visualization
+1.  **Who has she been most influenced by over time?**
+    -   We are able to view the influences Sailor Shift got over time through the network graph and the release_date of the song/album and the respective edges linking this released song to another song or album or person/musical group.
+
+    -   An example would be her influence by Shannon Harvey through the song "Our Invevitable Path"( an indie folk song released in 2017) which "Barnacle Heart"(released in 2034) was done in the style of.
+
+        ![](images/clipboard-2040707993.png)
+
+    -   Before that in 2030, however, she was influences by Igor Dys through the song Echoes of Forgotten Light (a Alternative Rock Song released in 2004), which her song "Driftwood Lullaby" was done in style of.
+
+        ![](images/clipboard-3266701416.png)
 :::
 
-## Questions
-
-```         
--   Can see when she released songs and what these songs any linkage to other songs or people and influence - can determine who influence her most
-
-    -   from current graphs
-
-        -   lyricalreferenceto - drowned harbour
-
-        -   instyleof - the fittle & the fjord
-
-        -   directlysamples and has been a member of - Ivy Echos
-```
-
--   when did she team up with or collaborate with or write songs for different persons or groups
-
--   History of collaboration and timestamp with those she has worked with
-
--   
-
-## Data Cleaning and Initial analysis:
-
-### Show data cleaning and checking
-
-## Who has she been most influenced by over time?
-
-### Graph showing who she take influence from
-
-## Who has she collaborated with and directly or indirectly influenced?
-
-### Graph showing who she influenced
-
-## How has she influenced collaborators of the broader Oceanus Folk Community
+\`\`\`
