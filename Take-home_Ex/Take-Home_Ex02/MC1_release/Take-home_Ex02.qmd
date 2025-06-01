@@ -4,9 +4,9 @@ date: "Jun 01, 2025"
 date-modified: "last-modified"
 author: "Ng Jin Yao"
 format:
-  html:
-    code-fold: true
-    code-tools: true
+    html:
+      code-fold: true
+      code-tools: true
 editor: visual
 execute: 
   eval: true
