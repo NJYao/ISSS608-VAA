@@ -19,19 +19,25 @@ website:
         - text: "Hands-on Exercise 5" 
           href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html"
         - text: "Hands-on Exercise 6" 
-          href: "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html"  
+          href: "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html" 
+          
     - text: "Take Home Exercise"
       menu:
         - text: "Take Home Exercise 1" 
           href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html"
         - text: "Take Home Exercise 1 Part 2" 
           href: "Take-home_Ex/Take-home_Ex01P2/Take-home_Ex01P2.html"
+        - text: "Take Home Exercise 2" 
+          href: "Take-home_Ex/Take-home_Ex02/MC1_release/Take-home_Ex02.html"
+          
     - text: "In Class Exercise"
       menu:
         - text: "Tableu Plots"
           url: https://public.tableau.com/app/profile/jin.yao.ng/vizzes
         - text: "In Class Exercise 5" 
           href: "Take-home_Ex/Take-home_Ex02/MC1_release/MC1.html"
+        - text: "In Class Exercise 7: Shiny App"
+          url: https://njyao.shinyapps.io/ShinyAppInClassEx07/
 
          
           
@@ -64,13 +70,17 @@ website:
             href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html"
           - text: "Take Home Exercise 1 P2" 
             href: "Take-home_Ex/Take-home_Ex01P2/Take-home_Ex01P2.html"
-
+          - text: "Take Home Exercise 2" 
+            href: "Take-home_Ex/Take-home_Ex02/MC1_release/Take-home_Ex02.html"
+            
       - section: "In Class Exercise"
         contents:
           - text: "Tableu Plots"
             url: https://public.tableau.com/app/profile/jin.yao.ng/vizzes
           - text: "In Class Exercise 5" 
             href: "Take-home_Ex/Take-home_Ex02/MC1_release/MC1.html"
+          - text: "In Class Exercise 7: Shiny App"
+            url: https://njyao.shinyapps.io/ShinyAppInClassEx07/
       
 format:
   html:

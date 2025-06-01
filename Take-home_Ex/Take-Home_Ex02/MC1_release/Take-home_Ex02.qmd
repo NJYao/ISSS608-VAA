@@ -1,0 +1,1324 @@
+---
+title: "Take Home Exercise 2"
+date: "Jun 01, 2025"
+date-modified: "last-modified"
+author: "Ng Jin Yao"
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+::: callout-note
+## FYI
+
+For this Take-home Exercise 2, my group members ([Andre](https://isss608-ay2025-aprilterm.netlify.app/), [Hendra](https://norhendra-isss608.netlify.app/)) and I have decided to do [Mini-Challenge 1](https://vast-challenge.github.io/2025/MC1.html). Through our discussion (and the help of a wheel randomizer), we split the challenge's questions amongst ourselves. I will be doing question 1, Hendra will be doing question 2 and Andre will be doing question 3.
+:::
+
+## Background
+
+Following the Mini-Challenge 1 from the VAST Challenge 2025( https://vast-challenge.github.io/2025/MC1.html) and the dataset obtained from this mini-challenge:
+
+A local journalist – Silas Reed – is writing a piece titled Oceanus Folk: Then-and-Now that aims to trace the rise of Sailor and the influence of Oceanus Folk on the rest of the music world. He has collected a large dataset of musical artists, producers, albums, songs, and influences and organized it into a knowledge graph. Your task is to help Silas create beautiful and informative visualizations of this data and uncover new and interesting information about Sailor’s past, her rise to stardom, and her influence.
+
+The task is to design and develop visualizations and visual analytic tools that will allow Silas to explore and understand the profile of Sailor Shift’s career:
+
+```         
+1.  Who has she been most influenced by over time?
+
+2.  Who has she collaborated with and directly or indirectly influenced?
+
+3.  How has she influenced collaborators of the broader Oceanus Folk community?
+```
+
+## Loading Libraries
+
+```{r}
+#| code-fold: false
+pacman::p_load(tidyverse, jsonlite, 
+               SmartEDA, tidygraph, 
+               ggraph,dplyr,igraph, 
+               visNetwork,RColorBrewer,
+               htmlwidgets,htmltools)
+
+# The following tidyverse packages are used as well: stringr,lubridate, tidyr
+```
+
+Note that the following tidyverse packages are used as well: stringr, lubridate, tidyr
+
+::: callout-important
+## Important
+
+You are required to install the R packages above, if necessary, before continue to the next step Check packages to ensure they are installed
+:::
+
+## Loading Data and Initial Exploratory Data Analysis
+
+### Loading the JSON Raw Data
+
+```{r}
+#| code-fold: false
+kg <- fromJSON("data/MC1_graph.json")
+```
+
+### Check the structure of the data
+
+```{r}
+#| code-fold: false
+str(kg,max.level = 1)
+# structure enable to check structure of the data
+# good to have this line to check structures of data
+```
+
+### Extract and inspect the nodes and edges
+
+```{r}
+#| code-fold: false
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links)
+```
+
+### Initial Exploratory Data Analysis (EDA)
+
+#### Checking Types and the Counts in Nodes and Edges
+
+Using the code blocks below we can check the types and counts of the edges and nodes in the dataset:
+
+```{r}
+ggplot(data = nodes_tbl,
+       aes(y= `Node Type`)) +
+  geom_bar()
+ggplot(data = edges_tbl,
+       aes(y= `Edge Type`)) +
+  geom_bar()
+
+```
+
+#### Checking dimensions of the Nodes and Edges:
+
+```{r}
+#| code-fold: false
+dim(nodes_tbl)
+dim(edges_tbl)
+```
+
+#### Glimpse of Nodes and Edges
+
+To have a quick overview and sample of the data and data type of each variable in the nodes_tbl and edges_tbl:
+
+```{r}
+#| code-fold: false
+glimpse(nodes_tbl)
+glimpse(edges_tbl)
+```
+
+#### Checking the number of unique ids and rows in nodes_tbl
+
+```{r}
+cat("Count of Unique node IDs:", n_distinct(nodes_tbl$id),"\n")
+cat("Count of node rows:", n_distinct(nodes_tbl$id))
+
+```
+
+each ID is unique since the number of unique IDs and number of rows in nodes_tbl are the same
+
+#### Checking the number of unique ids for the source and target column in edges_tbl
+
+```{r}
+#Edges Checking number of unique ids
+cat("Count of Unique IDs in source:",n_distinct(edges_tbl$source),"\n")
+cat("Count of Unique IDs in target:",n_distinct(edges_tbl$target))
+```
+
+#### Check if all source/target IDs in edges_tbl exist in nodes_tbl IDs
+
+```{r}
+# Check if all source/target IDs exist in nodes_tbl
+nodes_ids <- nodes_tbl$id
+invalid_source_ids <- edges_tbl %>% filter(!(source %in% nodes_ids)) %>% pull(source) %>% unique()
+invalid_target_ids <- edges_tbl %>% filter(!(target %in% nodes_ids)) %>% pull(target) %>% unique()
+
+
+if (length(invalid_target_ids) > 0) {
+  cat("Warning: Found", length(invalid_target_ids), "target IDs not present in nodes_tbl (e.g.,", head(invalid_target_ids, 5), ").\n")
+} else {
+  cat("All 'target' IDs are present in nodes_tbl.\n")
+}
+
+if (length(invalid_source_ids) > 0) {
+  cat("Warning: Found", length(invalid_source_ids), "source IDs not present in nodes_tbl (e.g.,", head(invalid_source_ids, 5), ").\n")
+} else {
+  cat("All 'source' IDs are present in nodes_tbl.\n")}
+
+```
+
+#### Checking on the distribution of genres within node_tbl dataset
+
+```{r}
+print(nodes_tbl %>% count(genre, sort = TRUE, name = "count") %>%
+          mutate(percentage = (count / sum(count)) * 100) %>% head(10))
+```
+
+#### Checking on the distribution of notable within node_tbl dataset
+
+```{r}
+nodes_tbl %>% count(notable, sort = TRUE, name = "count") %>%
+          mutate(percentage = (count / sum(count)) * 100)
+
+```
+
+### Preparation for visNetwork
+
+#### Defining and Standardizing Node and Edge Colors
+
+In order to ensure the graphs generated later on have standardized colors. We will need to define them in this code block here:
+
+```{r}
+all_node_type_colors <- c(
+  "Song" = "#FF5733",
+  "Album" = "lightblue",
+  "Person" = "deepskyblue",
+  "MusicalGroup" = "purple",
+  "RecordLabel" = "lightgreen",
+  "Unknown" = "gray"
+)
+
+all_edge_type_colors <- c(
+  "PerformerOf" = "#FF5733", "ComposerOf" = "#33FF57", "ProducerOf" = "#3357FF",
+  "LyricistOf" = "#FF33F5", "RecordedBy" = "#F5FF33", "InterpolatesFrom" = "#8A2BE2",
+  "InStyleOf" = "#DAA520", "LyricalReferenceTo" = "#5F9EA0", "CoverOf" = "#DC143C",
+  "DirectlySamples" = "#6A5ACD", "DistributedBy" = "#20B2AA", "MemberOf" = "#8B4513",
+  "default" = "#CCCCCC"
+)
+```
+
+## visNetwork graph
+
+With the use of a network graph generated using visNetwork, we will be visualising the interactions and influences centering around Sailor Shift.
+
+### Set filter for Sailor Shift
+
+```{r}
+target_name <- "Sailor Shift"
+```
+
+### Select target node ID
+
+```{r}
+# --- Get target node ID ---
+sailor_node <- nodes_tbl %>% filter(name == target_name)
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found.", sep=""))
+sailor_id <- as.character(sailor_node$id)
+```
+
+### visNetwork graph to explore Sailor Shift Interactions with Persons or Musical Groups
+
+able to see that a cluster of them are linked to sailor shift - dive deeper in following graphs
+
+#### Helper function for HTML tooltips
+
+This function is to help with the tooltips and show details when selecting or hovering over the nodes or edges in our visNetwork graphs. This will enable us to show the name of the nodes and edges. For Nodes, additional details such as the year,
+
+```{r}
+# Helper function for HTML details in tooltips
+get_html_detail <- function(value, label) {
+  if (!is.null(value) && !is.na(value) && as.character(value) != "") {
+    return(paste0("<b>", label, ":</b> ", as.character(value), "<br>"))
+  }
+  return("")
+}
+```
+
+#### Edge Filtering
+
+Since we are exploring interactions between persons and musical groups, we will limit and filter the edges that are only between persons and musical groups. This will later be used in our network graph for analysis. The filtering is shown in the code block below:
+
+```{r}
+
+# --- Define the specific edge types for this new visualization ---
+desired_edge_types_for_group_interactions <- c(
+  "InterpolatesFrom",
+  "DirectlySamples",
+  "InStyleOf",
+  "LyricalReferenceTo",
+  "MemberOf"
+)
+```
+
+#### Data Cleaning
+
+```{r}
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(id = as.character(id)) %>%
+  mutate(id = trimws(id)) %>%
+  filter(!is.na(id) & id != "") %>%
+  mutate(`Node Type` = trimws(ifelse(is.na(`Node Type`), "Unknown", as.character(`Node Type`)))) %>%
+  distinct(id, .keep_all = TRUE)
+
+# Add missing columns with NA if they don't exist
+if (!"stage_name" %in% names(nodes_tbl_cleaned)) nodes_tbl_cleaned$stage_name <- NA_character_
+if (!"release_date" %in% names(nodes_tbl_cleaned)) nodes_tbl_cleaned$release_date <- NA_character_
+if (!"genre" %in% names(nodes_tbl_cleaned)) nodes_tbl_cleaned$genre <- NA_character_
+if (!"notable" %in% names(nodes_tbl_cleaned)) nodes_tbl_cleaned$notable <- NA
+
+
+
+# Get target node ID
+sailor_node <- nodes_tbl_cleaned %>% filter(name == target_name)
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found in cleaned data.", sep=""))
+sailor_id <- as.character(sailor_node$id)
+```
+
+#### visNetwork Edges preparation
+
+For visNetwork, we will need to rename the "source" and "target" from edges_tbl into "from" and "to" to be able to be used:
+
+```{r}
+# Prepare edges for igraph and visNetwork
+edges_df_processed <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  filter(source %in% nodes_tbl_cleaned$id & target %in% nodes_tbl_cleaned$id) %>%
+  rename(from = source, to = target)
+```
+
+This code block will mainly: - Filter the edges to include only the desired interaction types - Identify all nodes connected by these specific edges - Filter the "MusicalGroup" and "Person" nodes that are within this specific interaction - Preparing the Nodes and Edges for visualization
+
+```{r}
+relevant_edges_for_group_interactions <- edges_df_processed %>%
+  filter(`Edge Type` %in% desired_edge_types_for_group_interactions)
+
+
+nodes_connected_by_specific_edges <- unique(c(relevant_edges_for_group_interactions$from, relevant_edges_for_group_interactions$to))
+
+
+target_group_node_ids <- nodes_tbl_cleaned %>%
+  filter(id %in% nodes_connected_by_specific_edges) %>%
+  filter(`Node Type` %in% c("MusicalGroup", "Person")) %>%
+  pull(id)
+target_group_node_ids <- unique(c(target_group_node_ids, sailor_id))
+
+# Prepare the final nodes for the visualization
+# addition of differnt color to differentiate Sailor Shift, increasing node size.
+nodes_for_new_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% target_group_node_ids) %>%
+  rowwise() %>%
+  mutate(
+    id = as.character(id),
+    label = name,
+    title = paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      get_html_detail(stage_name, "Stage Name"),
+      get_html_detail(release_date, "Release Date"),
+      get_html_detail(genre, "Genre"),
+      get_html_detail(notable, "Notable")
+    ),
+    group = `Node Type`,
+    size = ifelse(id == sailor_id, 30, 20), # Increase size of sailor shift node
+    color = ifelse(id == sailor_id, "gold", NA) # Only Sailor Shift gets a custom color
+  ) %>%
+  ungroup()
+
+# Prepare the final edges for the visualization
+edges_for_new_vis <- relevant_edges_for_group_interactions %>%
+  filter(from %in% nodes_for_new_vis$id & to %in% nodes_for_new_vis$id) %>%
+  mutate(
+    label = `Edge Type`,
+    title = `Edge Type`,
+    arrows = "to",
+    color = recode(`Edge Type`, !!!all_edge_type_colors, .default = all_edge_type_colors["default"])
+  )
+```
+
+#### Plotting with visNetwork Plot
+
+The code chunk below will be to generate the visNetwork plot
+
+```{r}
+# Create the visNetwork plot
+graph_group_interactions <- visNetwork(nodes = nodes_for_new_vis, edges = edges_for_new_vis,
+                                       main = paste0("Interactions of '", target_name, "' with Musical Groups and Persons")) %>%
+  visNodes(
+    color = list(
+      background = ~color,
+      border = "black",
+      highlight = list(background = "red", border = "darkred"),
+      hover = list(background = "lightgray", border = "darkgray")
+    ),
+    shadow = TRUE,
+    font = list(size = 12),
+    shape = "dot"
+  ) %>%
+  visEdges(
+    color = list(color = ~color, highlight = ~color),
+    smooth = TRUE,
+    shadow = TRUE,
+    font = list(size = 10, align = "middle")
+  ) %>%
+  visOptions(
+    highlightNearest = TRUE,
+    nodesIdSelection = list(enabled = TRUE, selected = sailor_id),
+    selectedBy = "group"
+  )
+
+# Add legends and layout
+graph_group_interactions <- graph_group_interactions %>%
+  visLegend(
+    main = "Node Types",
+    useGroups = TRUE,
+    position = "left",
+    width = 0.15
+  ) %>%
+  visInteraction(
+    navigationButtons = TRUE,
+    keyboard = TRUE
+  ) %>%
+  visIgraphLayout(layout = "layout_with_fr", randomSeed = 42)
+
+# Save and display
+visSave(graph_group_interactions, file = paste0(target_name, "_group_interactions_with_sailor_shift_highlighted.html"))
+
+graph_group_interactions
+```
+
+::: callout-notes
+## Observation
+
+When looking at the edges that are linked to Sailor Shift directly or indirectly through other person or musical group nodes, it can be seen that o a group of person or musical nodes are linked or influenced to Sailor Shift. From here we will dive deeper into the person or groups which are influenced by her.
+:::
+
+### visNetwork graph to explore Sailor Shift Interactions without "Edge Types" and Node Filtering
+
+#### Preparing edges df for visnetwork and filter Sailor Shift
+
+```{r}
+# Prepare edges_igraph_df for filtering and visNetwork
+edges_igraph_df <- edges_tbl %>%
+  select(source, target, `Edge Type`, key) %>%
+  mutate(across(c(source, target), as.character)) %>%
+  rename(from = source, to = target) # Rename to from/to for visNetwork
+```
+
+#### data preparation for visNetwork
+
+We will be building an igraph to filter for the neighbourhood (Other nodes which are linked to Sailor Shift) with the code chunk below:
+
+```{r}
+# Build igraph for neighborhood calculation
+g <- graph_from_data_frame(edges_igraph_df, directed = FALSE)
+```
+
+Next, we limit the "hops" or number of linkages from Sailor Shift so that the graph generated does not include too many nodes linked to Sailor Shift and prevent slow loading with the code chunk below:
+
+```{r}
+# Get N-hop neighborhood for general context
+max_hops_for_context <- 2 
+ego_nodes_indices <- ego(graph = g, order = max_hops_for_context, nodes = sailor_id, mode = "all")[[1]]
+connected_ids_general <- names(ego_nodes_indices)
+```
+
+We will now filter the nodes to exclude those which are not linked to Sailor Shift and only include those in a network with her with the code chunk below:
+
+```{r}
+# Filter nodes for the general context subgraph
+sub_nodes_general <- nodes_tbl %>%
+  filter(as.character(id) %in% connected_ids_general) %>%
+  mutate(
+    id = as.character(id),
+    label = name,
+    stage_name_str = if_else(!is.na(stage_name), paste0("<b>Stage Name:</b> ", stage_name, "<br>"), ""),
+    release_date_str = if_else(!is.na(release_date), paste0("<b>Release Date:</b> ", release_date, "<br>"), ""),
+    # Include genre information for the tooltip
+    genre_str = if_else(!is.na(genre), paste0("<b>Genre:</b> ", genre, "<br>"), ""),
+    notable_str = if_else(!is.na(notable), paste0("<b>Notable:</b> ", notable, "<br>"), ""),
+    title = paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      genre_str, # Add genre to the tooltip
+      stage_name_str,
+      release_date_str,
+      notable_str
+    ),
+    group = `Node Type`,
+    # --- ADD THIS LINE TO CONTROL NODE SIZE ---
+    size = ifelse(id == sailor_id, 50, 15) # Sailor Shift size 50, others 15
+  ) %>%
+  select(-stage_name_str, -release_date_str, -genre_str, -notable_str)
+```
+
+We will now filter the edges and set the edge colors to the global edge colors which was set at the beginning:
+
+```{r}
+# Filter edges for the general context subgraph and add color
+sub_edges_general <- edges_igraph_df %>%
+  filter(from %in% sub_nodes_general$id & to %in% sub_nodes_general$id) %>%
+  mutate(color = all_edge_type_colors[`Edge Type`])
+sub_edges_general$color[is.na(sub_edges_general$color)] <- all_edge_type_colors["default"]
+
+```
+
+### Generating visNetwork graph for exploration
+
+```{r}
+# Visualize General Context Network
+graph_general_context <- visNetwork(nodes = sub_nodes_general, edges = sub_edges_general,
+                                    main = paste0("'", target_name, "' Interaction Network (", max_hops_for_context, "-hops)")) %>%
+  visNodes(shape = "dot", size = 15, label = ~label, title = ~title) %>%
+  visEdges(
+    arrows = "to",
+    label = ~`Edge Type`,
+    font = list(size = 10, align = "middle"),
+    color = list(color = ~color, highlight = ~color)
+  ) %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE, selected = sailor_id))
+
+graph_general_context <- graph_general_context %>%
+  visLegend(
+    main = "Node Types",
+    useGroups = TRUE,
+    position = "left",
+    width = 0.15
+  ) %>%
+  visIgraphLayout(layout = "layout_with_fr", randomSeed = 42) %>%
+  visOptions(selectedBy = "group", 
+             highlightNearest = TRUE, 
+             nodesIdSelection = TRUE)
+
+graph_general_context
+
+```
+
+::: callout-note
+## Observation
+
+From the network graph above, we can see that there are edges connecting directly to Sailor Shift, indicating a direct influence to/from her. However, there are also cases where other nodes are connected by edges connecting to Songs or Albums linked to Sailor Shift, indicating a indirect influence to/from her.
+:::
+
+## Final visualization Tool to Assist Silas's exploration and analysis
+
+From the previous graph, the following improvements will be made: 
+- To improve clarify, we will be generating 2 graphs using: 
+  - Outward directed edges - who Sailor Shift, her songs or albums was influenced by 
+  - Inward directed edges - who Sailor Shift, her songs or albums has influenced. 
+- Songs and albums which are notable will be represented by a star shape instead 
+- Used gradient colors for song and album to help visualize the release_year of the song/ album (Darker for more recent years and lighter for older)
+- Added adjustment to node sizes(other than Sailor Shift) using the degree for each node to represent how connected a certain node is.
+- Due to limitations for visNetwork to display gradient and multiple shapes + colors as legends for groups, a HTML generated legends will be generated and used with the network graphs.
+
+### Who has Sailor Shift Influenced? - Inward Directed Graph
+
+#### Prepatory Code for the visNetwork graph
+```{r}
+# Global Definitions for inward and outward directed graph
+desired_edge_types_to_display <- c(
+  "PerformerOf", "ComposerOf", "ProducerOf", "LyricistOf", "RecordedBy",
+  "InterpolatesFrom", "InStyleOf", "LyricalReferenceTo", "CoverOf",
+  "DirectlySamples", "DistributedBy", "MemberOf"
+)
+
+
+get_html_detail <- function(row, col, label) {
+  value <- row[[col]]
+  if (!is.null(value) && !is.na(value) && as.character(value) != "") {
+    return(paste0("<b>", label, ":</b> ", as.character(value), "<br>"))
+  }
+  return("")
+}
+
+# Simulate missing data/variables for a runnable example
+if (!exists("inferred_genres_for_artistes")) {
+  inferred_genres_for_artistes <- tibble(
+    artiste_id = character(),
+    inferred_genre = character()
+  )
+}
+
+if (!exists("groups_for_visnetwork_combined")) {
+  groups_for_visnetwork_combined <- tibble(
+    id = names(all_node_type_colors),
+    color = all_node_type_colors
+  )
+}
+if (!exists("legend_edge_types_to_display")) {
+  legend_edge_types_to_display <- desired_edge_types_to_display[desired_edge_types_to_display %in% names(all_edge_type_colors)]
+}
+
+
+# Improved release_date parsing and year extraction
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(id = as.character(id)) %>%
+  mutate(id = trimws(id)) %>%
+  mutate(id = tolower(id)) %>%
+  distinct(id, .keep_all = TRUE) %>%
+  mutate(
+    release_date_parsed = suppressWarnings(parse_date_time(release_date, orders = c("ymd", "Ymd", "Y-m-d", "Y/m/d", "Y"))),
+    release_year = ifelse(
+      !is.na(release_date_parsed),
+      year(release_date_parsed),
+      suppressWarnings(as.integer(str_extract(as.character(release_date), "\\d{4}")))
+    )
+  )
+
+if ("Node Type" %in% names(nodes_tbl_cleaned)) {
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(`Node Type` = trimws(`Node Type`))
+} else {
+  warning("Column 'Node Type' not found in nodes_tbl_cleaned. Node typing might be affected.")
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>% mutate(`Node Type` = "Unknown")
+}
+
+if (!"notoriety_date" %in% names(nodes_tbl_cleaned) || all(is.na(nodes_tbl_cleaned$notoriety_date))) {
+  set.seed(456)
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(
+      temp_release_date = ymd(release_date, quiet = TRUE),
+      notoriety_date = if_else(
+        !is.na(temp_release_date) & sample(c(TRUE, FALSE), n(), replace = TRUE, prob = c(0.15, 0.85)),
+        temp_release_date + days(sample(30:365, n(), replace = TRUE)),
+        as.Date(NA)
+      ),
+      notoriety_year = year(notoriety_date)
+    ) %>%
+    select(-temp_release_date)
+} else {
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(notoriety_year = suppressWarnings(as.integer(str_extract(as.character(notoriety_date), "\\d{4}"))))
+}
+
+if (!"notable" %in% names(nodes_tbl_cleaned)) {
+  set.seed(123)
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(notable = sample(c(TRUE, FALSE), n(), replace = TRUE, prob = c(0.2, 0.8)))
+}
+
+if (!"stage_name" %in% names(nodes_tbl_cleaned)) {
+  nodes_tbl_cleaned$stage_name <- NA_character_
+}
+if (!"genre" %in% names(nodes_tbl_cleaned)) {
+  nodes_tbl_cleaned$genre <- NA_character_
+}
+
+# Identify Sailor Shift Node
+target_name <- "Sailor Shift"
+sailor_node <- nodes_tbl_cleaned %>% filter(tolower(name) == tolower(target_name))
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found.", sep=""))
+sailor_id <- sailor_node$id
+
+# Prepare Edges for visNetwork (and ensure IDs are consistent)
+edges_df_for_igraph <- edges_tbl %>%
+  rename(from = source, to = target) %>%
+  mutate(across(c(from, to), as.character)) %>%
+  mutate(across(c(from, to), trimws)) %>%
+  mutate(across(c(from, to), tolower))
+
+valid_node_ids_set <- unique(nodes_tbl_cleaned$id)
+edges_df_for_igraph <- edges_df_for_igraph %>%
+  filter(from %in% valid_node_ids_set & to %in% valid_node_ids_set)
+
+# Songs linked to Sailor Shift (direct edges)
+sailor_songs <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         from == sailor_id | to == sailor_id) %>%
+  mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
+  inner_join(nodes_tbl_cleaned, by = c("target_id" = "id")) %>%
+  filter(`Node Type` == "Song") %>%
+  pull(target_id)
+
+# Albums linked to Sailor Shift (direct edges)
+sailor_albums <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         from == sailor_id | to == sailor_id) %>%
+  mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
+  inner_join(nodes_tbl_cleaned, by = c("target_id" = "id")) %>%
+  filter(`Node Type` == "Album") %>%
+  pull(target_id)
+
+# Songs/albums that link to Sailor Shift's songs or albums
+linked_in_targets <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         to %in% union(sailor_songs, sailor_albums)) %>%
+  pull(from)
+
+# All songs + albums to include
+all_in_targets <- union(union(sailor_songs, sailor_albums), linked_in_targets)
+
+# Contributors to those songs/albums
+contributors_to_targets <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         to %in% all_in_targets)
+
+# Edges to Sailor Shift or her songs/albums
+edges_to_sailor <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         to == sailor_id | to %in% union(sailor_songs, sailor_albums))
+
+# Final inward edge set
+edges_inward_filtered <- bind_rows(edges_to_sailor, contributors_to_targets) %>%
+  distinct(from, to, `Edge Type`, key)
+
+# Final node set
+inward_ids <- unique(c(edges_inward_filtered$from, edges_inward_filtered$to, sailor_id))
+
+# Gradient palettes for songs and albums
+song_palette_func <- colorRampPalette(brewer.pal(9, "YlOrRd"))   # Songs: yellow to red
+album_palette_func <- colorRampPalette(brewer.pal(9, "PuBuGn"))  # Albums: purple to green/blue
+
+min_song_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Song" & id %in% inward_ids) %>%
+  pull(release_year) %>%
+  min(na.rm = TRUE)
+
+max_song_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Song" & id %in% inward_ids) %>%
+  pull(release_year) %>%
+  max(na.rm = TRUE)
+
+min_album_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Album" & id %in% inward_ids) %>%
+  pull(release_year) %>%
+  min(na.rm = TRUE)
+
+max_album_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Album" & id %in% inward_ids) %>%
+  pull(release_year) %>%
+  max(na.rm = TRUE)
+
+nodes_inward_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% inward_ids) %>%
+  left_join(inferred_genres_for_artistes, by = c("id" = "artiste_id")) %>%
+  rowwise() %>%
+  mutate(
+    label = name,
+    title = HTML(paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      get_html_detail(cur_data(), "stage_name", "Stage Name"),
+      get_html_detail(cur_data(), "release_date", "Release Date"),
+      get_html_detail(cur_data(), "genre", "Genre (Node)"),
+      get_html_detail(cur_data(), "inferred_genre", "Genre (Inferred)"),
+      get_html_detail(cur_data(), "notable", "Notable")
+    )),
+    group = `Node Type`,
+    size = case_when(
+      id == sailor_id ~ 60
+      # Other nodes will be set by degree below
+    ),
+    shape = case_when(
+      (`Node Type` %in% c("Song", "Album")) & notable ~ "star",
+      TRUE ~ "dot"
+    ),
+    color.background = case_when(
+      id == sailor_id ~ "gold",
+      `Node Type` == "Song" & !is.na(release_year) ~ {
+        if (min_song_year == max_song_year) {
+          song_palette_func(1)[1]
+        } else {
+          scaled_year <- (release_year - min_song_year) / (max_song_year - min_song_year)
+          scaled_year <- pmax(0, pmin(1, scaled_year))
+          song_palette_func(100)[round(scaled_year * 99) + 1]
+        }
+      },
+      `Node Type` == "Album" & !is.na(release_year) ~ {
+        if (min_album_year == max_album_year) {
+          album_palette_func(1)[1]
+        } else {
+          scaled_year <- (release_year - min_album_year) / (max_album_year - min_album_year)
+          scaled_year <- pmax(0, pmin(1, scaled_year))
+          album_palette_func(100)[round(scaled_year * 99) + 1]
+        }
+      },
+      TRUE ~ unname(all_node_type_colors[as.character(`Node Type`)])
+    ),
+    color.background = ifelse(is.na(color.background), all_node_type_colors["Unknown"], color.background),
+    color.border = "black",
+    color.highlight.background = "red",
+    color.highlight.border = "darkred",
+    color.hover.background = "lightgray",
+    color.hover.border = "darkgray"
+  ) %>%
+  ungroup()
+
+edges_inward_final <- edges_inward_filtered %>%
+  filter(from %in% nodes_inward_vis$id & to %in% nodes_inward_vis$id) %>%
+  group_by(from, to) %>%
+  summarise(
+    aggregated_label = paste(sort(unique(`Edge Type`)), collapse = ", "),
+    color = all_edge_type_colors[first(`Edge Type`)],
+    arrows = "to",
+    .groups = 'drop'
+  ) %>%
+  mutate(
+    label = aggregated_label,
+    title = aggregated_label,
+    color = ifelse(is.na(color), all_edge_type_colors["default"], color)
+  )
+
+# Calculate degree for each node in the subgraph
+degree_df <- edges_inward_final %>%
+  select(from, to) %>%
+  pivot_longer(cols = c(from, to), values_to = "id") %>%
+  count(id, name = "degree")
+
+# Optionally rescale for better visualization
+rescale <- function(x, to = c(15, 150)) {
+  rng <- range(x, na.rm = TRUE)
+  if (diff(rng) == 0) return(rep(mean(to), length(x)))
+  (x - rng[1]) / diff(rng) * diff(to) + to[1]
+}
+degree_df$degree_scaled <- rescale(degree_df$degree)
+
+# Join degree to nodes_inward_vis and update size
+nodes_inward_vis <- nodes_inward_vis %>%
+  left_join(degree_df, by = "id") %>%
+  mutate(size = ifelse(id == sailor_id, 60, degree_scaled))
+```
+
+#### Rendering the Inward network graph
+```{r}
+graph_inward <- visNetwork(nodes_inward_vis, edges_inward_final,
+                           main = paste0(target_name," 'Influenced' Network Graph")) %>%
+  visNodes(
+    color = list(
+      background = ~color.background,
+      border = "black",
+      highlight = list(background = "red", border = "darkred"),
+      hover = list(background = "lightgray", border = "darkgray")
+    ),
+    shadow = TRUE,
+    font = list(size = 12)
+    # Do NOT set size or shape here!
+  ) %>%
+  visEdges(
+    arrows = "to",
+    label = ~label,
+    font = list(size = 10, align = "middle"),
+    title = ~title,
+    color = list(color = ~color, highlight = ~color),
+    smooth = list(enabled = TRUE, type = "continuous", roundness = 0.5),
+    width = 1
+  ) %>%
+  visOptions(
+    highlightNearest = list(enabled = TRUE, degree = 1, hover = TRUE, algorithm = "hierarchical"),
+    nodesIdSelection = list(enabled = TRUE, selected = sailor_id, useLabels = TRUE),
+    selectedBy = "group"
+  ) %>%
+  {
+    vis_obj <- .
+    for (i in 1:nrow(groups_for_visnetwork_combined)) {
+      vis_obj <- vis_obj %>%
+        visGroups(groupname = groups_for_visnetwork_combined$id[i],
+                  color = groups_for_visnetwork_combined$color[i])
+    }
+    vis_obj
+  } %>%
+  visInteraction(navigationButtons = TRUE, keyboard = TRUE) %>%
+  visIgraphLayout(layout = "layout_with_fr", randomSeed = 1234) %>%
+  visPhysics(enabled = FALSE)
+
+graph_inward
+
+```
+
+### Who Influenced Sailor Shift - Outward Directed Graph
+
+#### Prepatory Code for the visNetwork graph
+```{r}
+get_html_detail <- function(value, label) {
+  if (!is.null(value) && !is.na(value) && as.character(value) != "") {
+    return(paste0("<b>", label, ":</b> ", as.character(value), "<br>"))
+  }
+  return("")
+}
+
+
+# --- Simulate missing data/variables for a runnable example ---
+if (!exists("inferred_genres_for_artistes")) {
+  inferred_genres_for_artistes <- tibble(
+    artiste_id = character(),
+    inferred_genre = character()
+  )
+}
+
+if (!exists("groups_for_visnetwork_combined")) {
+  groups_for_visnetwork_combined <- tibble(
+    id = names(all_node_type_colors),
+    color = all_node_type_colors
+  )
+}
+if (!exists("legend_edge_types_to_display")) {
+  legend_edge_types_to_display <- desired_edge_types_to_display[desired_edge_types_to_display %in% names(all_edge_type_colors)]
+}
+
+# --- Improved release_date parsing and year extraction ---
+nodes_tbl_cleaned <- nodes_tbl %>%
+  mutate(id = as.character(id)) %>%
+  mutate(id = trimws(id)) %>%
+  mutate(id = tolower(id)) %>%
+  distinct(id, .keep_all = TRUE) %>%
+  mutate(
+    release_date_parsed = suppressWarnings(parse_date_time(release_date, orders = c("ymd", "Ymd", "Y-m-d", "Y/m/d", "Y"))),
+    release_year = ifelse(
+      !is.na(release_date_parsed),
+      year(release_date_parsed),
+      suppressWarnings(as.integer(str_extract(as.character(release_date), "\\d{4}")))
+    )
+  )
+
+if ("Node Type" %in% names(nodes_tbl_cleaned)) {
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(`Node Type` = trimws(`Node Type`))
+} else {
+  warning("Column 'Node Type' not found in nodes_tbl_cleaned. Node typing might be affected.")
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>% mutate(`Node Type` = "Unknown")
+}
+
+if (!"notoriety_date" %in% names(nodes_tbl_cleaned) || all(is.na(nodes_tbl_cleaned$notoriety_date))) {
+  set.seed(456)
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(
+      temp_release_date = ymd(release_date, quiet = TRUE),
+      notoriety_date = if_else(
+        !is.na(temp_release_date) & sample(c(TRUE, FALSE), n(), replace = TRUE, prob = c(0.15, 0.85)),
+        temp_release_date + days(sample(30:365, n(), replace = TRUE)),
+        as.Date(NA)
+      ),
+      notoriety_year = year(notoriety_date)
+    ) %>%
+    select(-temp_release_date)
+} else {
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(notoriety_year = suppressWarnings(as.integer(str_extract(as.character(notoriety_date), "\\d{4}"))))
+}
+
+if (!"notable" %in% names(nodes_tbl_cleaned)) {
+  set.seed(123)
+  nodes_tbl_cleaned <- nodes_tbl_cleaned %>%
+    mutate(notable = sample(c(TRUE, FALSE), n(), replace = TRUE, prob = c(0.2, 0.8)))
+}
+
+if (!"stage_name" %in% names(nodes_tbl_cleaned)) {
+  nodes_tbl_cleaned$stage_name <- NA_character_
+}
+if (!"genre" %in% names(nodes_tbl_cleaned)) {
+  nodes_tbl_cleaned$genre <- NA_character_
+}
+
+# --- Identify Sailor Shift Node ---
+target_name <- "Sailor Shift"
+sailor_node <- nodes_tbl_cleaned %>% filter(tolower(name) == tolower(target_name))
+if (nrow(sailor_node) == 0) stop(paste("No node named '", target_name, "' found.", sep=""))
+sailor_id <- sailor_node$id
+
+# --- Prepare Edges for visNetwork (and ensure IDs are consistent) ---
+edges_df_for_igraph <- edges_tbl %>%
+  rename(from = source, to = target) %>%
+  mutate(across(c(from, to), as.character)) %>%
+  mutate(across(c(from, to), trimws)) %>%
+  mutate(across(c(from, to), tolower))
+
+valid_node_ids_set <- unique(nodes_tbl_cleaned$id)
+edges_df_for_igraph <- edges_df_for_igraph %>%
+  filter(from %in% valid_node_ids_set & to %in% valid_node_ids_set)
+
+# --- Outward Graph Logic ---
+sailor_songs <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         from == sailor_id | to == sailor_id) %>%
+  mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
+  inner_join(nodes_tbl_cleaned, by = c("target_id" = "id")) %>%
+  filter(`Node Type` == "Song") %>%
+  pull(target_id)
+
+sailor_albums <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         from == sailor_id | to == sailor_id) %>%
+  mutate(target_id = ifelse(from == sailor_id, to, from)) %>%
+  inner_join(nodes_tbl_cleaned, by = c("target_id" = "id")) %>%
+  filter(`Node Type` == "Album") %>%
+  pull(target_id)
+
+linked_out_targets <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         from %in% union(sailor_songs, sailor_albums)) %>%
+  pull(to)
+
+all_out_targets <- union(union(sailor_songs, sailor_albums), linked_out_targets)
+
+contributors_to_targets <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         to %in% all_out_targets)
+
+edges_from_sailor <- edges_df_for_igraph %>%
+  filter(`Edge Type` %in% desired_edge_types_to_display,
+         from == sailor_id | from %in% union(sailor_songs, sailor_albums))
+
+edges_outward_filtered <- bind_rows(edges_from_sailor, contributors_to_targets) %>%
+  distinct(from, to, `Edge Type`, key)
+
+outward_ids <- unique(c(edges_outward_filtered$from, edges_outward_filtered$to, sailor_id))
+
+# --- Node Coloring Logic ---
+min_release_year_for_gradient <- nodes_tbl_cleaned %>%
+  filter(`Node Type` %in% c("Song", "Album") & id %in% outward_ids) %>%
+  pull(release_year) %>%
+  min(na.rm = TRUE)
+
+max_release_year_for_gradient <- nodes_tbl_cleaned %>%
+  filter(`Node Type` %in% c("Song", "Album") & id %in% outward_ids) %>%
+  pull(release_year) %>%
+  max(na.rm = TRUE)
+
+color_palette_func <- colorRampPalette(rev(brewer.pal(9, "Blues"))) # Darker = larger year
+
+song_palette_func <- colorRampPalette(brewer.pal(9, "YlOrRd"))   # Songs: yellow to red
+album_palette_func <- colorRampPalette(brewer.pal(9, "PuBuGn"))  # Albums: purple to green/blue
+
+min_song_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Song" & id %in% outward_ids) %>%
+  pull(release_year) %>%
+  min(na.rm = TRUE)
+
+max_song_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Song" & id %in% outward_ids) %>%
+  pull(release_year) %>%
+  max(na.rm = TRUE)
+
+min_album_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Album" & id %in% outward_ids) %>%
+  pull(release_year) %>%
+  min(na.rm = TRUE)
+
+max_album_year <- nodes_tbl_cleaned %>%
+  filter(`Node Type` == "Album" & id %in% outward_ids) %>%
+  pull(release_year) %>%
+  max(na.rm = TRUE)
+
+nodes_outward_vis <- nodes_tbl_cleaned %>%
+  filter(id %in% outward_ids) %>%
+  left_join(inferred_genres_for_artistes, by = c("id" = "artiste_id")) %>%
+  rowwise() %>%
+  mutate(
+    label = name,
+    title = HTML(paste0(
+      "<b>Name:</b> ", name, "<br>",
+      "<b>Node Type:</b> ", `Node Type`, "<br>",
+      get_html_detail(stage_name, "Stage Name"),
+      get_html_detail(release_date, "Release Date"),
+      get_html_detail(genre, "Genre (Node)"),
+      get_html_detail(inferred_genre, "Genre (Inferred)"),
+      get_html_detail(notable, "Notable")
+    )),
+    group = `Node Type`,
+    size = case_when(
+      id == sailor_id ~ 60,
+      TRUE ~ 15
+    ),
+    shape = case_when(
+      (`Node Type` %in% c("Song", "Album")) & notable ~ "star",
+      TRUE ~ "dot"
+    ),
+    color.background = case_when(
+      id == sailor_id ~ "gold",
+      `Node Type` == "Song" & !is.na(release_year) ~ {
+        if (min_song_year == max_song_year) {
+          song_palette_func(1)[1]
+        } else {
+          scaled_year <- (release_year - min_song_year) / (max_song_year - min_song_year)
+          scaled_year <- pmax(0, pmin(1, scaled_year))
+          song_palette_func(100)[round(scaled_year * 99) + 1]
+        }
+      },
+      `Node Type` == "Album" & !is.na(release_year) ~ {
+        if (min_album_year == max_album_year) {
+          album_palette_func(1)[1]
+        } else {
+          scaled_year <- (release_year - min_album_year) / (max_album_year - min_album_year)
+          scaled_year <- pmax(0, pmin(1, scaled_year))
+          album_palette_func(100)[round(scaled_year * 99) + 1]
+        }
+      },
+      TRUE ~ unname(all_node_type_colors[as.character(`Node Type`)])
+    ),
+    color.background = ifelse(is.na(color.background), all_node_type_colors["Unknown"], color.background),
+    color.border = "black",
+    color.highlight.background = "red",
+    color.highlight.border = "darkred",
+    color.hover.background = "lightgray",
+    color.hover.border = "darkgray"
+  ) %>%
+  ungroup()
+
+edges_outward_final <- edges_outward_filtered %>%
+  filter(from %in% nodes_outward_vis$id & to %in% nodes_outward_vis$id) %>%
+  group_by(from, to) %>%
+  summarise(
+    aggregated_label = paste(sort(unique(`Edge Type`)), collapse = ", "),
+    color = all_edge_type_colors[first(`Edge Type`)],
+    arrows = "to",
+    .groups = 'drop'
+  ) %>%
+  mutate(
+    label = aggregated_label,
+    title = aggregated_label,
+    color = ifelse(is.na(color), all_edge_type_colors["default"], color)
+  )
+
+# --- Calculate degree for each node in the subgraph (without igraph) ---
+degree_df <- edges_outward_final %>%
+  select(from, to) %>%
+  pivot_longer(cols = c(from, to), values_to = "id") %>%
+  count(id, name = "degree")
+
+# Optionally rescale for better visualization (e.g., between 15 and 60)
+rescale <- function(x, to = c(15, 150)) {
+  rng <- range(x, na.rm = TRUE)
+  if (diff(rng) == 0) return(rep(mean(to), length(x)))
+  (x - rng[1]) / diff(rng) * diff(to) + to[1]
+}
+degree_df$degree_scaled <- rescale(degree_df$degree)
+
+# Join degree to nodes_outward_vis and update size
+nodes_outward_vis <- nodes_outward_vis %>%
+  left_join(degree_df, by = "id") %>%
+  mutate(size = ifelse(id == sailor_id, 60, degree_scaled))
+```
+
+#### Rendering the Outward network graph
+```{r}
+graph_outward <- visNetwork(nodes_outward_vis, edges_outward_final,
+                            main = paste0(target_name," 'Influenced By' Network Graph")) %>%
+  visNodes(
+    shadow = TRUE,
+    font = list(size = 12),
+    shape = "dot"
+  ) %>%
+  visEdges(
+    arrows = "to",
+    label = ~label,
+    font = list(size = 10, align = "middle"),
+    title = ~title,
+    color = list(color = ~color, highlight = ~color),
+    smooth = list(enabled = TRUE, type = "continuous", roundness = 0.5),
+    width = 1
+  ) %>%
+  visOptions(
+    highlightNearest = list(enabled = TRUE, degree = 1, hover = TRUE, algorithm = "hierarchical"),
+    nodesIdSelection = list(enabled = TRUE, selected = sailor_id, useLabels = TRUE),
+    selectedBy = "group"
+  ) %>%
+  {
+    vis_obj <- .
+    vis_obj <- vis_obj %>%
+      visGroups(groupname = "Song", color = all_node_type_colors["Song"], shape = "dot") %>%
+      visGroups(groupname = "Album", color = all_node_type_colors["Album"], shape = "dot") %>%
+      visGroups(groupname = "Person", color = all_node_type_colors["Person"], shape = "dot") %>%
+      visGroups(groupname = "MusicalGroup", color = all_node_type_colors["MusicalGroup"], shape = "dot") %>%
+      visGroups(groupname = "RecordLabel", color = all_node_type_colors["RecordLabel"], shape = "dot") %>%
+      visGroups(groupname = "Unknown", color = all_node_type_colors["Unknown"], shape = "dot")
+    vis_obj
+  } %>%
+  # visLegend(main = "Node Types", useGroups = TRUE, position = "left", width = 0.15) %>%
+  # visLegend(
+  #   main = "Edge Types",
+  #   addEdges = data.frame(
+  #     color = all_edge_type_colors[legend_edge_types_to_display],
+  #     label = legend_edge_types_to_display,
+  #     font.align = "top"
+  #   ),
+  #   position = "right",
+  #   width = 0.15
+  # ) %>%
+  visInteraction(navigationButtons = TRUE, keyboard = TRUE) %>%
+  visIgraphLayout(layout = "layout_with_fr", randomSeed = 1234) %>%
+  visPhysics(enabled = FALSE)
+
+graph_outward
+
+```
+
+### Custom Legends using HTML
+
+As the visNetwork's legends is unable to support display gradient and multiple shapes + colors as legends for groups, an alternative to this is to create a custom legends using HTML to be used together with the final generated visNetwork graphs.
+
+This legends will only be used for the nodes as the edges already have labelling provided on the visNetwork graphs themselves.
+
+#### Node Shape and Color Legends
+
+```{r}
+library(htmltools)
+
+custom_legend <- tags$div(
+  style = "margin-bottom:16px;",
+  tags$b("Node Types:"),
+  tags$ul(style = "list-style:none;padding-left:0;",
+    tags$li(
+      tags$span(style = "display:inline-block;width:18px;height:18px;background:#FF5733;border-radius:50%;border:1px solid #888;margin-right:6px;"),
+      "Song - not notable (refer to gradient on the right)"
+    ),
+    tags$li(
+  tags$span(
+    HTML('<svg width="18" height="20" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:6px;">
+      <polygon points="9,1 11,7 17,7 12,11 14,17 9,13.5 4,17 6,11 1,7 7,7"
+        style="fill:#FF5733;stroke:#888;stroke-width:1;" />
+    </svg>')
+  ),
+  "Song - notable (refer to gradient on the right)"
+    ),
+    tags$li(
+      tags$span(style = "display:inline-block;width:18px;height:18px;background:lightblue;border-radius:50%;border:1px solid #888;margin-right:6px;"),
+      "Album - not notable (refer to gradient on the right)"
+    ),
+    tags$li(
+  tags$span(
+    HTML('<svg width="18" height="20" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:6px;">
+      <polygon points="9,1 11,7 17,7 12,11 14,17 9,13.5 4,17 6,11 1,7 7,7"
+        style="fill:lightblue;stroke:#888;stroke-width:1;" />
+    </svg>')
+  ),
+  "Album - notable (refer to gradient on the right)"
+    ),
+    tags$li(
+      tags$span(style = sprintf("display:inline-block;width:18px;height:18px;background:%s;border-radius:50%%;border:1px solid #888;margin-right:6px;", all_node_type_colors["Person"])),
+      "Person"
+    ),
+    tags$li(
+      tags$span(style = sprintf("display:inline-block;width:18px;height:18px;background:%s;border-radius:50%%;border:1px solid #888;margin-right:6px;", all_node_type_colors["MusicalGroup"])),
+      "Musical Group"
+    ),
+    tags$li(
+      tags$span(style = sprintf("display:inline-block;width:18px;height:18px;background:%s;border-radius:50%%;border:1px solid #888;margin-right:6px;", all_node_type_colors["RecordLabel"])),
+      "Record Label"
+    ),
+    tags$li(
+      tags$span(style = sprintf("display:inline-block;width:18px;height:18px;background:%s;border-radius:50%%;border:1px solid #888;margin-right:6px;", all_node_type_colors["Unknown"])),
+      "Unknown"
+    ),
+    tags$li(
+      tags$span(style = "display:inline-block;width:18px;height:18px;background:gold;border-radius:50%;border:1px solid #888;margin-right:6px;"),
+      "Sailor Shift"
+    )
+  )
+)
+```
+
+#### Node Gradient Color Legends for Song/Album release year
+
+```{r}
+# Song gradient legend
+song_gradient_legend <- tags$div(
+  style = "margin-bottom:8px;",
+  tags$b("Song Release Year:"),
+  tags$div(
+    style = sprintf("height:18px;width:200px;background:linear-gradient(to right, %s);border:1px solid #888;margin:2px 0;",
+                    paste(song_palette_func(10), collapse = ","))),
+  tags$span(min_song_year), 
+  tags$span(max_song_year, style = "margin-left:130px;")
+)
+
+# Album gradient legend
+album_gradient_legend <- tags$div(
+  style = "margin-bottom:8px;",
+  tags$b("Album Release Year:"),
+  tags$div(
+    style = sprintf("height:18px;width:200px;background:linear-gradient(to right, %s);border:1px solid #888;margin:2px 0;",
+                    paste(album_palette_func(10), collapse = ","))),
+  tags$span(min_album_year), 
+  tags$span(max_album_year, style = "margin-left:130px;")
+)
+
+```
+
+#### Customizing the Layout for displaying the legends
+
+With the code chunk below, we can combine the custom_legend, song_gradient_legend and album_gradient_legend into a single legend panel that can be rendered together with the visNetwork graphs:
+
+```{r}
+legend_panel <- tags$div(
+  style = "display: flex; justify-content: space-between; align-items: flex-start; width: 100%;",
+  # Left: Node type legend
+  custom_legend,
+  # Right: Gradient legends
+  tags$div(
+    style = "flex: 0 0 auto; min-width: 260px; margin-top: 10px",
+    song_gradient_legend,
+    album_gradient_legend
+  )
+)
+
+legend_panel
+```
+
+### Sailor Shift "influenced" network - Inward directed Graph
+
+```{r}
+browsable(
+  tagList(
+    graph_inward,
+    legend_panel
+  )
+)
+```
+
+::: callout-note
+## Notes
+
+From the
+:::
+
+### Sailor Shift "influenced by" network - Outward directed Graph
+
+```{r}
+browsable(
+  tagList(
+    graph_outward,
+    legend_panel
+  )
+)
+```
+
+::: callout-notes
+## Notes
+
+From the visualization
+:::
+
+## Questions
+
+```         
+-   Can see when she released songs and what these songs any linkage to other songs or people and influence - can determine who influence her most
+
+    -   from current graphs
+
+        -   lyricalreferenceto - drowned harbour
+
+        -   instyleof - the fittle & the fjord
+
+        -   directlysamples and has been a member of - Ivy Echos
+```
+
+-   when did she team up with or collaborate with or write songs for different persons or groups
+
+-   History of collaboration and timestamp with those she has worked with
+
+-   
+
+## Data Cleaning and Initial analysis:
+
+### Show data cleaning and checking
+
+## Who has she been most influenced by over time?
+
+### Graph showing who she take influence from
+
+## Who has she collaborated with and directly or indirectly influenced?
+
+### Graph showing who she influenced
+
+## How has she influenced collaborators of the broader Oceanus Folk Community
