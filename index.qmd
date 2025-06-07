@@ -4,6 +4,14 @@ title: "ISSS608-VAA"
 
 Welcome to my **ISSS608 - Visual Analytics and Applications** homepage. In this website, you will find my coursework prepared for this course and the various exercises done during this course.
 
+## 
+
+::: panel-tabset
+## The Avocado
+
 ![](images/clipboard-1737584593.png){fig-align="center" width="433"}
 
+## The Bell Curve
+
 ![The Bell Curve](bellcurve.jpg){fig-cap-location="center" fig-align="center" width="80%"}
+:::
