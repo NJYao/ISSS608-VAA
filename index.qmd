@@ -13,5 +13,5 @@ Welcome to my **ISSS608 - Visual Analytics and Applications** homepage. In this 
 
 ## The Bell Curve
 
-![The Bell Curve](bellcurve.jpg){fig-cap-location="center" fig-align="center" width="80%"}
+![](bellcurve.jpg){fig-cap-location="center" fig-align="center" width="80%"}
 :::
