@@ -1,0 +1,76 @@
+---
+title: "Take Home Exercise 03"
+date: "Jun 01, 2025"
+date-modified: "last-modified"
+author: "Ng Jin Yao"
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+## **Background**
+
+Following the Mini-Challenge 1 from the VAST Challenge 2025( https://vast-challenge.github.io/2025/MC1.html) and the dataset obtained from this mini-challenge:
+
+A local journalist – Silas Reed – is writing a piece titled Oceanus Folk: Then-and-Now that aims to trace the rise of Sailor and the influence of Oceanus Folk on the rest of the music world. He has collected a large dataset of musical artists, producers, albums, songs, and influences and organized it into a knowledge graph. Your task is to help Silas create beautiful and informative visualizations of this data and uncover new and interesting information about Sailor’s past, her rise to stardom, and her influence.
+
+## Introduction
+
+In this exercise, with the development of a dashboard, the goal is to develop a tool that allows the user to visualize the relationships and influences between artistes, the albums they have released and songs they have performed on others in the music industry. Specifically in Silas's case, it would be to focus on Sailor Shift and the Oceanus Folk Genre and show the influence Sailor Shift has had on the music industry.
+
+With the use of a dashboard, the user would be able to effectively transform the raw data to visualize the relationships and links between different artistes over time. This will help to come up with hypothesizes and/or forecast on the next potential trend or shift in the music industry based on the interactions between current artistes and the data provided on them.
+
+## Methodology
+
+To ensure that the visualization will meet the needs of the user (Silas Reed), we need to ensure that the functions in our dashboard app will help to display and capture the information that the user wants from the data provided. In this case, we are using the MC1 data, which consists of nodes (Persons, MusicalGroups, Songs, Albums) and the edges (PerformerOf, LyricistOf, InStyleOf) showing the interaction between the nodes.
+
+We will first extract the data from the MC1 Dataset, splitting them into the respective nodes and edges data which will undergo data cleaning and checking. After which, we will perform data transformation and modelling which will be used to support the generation of the data visualizations that are going to be used to display on the dashboard.
+
+## Storyboard
+
+The Shiny application, a modules selection will be placed on the left of the page to enable the user to move to each module respectively for each of its different functionalities and module visualizations. The application is split into 3 main modules. For each of these modules, interactive features are introduced to allow the user to filter the data, review the graphs and obtain more information from points of interest on the visualizations. additionally to standardize the layout for all 3 visualizations, the filters of each visualization will be kept on the left of the modules, next to the modules selection.
+
+### Influence Network Graph
+
+With this visualization, the user will be able to view how the different artistes are influenced by one another based on their interactions through a network graph placed on the bottom right corner, which will allow the user to connect one artiste to another through the network graph. To further display the measure of influence of a artiste or musical group, the betweenness of the artiste or musical group is visualised with a bar graph to show the top 10 artiste or musical group by the betweenness measure.
+
+Left side of the visualisation is a column of filters, which will allow the user to select and filter what information he/she wants to see from the graph. Such as the Artiste of interest, the Genre of music, the direction of influence and the number of "hops" of the network graph to control how far the influences should be visualized.
+
+![](images/clipboard-3649196360.png)
+
+The network graph will also have interactivity with it such that the user can select nodes on the visualisation and it will highlight the nodes linked to the selected node. Another interactive feature is hovering the nodes or edges will display the information of the edge type, and for the nodes more detailed information will be displayed similar to the example shown below
+
+::: callout-note
+## Example of Highlight and Hover feature
+
+When the node Melancholy Circuitry is clicked, the nearby nodes and edges linked to it are highlighted as well. Additionally by hovering over the node, information on the node is displayed on it.![](images/clipboard-180618952.png)
+:::
+
+### UI Design 2 (Timeline of Influence)
+
+In this Second module, the visualization will allow the user visualize the influence over time with a composite line and bar chart with the line chart showing the cumulative influences and the bar charts showing the yearly influences. The filters on the right show the filters available for the user for this module which are the Artiste of interest, Genre, and the Year. These filters will allow the user to view the influences based on a combination of the artiste of interest and the genre. Additionally, the years of influence can be adjusted by the slider to adjust the number of years to be displayed on the visualization to better have a overall picture of the trend, or to zoom in on specific time periods.
+
+![](images/clipboard-113915747.png)
+
+::: callout-note
+## Example of Hovering Feature
+
+Interactivity is also introduced in this graph where hovering over certain points of the line graph will display the year and cumulative count of influences as shown in the example below for they year 2030.
+
+![](images/clipboard-1616804441.png)
+:::
+
+### UI Design 3 (Notable Song Counts)
+
+In the 3rd module, a bar chart showing the top 15 person with counts of notable songs will be displayed. Below this bar chart is a table showing the breakdown of the song genres and count of them who were influence by the artiste of interest selected. The filters on the left allow the user to filter based on the artiste of interest, the genre and the year.
+
+This will allow the user to visualize the artistes with notable songs who were influenced by a certain artiste of interest. Such in the case of Sailor Shift, the user can find out who was influence by her and has the most number of notable songs, which could be a indication of said artiste's climb to popularity. The genre filter will enable the user to filter by the genre of music and the year slider filter will also enable the user to visualize the person and the notable song counts within a certain time period.
+
+![](images/clipboard-694240435.png)
