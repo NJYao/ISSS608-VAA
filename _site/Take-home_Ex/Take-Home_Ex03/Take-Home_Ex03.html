@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Ng Jin Yao">
-<meta name="dcterms.date" content="2025-06-01">
+<meta name="dcterms.date" content="2025-06-12">
 
 <title>Take Home Exercise 03 – ISSS608-VAA</title>
 <style>
@@ -21,40 +21,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -177,6 +143,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li>
     <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex02/MC1_release/Take-home_Ex02.html">
  <span class="dropdown-text">Take Home Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html">
+ <span class="dropdown-text">Take Home Exercise 3</span></a>
   </li>  
     </ul>
   </li>
@@ -313,6 +283,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Take Home Exercise 2</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Take Home Exercise 3</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -359,9 +335,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a></li>
   <li><a href="#storyboard" id="toc-storyboard" class="nav-link" data-scroll-target="#storyboard">Storyboard</a>
   <ul class="collapse">
-  <li><a href="#influence-network-graph" id="toc-influence-network-graph" class="nav-link" data-scroll-target="#influence-network-graph">Influence Network Graph</a></li>
-  <li><a href="#ui-design-2-timeline-of-influence" id="toc-ui-design-2-timeline-of-influence" class="nav-link" data-scroll-target="#ui-design-2-timeline-of-influence">UI Design 2 (Timeline of Influence)</a></li>
-  <li><a href="#ui-design-3-notable-song-counts" id="toc-ui-design-3-notable-song-counts" class="nav-link" data-scroll-target="#ui-design-3-notable-song-counts">UI Design 3 (Notable Song Counts)</a></li>
+  <li><a href="#module-1-influence-network-graph" id="toc-module-1-influence-network-graph" class="nav-link" data-scroll-target="#module-1-influence-network-graph">Module 1: Influence Network Graph</a></li>
+  <li><a href="#module-2-timeline-of-influence" id="toc-module-2-timeline-of-influence" class="nav-link" data-scroll-target="#module-2-timeline-of-influence">Module 2: Timeline of Influence</a></li>
+  <li><a href="#module-3-notable-song-counts" id="toc-module-3-notable-song-counts" class="nav-link" data-scroll-target="#module-3-notable-song-counts">Module 3: Notable Song Counts</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -371,7 +347,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Take Home Exercise 03</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<h1 class="title">Take Home Exercise 03</h1>
 </div>
 
 
@@ -388,14 +364,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 1, 2025</p>
+      <p class="date">June 12, 2025</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 9, 2025</p>
+      <p class="date-modified">June 12, 2025</p>
     </div>
   </div>
     
@@ -408,28 +384,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background"><strong>Background</strong></h2>
-<p>Following the Mini-Challenge 1 from the VAST Challenge 2025( https://vast-challenge.github.io/2025/MC1.html) and the dataset obtained from this mini-challenge:</p>
-<p>A local journalist – Silas Reed – is writing a piece titled Oceanus Folk: Then-and-Now that aims to trace the rise of Sailor and the influence of Oceanus Folk on the rest of the music world. He has collected a large dataset of musical artists, producers, albums, songs, and influences and organized it into a knowledge graph. Your task is to help Silas create beautiful and informative visualizations of this data and uncover new and interesting information about Sailor’s past, her rise to stardom, and her influence.</p>
+<p>Following the Mini-Challenge 1 from the VAST Challenge 2025( https://vast-challenge.github.io/2025/MC1.html) and the dataset provided for this mini-challenge:</p>
+<p>A local journalist, Silas Reed, is writing a feature titled <em>Oceanus Folk: Then-and-Now</em> to trace the rise of Sailor and the influence of Oceanus Folk on the global music scene. He has compiled a large dataset of musical artistes, producers, albums, songs, and influence relationships into a knowledge graph. The task is to assist Silas by developing informative and visually compelling data visualizations to uncover insights about Sailor’s background, her ascent to stardom, and her impact on the music industry.</p>
 </section>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>In this exercise, with the development of a dashboard, the goal is to develop a tool that allows the user to visualize the relationships and influences between artistes, the albums they have released and songs they have performed on others in the music industry. Specifically in Silas’s case, it would be to focus on Sailor Shift and the Oceanus Folk Genre and show the influence Sailor Shift has had on the music industry.</p>
-<p>With the use of a dashboard, the user would be able to effectively transform the raw data to visualize the relationships and links between different artistes over time. This will help to come up with hypothesizes and/or forecast on the next potential trend or shift in the music industry based on the interactions between current artistes and the data provided on them.</p>
+<p>In this exercise, we will be proposing the development of an R Shiny dashboard to visualize relationships and influences among artistes, albums, and songs, with a specific focus on Sailor Shift and the Oceanus Folk genre. The dashboard will enable users to explore the evolving influence of Sailor and other artistes through interactive network and time-based visualizations.</p>
+<p>This dashboard tool will help users, such as Silas, to effectively transform the raw relational data to visualize the relationships and links between different artistes. The user will be able to use this tool to hypothesize about trends in the music industry and forecast future developments based on the influence pathways.</p>
 </section>
 <section id="methodology" class="level2">
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
-<p>To ensure that the visualization will meet the needs of the user (Silas Reed), we need to ensure that the functions in our dashboard app will help to display and capture the information that the user wants from the data provided. In this case, we are using the MC1 data, which consists of nodes (Persons, MusicalGroups, Songs, Albums) and the edges (PerformerOf, LyricistOf, InStyleOf) showing the interaction between the nodes.</p>
-<p>We will first extract the data from the MC1 Dataset, splitting them into the respective nodes and edges data which will undergo data cleaning and checking. After which, we will perform data transformation and modelling which will be used to support the generation of the data visualizations that are going to be used to display on the dashboard.</p>
+<p>To meet user needs, the dashboard will include features that highlight relevant interactions within the dataset.</p>
+<p>The MC1 dataset used comprises of nodes (such as Persons, MusicalGroups, Songs, Albums) and the edges (such as PerformerOf, LyricistOf, InStyleOf) showing the interaction between the nodes.</p>
+<p>The development steps will include:</p>
+<ul>
+<li><p>Data Extraction - Separating the MC1 json dataset into the node and edge components</p></li>
+<li><p>Data Cleaning - To ensure consistency and validity of identifiers, timestamps and relationships</p></li>
+<li><p>Transformation and Modelling - Adjusting the data type if needed, processing the data to make it usable for visualizations and interactions</p></li>
+<li><p>Visualizations - Creating modules for the Shiny App that represent the following:</p>
+<ul>
+<li><p>Influence pathways using a network graph</p></li>
+<li><p>Time Based Influence</p></li>
+<li><p>Notable Song Contributions</p></li>
+</ul></li>
+</ul>
 </section>
 <section id="storyboard" class="level2">
 <h2 class="anchored" data-anchor-id="storyboard">Storyboard</h2>
-<p>The Shiny application, a modules selection will be placed on the left of the page to enable the user to move to each module respectively for each of its different functionalities and module visualizations. The application is split into 3 main modules. For each of these modules, interactive features are introduced to allow the user to filter the data, review the graphs and obtain more information from points of interest on the visualizations. additionally to standardize the layout for all 3 visualizations, the filters of each visualization will be kept on the left of the modules, next to the modules selection.</p>
-<section id="influence-network-graph" class="level3">
-<h3 class="anchored" data-anchor-id="influence-network-graph">Influence Network Graph</h3>
-<p>With this visualization, the user will be able to view how the different artistes are influenced by one another based on their interactions through a network graph placed on the bottom right corner, which will allow the user to connect one artiste to another through the network graph. To further display the measure of influence of a artiste or musical group, the betweenness of the artiste or musical group is visualised with a bar graph to show the top 10 artiste or musical group by the betweenness measure.</p>
-<p>Left side of the visualisation is a column of filters, which will allow the user to select and filter what information he/she wants to see from the graph. Such as the Artiste of interest, the Genre of music, the direction of influence and the number of “hops” of the network graph to control how far the influences should be visualized.</p>
+<p>The Shiny application will feature a sidebar layout, with a module selection panel and module specific filters on the left. The selected visualization from each module will be displayed in the main panel. The application will consist of <strong>three primary modules</strong>. For each of these modules, interactive features are introduced to allow the user to filter the data, review the graphs and obtain more information from points of interest from the visualizations.</p>
+<section id="module-1-influence-network-graph" class="level3">
+<h3 class="anchored" data-anchor-id="module-1-influence-network-graph">Module 1: Influence Network Graph</h3>
+<p>With this visualization, the user can view how the different artistes are influenced by one another based on their interactions through a network graph placed on the bottom of the main panel, which will allow the user to connect one artiste to another through the network graph. To further display the measure of influence of a artiste or musical group, the betweenness of the artiste or musical group is visualized with a bar graph to show the top 10 artiste or musical group by the betweenness measure.</p>
+<p>The filters for this module will include the Artiste of interest, the Genre of music, the direction of influence and the number of “hops” of the network graph to control how far the influences should be visualized. This will allow the user to filter what he/she is interested in and filter accordingly for a visualization of the data of interest.</p>
 <p><img src="images/clipboard-3649196360.png" class="img-fluid"></p>
-<p>The network graph will also have interactivity with it such that the user can select nodes on the visualisation and it will highlight the nodes linked to the selected node. Another interactive feature is hovering the nodes or edges will display the information of the edge type, and for the nodes more detailed information will be displayed similar to the example shown below</p>
+<p>The network graph will also have interactivity with it such that the user can select nodes on the visualisation and the nodes linked to the selected node will be highlighted. Another interactive feature is that hovering over the nodes or edges will display the information of the edge type, and for the nodes more detailed information will be displayed similar to the example shown below</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -444,9 +432,11 @@ Example of Highlight and Hover feature
 </div>
 </div>
 </section>
-<section id="ui-design-2-timeline-of-influence" class="level3">
-<h3 class="anchored" data-anchor-id="ui-design-2-timeline-of-influence">UI Design 2 (Timeline of Influence)</h3>
-<p>In this Second module, the visualization will allow the user visualize the influence over time with a composite line and bar chart with the line chart showing the cumulative influences and the bar charts showing the yearly influences. The filters on the right show the filters available for the user for this module which are the Artiste of interest, Genre, and the Year. These filters will allow the user to view the influences based on a combination of the artiste of interest and the genre. Additionally, the years of influence can be adjusted by the slider to adjust the number of years to be displayed on the visualization to better have a overall picture of the trend, or to zoom in on specific time periods.</p>
+<section id="module-2-timeline-of-influence" class="level3">
+<h3 class="anchored" data-anchor-id="module-2-timeline-of-influence">Module 2: Timeline of Influence</h3>
+<p>In this Second module, the influence over time is shown utilizing a composite line and bar chart, with the line chart showing the cumulative influences and the bar charts showing the yearly influences.</p>
+<p>The filters on the right show the filters available for the user for this module which are the Artiste of interest, Genre, and the Year. These filters will allow the user to view the influences based on a combination of the artiste of interest and the genre.</p>
+<p>Additionally, the years of influence can be adjusted by the slider to adjust the number of years to be displayed on the visualization to better have a overall picture of the trend, or to zoom in on specific time periods.</p>
 <p><img src="images/clipboard-113915747.png" class="img-fluid"></p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -463,12 +453,13 @@ Example of Hovering Feature
 </div>
 </div>
 </section>
-<section id="ui-design-3-notable-song-counts" class="level3">
-<h3 class="anchored" data-anchor-id="ui-design-3-notable-song-counts">UI Design 3 (Notable Song Counts)</h3>
+<section id="module-3-notable-song-counts" class="level3">
+<h3 class="anchored" data-anchor-id="module-3-notable-song-counts">Module 3: Notable Song Counts</h3>
+<p>In the 3rd module, a bar chart showing the top 15 most influential artistes based on the number of notable songs attributed to them.</p>
+<p>Below this bar chart is a table showing the breakdown of the song genres and count of them who were influence by the artiste of interest selected.</p>
+<p>The filters for this module are the artiste of interest, the genre and the year. This will allow the user to select the artiste of interest, and we will be able to view who among the most influential artistes were influence by the artiste of influence. Such in the case of Sailor Shift, the user can filter and find out who was influenced by Sailor Shift and has the most number of notable songs, which could be a indication of said artiste’s climb to popularity. The genre filter will enable the user to filter by the genre of music and the year slider filter will also enable the user to visualize the person and the notable song counts within a certain time period.</p>
 <p><img src="images/clipboard-694240435.png" class="img-fluid"></p>
 
-
-<!-- -->
 
 </section>
 </section>
@@ -707,57 +698,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       container: window.document.getElementById('quarto-embedded-source-code-modal')
     });
     clipboardModal.on('success', onCopySuccess);
-  }
-  const viewSource = window.document.getElementById('quarto-view-source') ||
-                     window.document.getElementById('quarto-code-tools-source');
-  if (viewSource) {
-    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
-    viewSource.addEventListener("click", function(e) {
-      if (sourceUrl) {
-        // rstudio viewer pane
-        if (/\bcapabilities=\b/.test(window.location)) {
-          window.open(sourceUrl);
-        } else {
-          window.location.href = sourceUrl;
-        }
-      } else {
-        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
-        modal.show();
-      }
-      return false;
-    });
-  }
-  function toggleCodeHandler(show) {
-    return function(e) {
-      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-      for (let i=0; i<detailsSrc.length; i++) {
-        const details = detailsSrc[i].parentElement;
-        if (show) {
-          details.open = true;
-        } else {
-          details.removeAttribute("open");
-        }
-      }
-      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
-      const fromCls = show ? "hidden" : "unhidden";
-      const toCls = show ? "unhidden" : "hidden";
-      for (let i=0; i<cellCodeDivs.length; i++) {
-        const codeDiv = cellCodeDivs[i];
-        if (codeDiv.classList.contains(fromCls)) {
-          codeDiv.classList.remove(fromCls);
-          codeDiv.classList.add(toCls);
-        } 
-      }
-      return false;
-    }
-  }
-  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
-  if (hideAllCode) {
-    hideAllCode.addEventListener("click", toggleCodeHandler(false));
-  }
-  const showAllCode = window.document.getElementById("quarto-show-all-code");
-  if (showAllCode) {
-    showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
@@ -1088,80 +1028,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Take Home Exercise 03"</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "Jun 01, 2025"</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">date-modified:</span><span class="co"> "last-modified"</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ng Jin Yao"</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span><span class="co"> </span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">  eval: true</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">  freeze: true</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">## **Background**</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>Following the Mini-Challenge 1 from the VAST Challenge 2025( https://vast-challenge.github.io/2025/MC1.html) and the dataset obtained from this mini-challenge:</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>A local journalist – Silas Reed – is writing a piece titled Oceanus Folk: Then-and-Now that aims to trace the rise of Sailor and the influence of Oceanus Folk on the rest of the music world. He has collected a large dataset of musical artists, producers, albums, songs, and influences and organized it into a knowledge graph. Your task is to help Silas create beautiful and informative visualizations of this data and uncover new and interesting information about Sailor’s past, her rise to stardom, and her influence.</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>In this exercise, with the development of a dashboard, the goal is to develop a tool that allows the user to visualize the relationships and influences between artistes, the albums they have released and songs they have performed on others in the music industry. Specifically in Silas's case, it would be to focus on Sailor Shift and the Oceanus Folk Genre and show the influence Sailor Shift has had on the music industry.</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>With the use of a dashboard, the user would be able to effectively transform the raw data to visualize the relationships and links between different artistes over time. This will help to come up with hypothesizes and/or forecast on the next potential trend or shift in the music industry based on the interactions between current artistes and the data provided on them.</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methodology</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>To ensure that the visualization will meet the needs of the user (Silas Reed), we need to ensure that the functions in our dashboard app will help to display and capture the information that the user wants from the data provided. In this case, we are using the MC1 data, which consists of nodes (Persons, MusicalGroups, Songs, Albums) and the edges (PerformerOf, LyricistOf, InStyleOf) showing the interaction between the nodes.</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>We will first extract the data from the MC1 Dataset, splitting them into the respective nodes and edges data which will undergo data cleaning and checking. After which, we will perform data transformation and modelling which will be used to support the generation of the data visualizations that are going to be used to display on the dashboard.</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="fu">## Storyboard</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>The Shiny application, a modules selection will be placed on the left of the page to enable the user to move to each module respectively for each of its different functionalities and module visualizations. The application is split into 3 main modules. For each of these modules, interactive features are introduced to allow the user to filter the data, review the graphs and obtain more information from points of interest on the visualizations. additionally to standardize the layout for all 3 visualizations, the filters of each visualization will be kept on the left of the modules, next to the modules selection.</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">### Influence Network Graph</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>With this visualization, the user will be able to view how the different artistes are influenced by one another based on their interactions through a network graph placed on the bottom right corner, which will allow the user to connect one artiste to another through the network graph. To further display the measure of influence of a artiste or musical group, the betweenness of the artiste or musical group is visualised with a bar graph to show the top 10 artiste or musical group by the betweenness measure.</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>Left side of the visualisation is a column of filters, which will allow the user to select and filter what information he/she wants to see from the graph. Such as the Artiste of interest, the Genre of music, the direction of influence and the number of "hops" of the network graph to control how far the influences should be visualized.</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/clipboard-3649196360.png)</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>The network graph will also have interactivity with it such that the user can select nodes on the visualisation and it will highlight the nodes linked to the selected node. Another interactive feature is hovering the nodes or edges will display the information of the edge type, and for the nodes more detailed information will be displayed similar to the example shown below</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## Example of Highlight and Hover feature</span></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>When the node Melancholy Circuitry is clicked, the nearby nodes and edges linked to it are highlighted as well. Additionally by hovering over the node, information on the node is displayed on it.<span class="al">![](images/clipboard-180618952.png)</span></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu">### UI Design 2 (Timeline of Influence)</span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>In this Second module, the visualization will allow the user visualize the influence over time with a composite line and bar chart with the line chart showing the cumulative influences and the bar charts showing the yearly influences. The filters on the right show the filters available for the user for this module which are the Artiste of interest, Genre, and the Year. These filters will allow the user to view the influences based on a combination of the artiste of interest and the genre. Additionally, the years of influence can be adjusted by the slider to adjust the number of years to be displayed on the visualization to better have a overall picture of the trend, or to zoom in on specific time periods.</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/clipboard-113915747.png)</span></span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="fu">## Example of Hovering Feature</span></span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>Interactivity is also introduced in this graph where hovering over certain points of the line graph will display the year and cumulative count of influences as shown in the example below for they year 2030.</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/clipboard-1616804441.png)</span></span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="fu">### UI Design 3 (Notable Song Counts)</span></span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/clipboard-694240435.png)</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
-</div></div></div></div></div>
+</script>
 </div> <!-- /content -->
 
 
