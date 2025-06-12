@@ -14,7 +14,7 @@ execute:
 
 ## **Background**
 
-Following the Mini-Challenge 1 from the VAST Challenge 2025( https://vast-challenge.github.io/2025/MC1.html) and the dataset provided for this mini-challenge:
+Following the Mini-Challenge 1 from the [VAST Challenge 2025](https://vast-challenge.github.io/2025/MC1.html) and the dataset provided for this mini-challenge:
 
 A local journalist, Silas Reed, is writing a feature titled *Oceanus Folk: Then-and-Now* to trace the rise of Sailor and the influence of Oceanus Folk on the global music scene. He has compiled a large dataset of musical artistes, producers, albums, songs, and influence relationships into a knowledge graph. The task is to assist Silas by developing informative and visually compelling data visualizations to uncover insights about Sailor’s background, her ascent to stardom, and her impact on the music industry.
 
