@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -37,12 +71,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-87cd5c4c137eb48cdca371794a3979d3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-686b15c34b244653d4c55e362e50c6f0.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -335,6 +369,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a></li>
   <li><a href="#storyboard" id="toc-storyboard" class="nav-link" data-scroll-target="#storyboard">Storyboard</a>
   <ul class="collapse">
+  <li><a href="#packages-to-be-used" id="toc-packages-to-be-used" class="nav-link" data-scroll-target="#packages-to-be-used">Packages to be used</a></li>
   <li><a href="#module-1-influence-network-graph" id="toc-module-1-influence-network-graph" class="nav-link" data-scroll-target="#module-1-influence-network-graph">Module 1: Influence Network Graph</a></li>
   <li><a href="#module-2-timeline-of-influence" id="toc-module-2-timeline-of-influence" class="nav-link" data-scroll-target="#module-2-timeline-of-influence">Module 2: Timeline of Influence</a></li>
   <li><a href="#module-3-notable-song-counts" id="toc-module-3-notable-song-counts" class="nav-link" data-scroll-target="#module-3-notable-song-counts">Module 3: Notable Song Counts</a></li>
@@ -371,7 +406,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 12, 2025</p>
+      <p class="date-modified">June 14, 2025</p>
     </div>
   </div>
     
@@ -394,7 +429,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="methodology" class="level2">
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
-<p>To meet user needs, the dashboard will include features that highlight relevant interactions within the dataset.</p>
+<p>To meet user needs, the dashboard will include features that highlight relevant interactions within the dataset that are of interest for the user.</p>
 <p>The MC1 dataset used comprises of nodes (such as Persons, MusicalGroups, Songs, Albums) and the edges (such as PerformerOf, LyricistOf, InStyleOf) showing the interaction between the nodes.</p>
 <p>The development steps will include:</p>
 <ul>
@@ -408,10 +443,18 @@ ul.task-list li input[type="checkbox"] {
 <li><p>Notable Song Contributions</p></li>
 </ul></li>
 </ul>
+<p>The visualizations used in the storyboard will be a combination from the Take Home Exercise 2 submissions from my group (<a href="https://isss608-ay2025-aprilterm.netlify.app/take-home_ex/take-home_ex02/take-home_ex02">Andre</a>, <a href="https://norhendra-isss608.netlify.app/take-home_ex/take-home_ex02/take-home_ex02">Hendra</a> and <a href="https://isss608-blessmebellburve.netlify.app/take-home_ex/take-home_ex02/mc1_release/take-home_ex02">I</a>).</p>
 </section>
 <section id="storyboard" class="level2">
 <h2 class="anchored" data-anchor-id="storyboard">Storyboard</h2>
 <p>The Shiny application will feature a sidebar layout, with a module selection panel and module specific filters on the left. The selected visualization from each module will be displayed in the main panel. The application will consist of <strong>three primary modules</strong>. For each of these modules, interactive features are introduced to allow the user to filter the data, review the graphs and obtain more information from points of interest from the visualizations.</p>
+<section id="packages-to-be-used" class="level3">
+<h3 class="anchored" data-anchor-id="packages-to-be-used">Packages to be used</h3>
+<p>The following are the packages that are used to build the visualizations from each of my group’s submission for Take Home Exercise 2 that is used in the storyboard.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse,jsonlite,tidygraph,ggraph,gganimate, scales, ggplot2, gifski, plotly,dplyr, knitr, visNetwork,igraph,scales,ggimage, tidytext,patchwork, RColorBrewer, magick, gridExtra, SmartEDA, htmltools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 <section id="module-1-influence-network-graph" class="level3">
 <h3 class="anchored" data-anchor-id="module-1-influence-network-graph">Module 1: Influence Network Graph</h3>
 <p>With this visualization, the user can view how the different artistes are influenced by one another based on their interactions through a network graph placed on the bottom of the main panel, which will allow the user to connect one artiste to another through the network graph. To further display the measure of influence of a artiste or musical group, the betweenness of the artiste or musical group is visualized with a bar graph to show the top 10 artiste or musical group by the betweenness measure.</p>
@@ -691,8 +734,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -803,7 +844,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

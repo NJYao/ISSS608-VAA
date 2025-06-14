@@ -26,7 +26,7 @@ This dashboard tool will help users, such as Silas, to effectively transform the
 
 ## Methodology
 
-To meet user needs, the dashboard will include features that highlight relevant interactions within the dataset.
+To meet user needs, the dashboard will include features that highlight relevant interactions within the dataset that are of interest for the user.
 
 The MC1 dataset used comprises of nodes (such as Persons, MusicalGroups, Songs, Albums) and the edges (such as PerformerOf, LyricistOf, InStyleOf) showing the interaction between the nodes.
 
@@ -46,9 +46,19 @@ The development steps will include:
 
     -   Notable Song Contributions
 
+The visualizations used in the storyboard will be a combination from the Take Home Exercise 2 submissions from my group ([Andre](https://isss608-ay2025-aprilterm.netlify.app/take-home_ex/take-home_ex02/take-home_ex02), [Hendra](https://norhendra-isss608.netlify.app/take-home_ex/take-home_ex02/take-home_ex02) and [I](https://isss608-blessmebellburve.netlify.app/take-home_ex/take-home_ex02/mc1_release/take-home_ex02)).
+
 ## Storyboard
 
 The Shiny application will feature a sidebar layout, with a module selection panel and module specific filters on the left. The selected visualization from each module will be displayed in the main panel. The application will consist of **three primary modules**. For each of these modules, interactive features are introduced to allow the user to filter the data, review the graphs and obtain more information from points of interest from the visualizations.
+
+### Packages to be used
+
+The following are the packages that are used to build the visualizations from each of my group's submission for Take Home Exercise 2 that is used in the storyboard.
+
+```{r}
+pacman::p_load(tidyverse,jsonlite,tidygraph,ggraph,gganimate, scales, ggplot2, gifski, plotly,dplyr, knitr, visNetwork,igraph,scales,ggimage, tidytext,patchwork, RColorBrewer, magick, gridExtra, SmartEDA, htmltools)
+```
 
 ### Module 1: Influence Network Graph
 
