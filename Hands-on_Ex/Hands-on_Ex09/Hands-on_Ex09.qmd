@@ -271,22 +271,19 @@ In this section, you will learn how to visualising correlation matrix by using [
 On of the advantage of using *ggcorrmat()* over many other methods to visualise a correlation matrix is it’s ability to provide a comprehensive and yet professional statistical report as shown in the figure below.
 
 ```{r}
-#|fig-width: 12
-#|fig-height: 8
 ggstatsplot::ggcorrmat(
   data = wine, 
   cor.vars = 1:11)
 ```
 
 ```{r}
-#|fig-width: 12
-#|fig-height: 8
 ggstatsplot::ggcorrmat(
   data = wine, 
   cor.vars = 1:11,
   ggcorrplot.args = list(outline.color = "black", 
                          hc.order = TRUE,
-                         tl.cex = 10),
+                         tl.cex = 10,
+                         lab_size = 3), #changes correlation label text size
   title    = "Correlogram for wine dataset",
   subtitle = "Four pairs are no significant at p < 0.05"
 )
@@ -312,6 +309,8 @@ ggplot.component = list(
 Since ggstasplot is an extension of ggplot2, it also supports faceting. However the feature is not available in *ggcorrmat()* but in the [*grouped_ggcorrmat()*](https://indrajeetpatil.github.io/ggstatsplot/reference/grouped_ggcorrmat.html) of **ggstatsplot**.
 
 ```{r}
+#| fig-height: 8
+#| fig-width: 12
 grouped_ggcorrmat(
   data = wine,
   cor.vars = 1:11,
@@ -321,7 +320,8 @@ grouped_ggcorrmat(
   plotgrid.args = list(ncol = 2),
   ggcorrplot.args = list(outline.color = "black", 
                          hc.order = TRUE,
-                         tl.cex = 10),
+                         tl.cex = 10,
+                         lab_size = 3),
   annotation.args = list(
     tag_levels = "a",
     title = "Correlogram for wine dataset",
